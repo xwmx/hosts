@@ -7,7 +7,7 @@ remusage="Usage: `basename $0` -remove host"
 case "$1" in
 -add)
   if [ $# -eq 3 ]; then
-    if [[ -n $(grep "^$3.*[^A-Za-z0-9\.]$2$" hosts) ]]; then
+    if [[ -n $(grep "^$3.*[^A-Za-z0-9\.]$2$" ${path}) ]]; then
       echo "Duplicate address/host combination, ${path} unchanged."
     else
       printf "$3\t$2\n" >> ${path}
