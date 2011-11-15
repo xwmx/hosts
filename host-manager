@@ -1,0 +1,25 @@
+#!/bin/bash
+# Idea and interface taken from https://github.com/macmade/host-manager
+
+path="hosts"
+addusage="Usage: `basename $0` -add host address"
+remusage="Usage: `basename $0` -remove host"
+case "$1" in
+-add)
+  if [ $# -eq 3 ]; then
+    printf "$3\t$2\n" >> ${path}
+  else
+    echo $addusage;
+  fi 
+  ;;
+-remove)
+  if [ $# -eq 2 ]; then
+    sed -i '' -e "s/^[^#].*[^A-Za-z0-9\.]$2$//g" -e "/^$/ d" ${path}
+  else
+    echo $remusage;
+  fi 
+  ;;
+*)
+  echo $addusage;
+  echo $remusage;
+esac
