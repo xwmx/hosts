@@ -1,38 +1,679 @@
-#!/bin/bash
-# Idea and interface taken from https://github.com/macmade/host-manager
+#!/usr/bin/env bash
+#
+#     __               __
+#    / /_  ____  _____/ /______
+#   / __ \/ __ \/ ___/ __/ ___/
+#  / / / / /_/ (__  ) /_(__  )
+# /_/ /_/\____/____/\__/____/
+#
+# A program for managing host file entries.
+#
+# Based on Bash Boilerplate: https://github.com/alphabetum/bash-boilerplate
+#
+# Copyright (c) 2015 William Melody • hi@williammelody.com
 
-path="/etc/hosts"
-addusage="Usage: `basename $0` --add host address"
-remusage="Usage: `basename $0` --remove host"
-listusage="Usage: `basename $0` --list [127.]"
-case "$1" in
---add)
-  if [ $# -eq 3 ]; then
-    if [[ -n $(grep "^$3.*[^A-Za-z0-9\.]$2$" ${path}) ]]; then
-      echo "Duplicate address/host combination, ${path} unchanged."
-    else
-      printf "$3\t$2\n" >> ${path}
+###############################################################################
+# Strict Mode
+###############################################################################
+
+# Treat unset variables and parameters other than the special parameters ‘@’ or
+# ‘*’ as an error when performing parameter expansion. An 'unbound variable'
+# error message will be written to the standard error, and a non-interactive
+# shell will exit.
+#
+# This requires using parameter expansion to test for unset variables.
+#
+# http://www.gnu.org/software/bash/manual/bashref.html#Shell-Parameter-Expansion
+#
+# The two approaches that are probably the most appropriate are:
+#
+# ${parameter:-word}
+#   If parameter is unset or null, the expansion of word is substituted.
+#   Otherwise, the value of parameter is substituted. In other words, "word"
+#   acts as a default value when the value of "$parameter" is blank. If "word"
+#   is not present, then the default is blank (essentially an empty string).
+#
+# ${parameter:?word}
+#   If parameter is null or unset, the expansion of word (or a message to that
+#   effect if word is not present) is written to the standard error and the
+#   shell, if it is not interactive, exits. Otherwise, the value of parameter
+#   is substituted.
+#
+# Examples
+# ========
+#
+# Arrays:
+#
+#   ${some_array[@]:-}              # blank default value
+#   ${some_array[*]:-}              # blank default value
+#   ${some_array[0]:-}              # blank default value
+#   ${some_array[0]:-default_value} # default value: the string 'default_value'
+#
+# Positional variables:
+#
+#   ${1:-alternative} # default value: the string 'alternative'
+#   ${2:-}            # blank default value
+#
+# With an error message:
+#
+#   ${1:?'error message'}  # exit with 'error message' if variable is unbound
+#
+# Short form: set -u
+set -o nounset
+
+# Exit immediately if a pipeline returns non-zero.
+#
+# NOTE: this has issues. When using read -rd '' with a heredoc, the exit
+# status is non-zero, even though there isn't an error, and this setting
+# then causes the script to exit. read -rd '' is synonymous to read -d $'\0',
+# which means read until it finds a NUL byte, but it reaches the EOF (end of
+# heredoc) without finding one and exits with a 1 status. Therefore, when
+# reading from heredocs with set -e, there are three potential solutions:
+#
+# Solution 1. set +e / set -e again:
+#
+# set +e
+# read -rd '' variable <<EOF
+# EOF
+# set -e
+#
+# Solution 2. <<EOF || true:
+#
+# read -rd '' variable <<EOF || true
+# EOF
+#
+# Solution 3. Don't use set -e or set -o errexit at all.
+#
+# More information:
+#
+# https://www.mail-archive.com/bug-bash@gnu.org/msg12170.html
+#
+# Short form: set -e
+set -o errexit
+
+# Return value of a pipeline is the value of the last (rightmost) command to
+# exit with a non-zero status, or zero if all commands in the pipeline exit
+# successfully.
+set -o pipefail
+
+# Set IFS to just newline and tab at the start
+#
+# http://www.dwheeler.com/essays/filenames-in-shell.html
+#
+# $DEFAULT_IFS and $SAFER_IFS
+#
+# $DEFAULT_IFS contains the default $IFS value in case it's needed, such as
+# when expanding an array and you want to separate elements by spaces.
+# $SAFER_IFS contains the preferred settings for the program, and setting it
+# separately makes it easier to switch between the two if needed.
+#
+# NOTE: also printing $DEFAULT_IFS to /dev/null to avoid shellcheck warnings
+# about the variable being unused.
+DEFAULT_IFS="$IFS"; printf "%s" "$DEFAULT_IFS" > /dev/null
+SAFER_IFS="$(printf '\n\t')"
+# Then set $IFS
+IFS="$SAFER_IFS"
+
+###############################################################################
+# Globals
+###############################################################################
+
+_VERSION="0.1.0-alpha"
+
+###############################################################################
+# Debug
+###############################################################################
+
+# _debug()
+#
+# A simple function for executing a specified command if the `_use_debug`
+# variable has been set. The command is expected to print a message and
+# should typically be either `echo`, `printf`, or `cat`.
+#
+# Usage:
+#   _debug printf "Debug info. Variable: %s\n" "$0"
+_debug() {
+  if [[ "${_use_debug:-"0"}" -eq 1 ]]; then
+    # Prefix debug message with "bug (U+1F41B)"
+    printf "🐛  "
+    "$@"
+    printf "――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――\n"
+  fi
+}
+# debug()
+#
+# Print the specified message if the `_use_debug` variable has been set.
+#
+# This is a shortcut for the _debug() function that simply echos the message.
+#
+# Usage:
+#   debug "Debug info. Variable: $0"
+debug() {
+  _debug echo "$@"
+}
+
+###############################################################################
+# Die
+###############################################################################
+
+# _die()
+#
+# A simple function for exiting with an error after executing the specified
+# command. The command is expected to print a message and should typically
+# be either `echo`, `printf`, or `cat`.
+#
+# Usage:
+#   _die printf "Error message. Variable: %s\n" "$0"
+_die() {
+  # Prefix die message with "cross mark (U+274C)", often displayed as a red x.
+  printf "❌  "
+  "$@" 1>&2
+  exit 1
+}
+# die()
+#
+# Exit with an error and print the specified message.
+#
+# This is a shortcut for the _die() function that simply echos the message.
+#
+# Usage:
+#   die "Error message. Variable: $0"
+die() {
+  _die echo "$@"
+}
+
+###############################################################################
+# Options
+###############################################################################
+
+# Get raw options for any commands that expect them.
+raw_options="$*"
+
+# Steps:
+#
+# 1. set expected short options in `optstring` at beginning of the "Normalize
+#    Options" section,
+# 2. parse options in while loop in the "Parse Options" section.
+
+# Normalize Options ###########################################################
+
+# Source:
+#   https://github.com/e36freak/templates/blob/master/options
+
+# The first loop, even though it uses 'optstring', will NOT check if an
+# option that takes a required argument has the argument provided. That must
+# be done within the second loop and case statement, yourself. Its purpose
+# is solely to determine that -oARG is split into -o ARG, and not -o -A -R -G.
+
+# Set short options -----------------------------------------------------------
+
+# option string, for short options.
+#
+# Very much like getopts, expected short options should be appended to the
+# string here. Any option followed by a ':' takes a required argument.
+#
+# In this example, `-x` and `-h` are regular short options, while `o` is
+# assumed to have an argument and will be split if joined with the string,
+# meaning `-oARG` would be split to `-o ARG`.
+optstring=h
+
+# Normalize -------------------------------------------------------------------
+
+# iterate over options, breaking -ab into -a -b and --foo=bar into --foo bar
+# also turns -- into --endopts to avoid issues with things like '-o-', the '-'
+# should not indicate the end of options, but be an invalid option (or the
+# argument to the option, such as wget -qO-)
+unset options
+# while the number of arguments is greater than 0
+while (($#)); do
+  case $1 in
+    # if option is of type -ab
+    -[!-]?*)
+      # loop over each character starting with the second
+      for ((i=1; i<${#1}; i++)); do
+        # extract 1 character from position 'i'
+        c=${1:i:1}
+        # add current char to options
+        options+=("-$c")
+
+        # if option takes a required argument, and it's not the last char
+        # make the rest of the string its argument
+        if [[ $optstring = *"$c:"* && ${1:i+1} ]]; then
+          options+=("${1:i+1}")
+          break
+        fi
+      done
+      ;;
+    # if option is of type --foo=bar, split on first '='
+    --?*=*) options+=("${1%%=*}" "${1#*=}");;
+    # end of options, stop breaking them up
+    --)
+      options+=(--endopts)
+      shift
+      options+=("$@")
+      break
+      ;;
+    # otherwise, nothing special
+    *) options+=("$1");;
+  esac
+
+  shift
+done
+# set new positional parameters to altered options. Set default to blank.
+set -- "${options[@]:-}"
+unset options
+
+# Parse Options ###############################################################
+
+# Initialize command_argv array
+#
+# This array contains all of the arguments that get passed along to each
+# command. This is essentially the same as the program arguments, minus those
+# that have been filtered out in the program option parsing loop. This array
+# is initialized with $0, which is the program's name.
+command_argv=("$0")
+# Initialize $cmd and $_use_debug, which can continue to be blank depending on
+# what the program needs.
+cmd=""
+_use_debug=0
+
+while [ $# -gt 0 ]; do
+  opt="$1"
+  shift
+  case "$opt" in
+    -h|--help)
+      cmd="help"
+      ;;
+    --version)
+      cmd="version"
+      ;;
+    --debug)
+      _use_debug=1
+      ;;
+    *)
+      # The first non-option argument is assumed to be the command name.
+      # All subsequent arguments are added to $command_arguments.
+      if [[ -n $cmd ]]; then
+        command_argv+=("$opt")
+      else
+        cmd="$opt"
+      fi
+      ;;
+  esac
+done
+
+# Set $command_parameters to $command_argv, minus the initial element, $0. This
+# provides an array that is equivalent to $* and $@ within each command
+# function, though the array is zero-indexed, which could lead to confusion.
+command_parameters=("${command_argv[@]:1}")
+
+_debug printf "\$cmd: %s\n" "$cmd"
+_debug printf "\$raw_options (one per line):\n%s\n" "$raw_options"
+_debug printf "\$command_argv: %s\n" "${command_argv[*]}"
+_debug printf "\$command_parameters: %s\n" "${command_parameters[*]:-}"
+
+###############################################################################
+# Environment
+###############################################################################
+
+# $_me
+#
+# Set to the program's basename.
+_me=$(basename "$0")
+
+_debug printf "\$_me: %s\n" "$_me"
+
+###############################################################################
+# Load Commands
+###############################################################################
+
+# Initialize defined_commands array.
+defined_commands=()
+
+# _load_commands()
+#
+# Loads all of the commands sourced in the environment.
+#
+# Usage:
+#   _load_commands
+_load_commands() {
+
+  _debug printf "_load_commands(): entering...\n"
+  _debug printf "_load_commands() declare -F:\n%s\n" "$(declare -F)"
+
+  # declare is a bash built-in shell function that, when called with the '-F'
+  # option, displays all of the functions with the format
+  # `declare -f function_name`. These are then assigned as elements in the
+  # $function_list array.
+  local function_list=($(declare -F))
+
+  for c in "${function_list[@]}"
+  do
+    # Each element has the format `declare -f function_name`, so set the name
+    # to only the 'function_name' part of the string.
+    local function_name=$(printf "%s" "$c" | awk '{ print $3 }')
+
+    _debug printf "_load_commands() \$function_name: %s\n" "$function_name"
+
+    # Add the function name to the $defined_commands array unless it starts
+    # with an underscore or is one of the desc(), debug(), or die() functions,
+    # since these are treated as having 'private' visibility.
+    if ! ( [[ "$function_name" =~ ^_(.*)  ]] || \
+           [[ "$function_name" == "desc"  ]] || \
+           [[ "$function_name" == "debug" ]] || \
+           [[ "$function_name" == "die"   ]]
+    ); then
+      defined_commands+=("$function_name")
     fi
+  done
+
+  _debug printf \
+    "commands() \$defined_commands:\n%s\n" \
+    "${defined_commands[*]:-}"
+}
+
+###############################################################################
+# Main
+###############################################################################
+
+# _main()
+#
+# Usage:
+#   _main
+#
+# The primary function for starting the program.
+#
+# NOTE: must be called at end of program after all commands have been defined.
+_main() {
+  _debug printf "main(): entering...\n"
+  _debug printf "main() \$cmd (upon entering): %s\n" "$cmd"
+
+  # If $cmd is blank, then set to help
+  if [[ -z $cmd ]]; then
+    cmd="help"
+  fi
+
+  # Load all of the commands.
+  _load_commands
+
+  # If the command is defined, run it, otherwise return an error.
+  if ( _contains "$cmd" "${defined_commands[*]:-}" ); then
+    # Pass all comment arguments to the program except for the first ($0).
+    $cmd "${command_parameters[@]:-}"
   else
-    echo $addusage;
-  fi 
-  ;;
---remove)
-  if [ $# -eq 2 ]; then
-    sed -i '' "s/^[^#].*[^A-Za-z0-9\.]$2$//g;/^$/d" ${path}
+    _die printf "Unknown command: %s\n" "$cmd"
+  fi
+}
+
+###############################################################################
+# Utility Functions
+###############################################################################
+
+# _function_exists()
+#
+# Takes a potential function name as an argument and returns whether a function
+# exists with that name.
+_function_exists() {
+  [ "$(type -t "$1")" == 'function' ]
+}
+
+# _contains()
+#
+# Takes an item and a list and determines whether the list contains the item.
+#
+# Usage:
+#   _contains "$item" "${list[*]}"
+_contains() {
+  local test_list=(${*:2})
+  for _test_element in "${test_list[@]:-}"
+  do
+    _debug printf "_contains() \$_test_element: %s\n" "$_test_element"
+    if [[ "$_test_element" == "$1" ]]; then
+      _debug printf "_contains() match: %s\n" "$1"
+      return 0
+    fi
+  done
+  return 1
+}
+
+# _command_argv_includes()
+#
+# Takes a possible command argument and determines whether it is included in
+# the command argument list.
+#
+# This is a shortcut for simple cases where a command wants to check for the
+# presence of options quickly without parsing the options again.
+#
+# Usage:
+#   _command_argv_includes "an_argument"
+_command_argv_includes() {
+  _contains "$1" "${command_argv[*]}"
+}
+
+###############################################################################
+# desc
+###############################################################################
+
+# desc()
+#
+# Usage:
+#   desc command "description"
+#
+# Create a description for a specified command name. The command description
+# text can be passed as the second argument or as standard input.
+#
+# To make the description text available to other functions, desc() assigns the
+# text to a variable with the format $_desc_function_name
+#
+# NOTE:
+#
+# The `read` form of assignment is used for a balance of ease of
+# implementation and simplicity. There is an alternative assignment form
+# that could be used here:
+#
+# var="$(cat <<'EOM'
+# some message
+# EOM
+# )
+#
+# However, this form appears to require trailing space after backslases to
+# preserve newlines, which is unexpected. Using `read` simply requires
+# escaping backslashes, which is more common.
+desc() {
+  set +e
+  [[ -z $1 ]] && _die printf "desc: No command name specified.\n"
+  if [[ -n ${2:-} ]]; then
+    read -d '' "_desc_$1" <<EOM
+$2
+EOM
+    _debug printf "desc() set with argument: _desc_%s\n" "$1"
   else
-    echo $remusage;
-  fi 
-  ;;
---list)
-  if [ $# -eq 2 ]; then
-    grep "^$2" ${path}
-  else 
-	cat ${path} | grep -v "^#"
-  fi 
-  ;;
-*)
-  echo $addusage;
-  echo $remusage;
-  echo $listusage;
-esac
+    read -d '' "_desc_$1"
+    _debug printf "desc() set with pipe: _desc_%s\n" "$1"
+  fi
+  set -e
+}
+
+# _print_desc()
+#
+# Usage:
+#   _print_desc <command>
+#
+# Prints the description for a given command, provided the description has been
+# set using the desc() function.
+_print_desc() {
+  local var="_desc_$1"
+  if [[ -n ${!var:-} ]]; then
+    printf "%s\n" "${!var}"
+  else
+   printf "No additional information for \`%s\`\n" "$1"
+  fi
+}
+
+###############################################################################
+# Default Commands
+###############################################################################
+
+# Version #####################################################################
+
+desc version <<EOM
+Usage:
+  $_me ( version | --version )
+
+Description:
+  Display the current program version.
+
+  To save you the trouble, the current version is $_VERSION
+EOM
+version() {
+  printf "%s\n" "$_VERSION"
+}
+
+# Help ########################################################################
+
+desc help <<EOM
+Usage:
+  $_me help [<command>]
+
+Description:
+  Display help information for $_me or a specified command.
+EOM
+help() {
+  if [[ ${#command_argv[@]} = 1 ]]; then
+    cat <<EOM
+    __               __
+   / /_  ____  _____/ /______
+  / __ \/ __ \/ ___/ __/ ___/
+ / / / / /_/ (__  ) /_(__  )
+/_/ /_/\____/____/\__/____/
+
+A program for managing host file entries.
+
+Version: $_VERSION
+
+Usage:
+  $_me command [--command-options] [<arguments>]
+  $_me -h | --help
+  $_me --version
+
+Options:
+  -h --help  Display this help information.
+  --version  Display version information.
+
+Help:
+  $_me help [<command>]
+
+$(commands)
+EOM
+  else
+    _print_desc "$1"
+  fi
+}
+
+# Command List ################################################################
+
+desc commands <<EOM
+Usage:
+  $_me commands [--raw]
+
+Options:
+  --raw  Display the command list without formatting.
+
+Description:
+  Display the list of available commands.
+EOM
+commands() {
+  if _command_argv_includes "--raw"; then
+    printf "%s\n" "${defined_commands[@]}"
+  else
+    printf "Available commands:\n"
+    printf "  %s\n" "${defined_commands[@]}"
+  fi
+}
+
+###############################################################################
+# Commands
+# ========.....................................................................
+#
+# Example command group structure:
+#
+# desc example ""   - Optional. A short description for the command.
+# example() { : }   - The command called by the user.
+#
+#
+# desc example <<EOM
+#   Usage:
+#     $_me example
+#
+#   Description:
+#     Print "Hello, World!"
+#
+#     For usage formatting conventions see:
+#     - http://docopt.org/
+#     - http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html
+# EOM
+# example() {
+#   printf "Hello, World!\n"
+# }
+#
+###############################################################################
+
+# ------------------------------------------------------------------------- add
+
+desc add <<EOM
+Usage: $_me add ip hostname
+EOM
+add() {
+  local ip=${1:-}
+  local hostname=${2:-}
+  if [[ -z ${ip} ]]; then
+    $_me help add
+    exit 1
+  elif [[ -z ${hostname} ]]; then
+    printf "Please include a hostname\n"
+    $_me help add
+    exit 1
+  elif grep "^${ip}.*[^A-Za-z0-9\.]${hostname}$" /etc/hosts ; then
+    _die printf "Duplicate address/host combination, /etc/hosts unchanged.\n"
+  else
+    printf "%s\t%s\n" "${ip}" "${hostname}" >> /etc/hosts
+  fi
+}
+
+# ------------------------------------------------------------------------ list
+
+desc list <<EOM
+Usage: $_me list [127.]
+EOM
+list() {
+  if [[ -n "$1" ]]; then
+    grep "^$1" /etc/hosts
+  else
+    # NOTE: use separate expressions since using a | for the or results in
+    # inconsistent behavior.
+    grep -v -e '^$' -e '^\s*\#' /etc/hosts
+  fi
+}
+
+# ---------------------------------------------------------------------- remove
+
+desc remove <<EOM
+Usage: $_me remove host
+EOM
+remove() {
+  local hostname=${1:-}
+  if [[ -z $hostname ]]; then
+    $_me help remove
+    exit 1
+  else
+    sed -i "s/^[^#].*[^A-Za-z0-9\.]${hostname}$//g;/^$/d" /etc/hosts
+  fi
+}
+
+###############################################################################
+# Run Program
+###############################################################################
+
+# Calling the _main function after everything has been defined.
+_main
+
