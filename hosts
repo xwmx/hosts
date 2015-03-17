@@ -632,7 +632,7 @@ commands() {
 # ------------------------------------------------------------------------- add
 
 desc add <<EOM
-Usage: $_me add ip hostname
+Usage: $_me add <ip> <hostname>
 EOM
 add() {
   local ip=${1:-}
@@ -669,7 +669,7 @@ list() {
 # ---------------------------------------------------------------------- remove
 
 desc remove <<EOM
-Usage: $_me remove host
+Usage: $_me remove <hostname>
 EOM
 remove() {
   local hostname=${1:-}
