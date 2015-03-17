@@ -9,6 +9,7 @@ A program for managing host file entries.
       hosts remove <hostname>
       hosts list [127.]
       hosts edit
+      hosts file
 
 ## Acknowledgements
 
