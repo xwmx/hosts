@@ -637,7 +637,11 @@ commands() {
 # ------------------------------------------------------------------------- add
 
 desc add <<EOM
-Usage: $_me add <ip> <hostname>
+Usage:
+  $_me add <ip> <hostname>
+
+Description:
+  Add a given IP address and hostname pair.
 EOM
 add() {
   local ip=${1:-}
@@ -659,7 +663,12 @@ add() {
 # ------------------------------------------------------------------------ list
 
 desc list <<EOM
-Usage: $_me list [127.]
+Usage:
+  $_me list [127.]
+
+Description:
+  List the existing IP / hostname pairs. When provided with the beginning of
+  an IP address, lists the pairs with matching IP addresses.
 EOM
 list() {
   if [[ -n "$1" ]]; then
@@ -674,7 +683,11 @@ list() {
 # ------------------------------------------------------------------------ edit
 
 desc edit <<EOM
-Usage: $_me edit
+Usage:
+  $_me edit
+
+Description:
+  Open the /etc/hosts file in your \$EDITOR.
 EOM
 edit() {
   if [[ -z "$EDITOR" ]]; then
@@ -687,7 +700,11 @@ edit() {
 # ------------------------------------------------------------------------ file
 
 desc file <<EOM
-Usage: $_me file
+Usage:
+  $_me file
+
+Description:
+  Print the entire contents of the /etc/hosts file.
 EOM
 file() {
   cat /etc/hosts
@@ -696,7 +713,11 @@ file() {
 # ---------------------------------------------------------------------- remove
 
 desc remove <<EOM
-Usage: $_me remove <hostname>
+Usage:
+  $_me remove <hostname>
+
+Description:
+  Remove all IP / hostname pairs for a given hostname.
 EOM
 remove() {
   local hostname=${1:-}
