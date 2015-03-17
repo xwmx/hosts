@@ -10,7 +10,18 @@
 #
 # Based on Bash Boilerplate: https://github.com/alphabetum/bash-boilerplate
 #
-# Copyright (c) 2015 William Melody • hi@williammelody.com
+# Based on prior work by:
+#
+# - https://github.com/nddrylliog
+#   - https://gist.github.com/nddrylliog/1368532
+# - https://github.com/dfeyer
+#   - https://gist.github.com/dfeyer/1369760
+#
+# Original idea and interface (since changed) via:
+#
+# https://github.com/macmade/host-manager
+#
+# Updates copyright (c) 2015 William Melody • hi@williammelody.com
 
 ###############################################################################
 # Strict Mode
