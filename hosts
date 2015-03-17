@@ -567,6 +567,7 @@ Usage:
   $_me remove <hostname>
   $_me list [127.]
   $_me edit
+  $_me file
   $_me command [--command-options] [<arguments>]
   $_me -h | --help
   $_me --version
@@ -681,6 +682,15 @@ edit() {
   else
     "$EDITOR" /etc/hosts
   fi
+}
+
+# ------------------------------------------------------------------------ file
+
+desc file <<EOM
+Usage: $_me file
+EOM
+file() {
+  cat /etc/hosts
 }
 
 # ---------------------------------------------------------------------- remove
