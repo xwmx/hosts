@@ -666,6 +666,19 @@ list() {
   fi
 }
 
+# ------------------------------------------------------------------------ edit
+
+desc edit <<EOM
+Usage: $_me edit
+EOM
+edit() {
+  if [[ -z "$EDITOR" ]]; then
+    _die printf "\$EDITOR not set.\n"
+  else
+    "$EDITOR" /etc/hosts
+  fi
+}
+
 # ---------------------------------------------------------------------- remove
 
 desc remove <<EOM

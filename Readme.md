@@ -8,6 +8,7 @@ A program for managing host file entries.
       hosts add <ip> <hostname>
       hosts remove <hostname>
       hosts list [127.]
+      hosts edit
 
 ## Acknowledgements
 
