@@ -563,6 +563,10 @@ A program for managing host file entries.
 Version: $_VERSION
 
 Usage:
+  $_me add <ip> <hostname>
+  $_me remove <hostname>
+  $_me list [127.]
+  $_me edit
   $_me command [--command-options] [<arguments>]
   $_me -h | --help
   $_me --version
