@@ -1,6 +1,6 @@
 # Hosts
 
-A program for managing host file entries.
+A command line program with shortcuts for managing hosts file entries.
 
 ## Usage
 
@@ -10,6 +10,14 @@ A program for managing host file entries.
       hosts list [127.]
       hosts edit
       hosts file
+
+For full usage, run:
+
+    hosts help
+
+or
+
+    hosts help <command name>
 
 ## Acknowledgements
 
