@@ -690,7 +690,7 @@ remove() {
     $_me help remove
     exit 1
   else
-    sed -i "s/^[^#].*[^A-Za-z0-9\.]${hostname}$//g;/^$/d" /etc/hosts
+    sed -i "/^[^#].*[^A-Za-z0-9\.]${hostname}$/d" /etc/hosts
   fi
 }
 
