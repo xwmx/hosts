@@ -702,7 +702,7 @@ Description:
 EOM
 list() {
   if [[ -n "$1" ]]; then
-    grep "^$1" /etc/hosts
+    grep "^[^#]*$1" /etc/hosts
   else
     # NOTE: use separate expressions since using a | for the or results in
     # inconsistent behavior.

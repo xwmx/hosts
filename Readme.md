@@ -7,7 +7,7 @@ A command line program with shortcuts for managing hosts file entries.
     Usage:
       hosts add <ip> <hostname>
       hosts remove <hostname>
-      hosts list [127.]
+      hosts list [<search string>]
       hosts edit
       hosts file
 
