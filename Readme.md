@@ -8,6 +8,7 @@ A command line program with shortcuts for managing hosts file entries.
       hosts add <ip> <hostname>
       hosts remove <hostname>
       hosts list [<search string>]
+      hosts show ( <ip> | <hostname> | <search string> )
       hosts edit
       hosts file
 

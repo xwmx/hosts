@@ -694,15 +694,15 @@ file() {
 
 desc list <<EOM
 Usage:
-  $_me list [127.]
+  $_me list [<search string>]
 
 Description:
-  List the existing IP / hostname pairs. When provided with the beginning of
-  an IP address, lists the pairs with matching IP addresses.
+  List the existing IP / hostname pairs. When provided with a seach string, all
+  matching lines will be printed.
 EOM
 list() {
   if [[ -n "$1" ]]; then
-    grep "^[^#]*$1" /etc/hosts
+    $_me show "$1"
   else
     # NOTE: use separate expressions since using a | for the or results in
     # inconsistent behavior.
@@ -726,6 +726,24 @@ remove() {
     exit 1
   else
     sed -i "/^[^#].*[^A-Za-z0-9\.]${hostname}$/d" /etc/hosts
+  fi
+}
+
+# ------------------------------------------------------------------------ show
+
+desc show <<EOM
+Usage:
+  $_me show ( <ip> | <hostname> | <search string> )
+
+Description:
+  Print entries matching a given IP address, hostname, or search string.
+EOM
+show() {
+  if [[ -n "$1" ]]; then
+    grep "^[^#]*$1" /etc/hosts
+  else
+    $_me help show
+    exit 1
   fi
 }
 
