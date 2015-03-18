@@ -660,26 +660,6 @@ add() {
   fi
 }
 
-# ------------------------------------------------------------------------ list
-
-desc list <<EOM
-Usage:
-  $_me list [127.]
-
-Description:
-  List the existing IP / hostname pairs. When provided with the beginning of
-  an IP address, lists the pairs with matching IP addresses.
-EOM
-list() {
-  if [[ -n "$1" ]]; then
-    grep "^$1" /etc/hosts
-  else
-    # NOTE: use separate expressions since using a | for the or results in
-    # inconsistent behavior.
-    grep -v -e '^$' -e '^\s*\#' /etc/hosts
-  fi
-}
-
 # ------------------------------------------------------------------------ edit
 
 desc edit <<EOM
@@ -708,6 +688,26 @@ Description:
 EOM
 file() {
   cat /etc/hosts
+}
+
+# ------------------------------------------------------------------------ list
+
+desc list <<EOM
+Usage:
+  $_me list [127.]
+
+Description:
+  List the existing IP / hostname pairs. When provided with the beginning of
+  an IP address, lists the pairs with matching IP addresses.
+EOM
+list() {
+  if [[ -n "$1" ]]; then
+    grep "^$1" /etc/hosts
+  else
+    # NOTE: use separate expressions since using a | for the or results in
+    # inconsistent behavior.
+    grep -v -e '^$' -e '^\s*\#' /etc/hosts
+  fi
 }
 
 # ---------------------------------------------------------------------- remove
