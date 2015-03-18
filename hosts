@@ -660,6 +660,30 @@ add() {
   fi
 }
 
+# --------------------------------------------------------------------- disable
+
+desc disable <<EOM
+Usage:
+  $_me disable (<ip>|<hostname>|<search term>)
+
+Description:
+  Disable one or more records based on a given ip address, hostname, or
+  search term.
+EOM
+disable() {
+  local search_term=$1
+  if [[ -z "${search_term}" ]]; then
+    $_me help disable
+    exit 1
+  else
+
+    targets=$(sed -n "s/^\([^#]*${search_term}.*\)$/\1/p" /etc/hosts)
+    printf "Disabling:\n%s\n" "${targets}"
+
+    sed -i "s/^\([^#]*${search_term}.*\)$/\#disabled: \1/g" /etc/hosts
+  fi
+}
+
 # ------------------------------------------------------------------------ edit
 
 desc edit <<EOM
@@ -674,6 +698,31 @@ edit() {
     _die printf "\$EDITOR not set.\n"
   else
     "$EDITOR" /etc/hosts
+  fi
+}
+
+# ---------------------------------------------------------------------- enable
+
+desc enable <<EOM
+Usage:
+  $_me enable (<ip>|<hostname>|<search term>)
+
+Description:
+  Enable one or more disabled records based on a given ip address, hostname,
+  or search term.
+EOM
+enable() {
+  local search_term=$1
+  if [[ -z "${search_term}" ]]; then
+    $_me help enable
+    exit 1
+  else
+    target_regex="s/^\#disabled: \(.*${search_term}.*\)$/\1/"
+
+    targets=$(sed -n "${target_regex}p" /etc/hosts)
+    printf "Enabling:\n%s\n" "${targets}"
+
+    sed -i "${target_regex}g" /etc/hosts
   fi
 }
 

@@ -9,6 +9,8 @@ A command line program with shortcuts for managing hosts file entries.
       hosts remove <hostname>
       hosts list [<search string>]
       hosts show ( <ip> | <hostname> | <search string> )
+      hosts disable ( <ip> | <hostname> | <search term> )
+      hosts enable ( <ip> | <hostname> | <search term> )
       hosts edit
       hosts file
 
