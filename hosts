@@ -693,7 +693,7 @@ add() {
 
 desc disable <<EOM
 Usage:
-  $_me disable (<ip>|<hostname>|<search string>)
+  $_me disable ( <ip> | <hostname> | <search string> )
 
 Description:
   Disable one or more records based on a given ip address, hostname, or
@@ -736,7 +736,7 @@ edit() {
 
 desc enable <<EOM
 Usage:
-  $_me enable (<ip>|<hostname>|<search string>)
+  $_me enable ( <ip> | <hostname> | <search string> )
 
 Description:
   Enable one or more disabled records based on a given ip address, hostname,
