@@ -809,19 +809,43 @@ list() {
 
 desc remove <<EOM
 Usage:
-  $_me remove <hostname>
+  $_me remove ( <ip> | <hostname> | <search term> ) [--force]
+
+Options:
+  --force  Skip the confirmation prompt.
 
 Description:
-  Remove all IP / hostname pairs for a given hostname.
+  Remove one or more disabled records based on a given IP address, hostname,
+  or search term.
 EOM
 remove() {
   _verify_write_permissions
-  local hostname=${1:-}
-  if [[ -z $hostname ]]; then
+  local search_string=${1:-}
+  if [[ -z $search_string ]]; then
     $_me help remove
     exit 1
   else
-    sed -i "/^[^#].*[^A-Za-z0-9\.]${hostname}$/d" "${HOSTS_PATH}"
+    local target_records=$(sed -n "s/^\(.*${search_string}.*\)$/\1/p" "${HOSTS_PATH}")
+    if ! _command_argv_includes "--force"; then
+      printf "Removing the following records:\n%s\n" "$target_records"
+      while true; do
+        read -p "Are you sure you want to proceed? [y/n] " yn
+        case $yn in
+          [Yy]* )
+            break
+            ;;
+          [Nn]* )
+            printf "Exiting...\n"
+            exit 0
+            ;;
+          * )
+            printf "Please answer yes or no.\n"
+            ;;
+        esac
+      done
+    fi
+    sed -i "/^.*${search_string}.*$/d" "${HOSTS_PATH}"
+    printf "Removed:\n%s\n" "${target_records}"
   fi
 }
 

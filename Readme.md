@@ -5,8 +5,9 @@ A command line program with shortcuts for managing hosts file entries.
 ## Usage
 
     Usage:
+      hosts
       hosts add <ip> <hostname>
-      hosts remove <hostname>
+      hosts remove ( <ip> | <hostname> | <search term> ) [--force]
       hosts list [enabled | disabled | <search string>]
       hosts show ( <ip> | <hostname> | <search string> )
       hosts disable ( <ip> | <hostname> | <search term> )
