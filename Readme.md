@@ -7,7 +7,7 @@ A command line program with shortcuts for managing hosts file entries.
     Usage:
       hosts add <ip> <hostname>
       hosts remove <hostname>
-      hosts list [<search string>]
+      hosts list [enabled | disabled | <search string>]
       hosts show ( <ip> | <hostname> | <search string> )
       hosts disable ( <ip> | <hostname> | <search term> )
       hosts enable ( <ip> | <hostname> | <search term> )

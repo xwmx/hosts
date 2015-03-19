@@ -743,7 +743,7 @@ file() {
 
 desc list <<EOM
 Usage:
-  $_me list [<search string>]
+  $_me list [enabled | disabled | <search string>]
 
 Description:
   List the existing IP / hostname pairs. When provided with a seach string, all
@@ -751,7 +751,13 @@ Description:
 EOM
 list() {
   if [[ -n "$1" ]]; then
-    $_me show "$1"
+    if [[ "$1" == disabled ]]; then
+      sed -n "s/^\#disabled: \(.*\)$/\1/p" /etc/hosts
+    elif [[ "$1" == enabled ]]; then
+      grep -v -e '^$' -e '^\s*\#' /etc/hosts
+    else
+      $_me show "$1"
+    fi
   else
     # NOTE: use separate expressions since using a | for the or results in
     # inconsistent behavior.
