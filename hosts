@@ -401,7 +401,7 @@ _main() {
 
   # If $cmd is blank, then set to help
   if [[ -z $cmd ]]; then
-    cmd="help"
+    cmd="list"
   fi
 
   # Load all of the commands.
@@ -563,6 +563,7 @@ A program for managing host file entries.
 Version: $_VERSION
 
 Usage:
+  $_me
   $_me add <ip> <hostname>
   $_me remove <hostname>
   $_me list [127.]
