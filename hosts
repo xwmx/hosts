@@ -472,6 +472,18 @@ _command_argv_includes() {
   _contains "$1" "${command_argv[*]}"
 }
 
+# _verify_write_permissions
+#
+# Print a helpful error message when the specified operation can't be
+# performed due to the lack of write permissions.
+_verify_write_permissions() {
+  if ! test -w "${HOSTS_PATH}"; then
+    _die printf \
+"You don't have permission to perform this operation. Try again with:
+sudo !!\n"
+  fi
+}
+
 ###############################################################################
 # desc
 ###############################################################################
@@ -659,6 +671,7 @@ Description:
   Add a given IP address and hostname pair.
 EOM
 add() {
+  _verify_write_permissions
   local ip=${1:-}
   local hostname=${2:-}
   if [[ -z ${ip} ]]; then
@@ -688,6 +701,7 @@ Description:
   search term.
 EOM
 disable() {
+  _verify_write_permissions
   local search_term=$1
   if [[ -z "${search_term}" ]]; then
     $_me help disable
@@ -711,6 +725,7 @@ Description:
   Open the ${HOSTS_PATH} file in your \$EDITOR.
 EOM
 edit() {
+  _verify_write_permissions
   if [[ -z "$EDITOR" ]]; then
     _die printf "\$EDITOR not set.\n"
   else
@@ -729,6 +744,7 @@ Description:
   or search term.
 EOM
 enable() {
+  _verify_write_permissions
   local search_term=$1
   if [[ -z "${search_term}" ]]; then
     $_me help enable
@@ -799,6 +815,7 @@ Description:
   Remove all IP / hostname pairs for a given hostname.
 EOM
 remove() {
+  _verify_write_permissions
   local hostname=${1:-}
   if [[ -z $hostname ]]; then
     $_me help remove
