@@ -33,6 +33,45 @@ For help with a particular command, try:
 
     hosts help <command name>
 
+## Commands
+
+###### `hosts add <ip> <hostname>`
+
+Add a given IP address and hostname pair.
+
+###### `hosts remove ( <ip> | <hostname> | <search string> ) [--force]`
+
+Remove one or more disabled records based on a given IP address, hostname,
+or search string.
+
+###### `hosts list [enabled | disabled | <search string>]`
+
+List the existing IP / hostname pairs, optionally limited to a specified
+state. When provided with a seach string, all matching enabled records will
+be printed.
+
+###### `hosts show ( <ip> | <hostname> | <search string> )`
+
+Print entries matching a given IP address, hostname, or search string.
+
+###### `hosts disable ( <ip> | <hostname> | <search string> )`
+
+Disable one or more records based on a given ip address, hostname, or
+search string.
+
+###### `hosts enable ( <ip> | <hostname> | <search string> )`
+
+Enable one or more disabled records based on a given ip address, hostname,
+or search string.
+
+###### `hosts edit`
+
+Open the hosts file (/etc/hosts) file in your editor.
+
+###### `hosts file`
+
+Print the entire contents of the /etc/hosts file.
+
 ## Why
 
 Although it's easy to just edit the hosts file manually, it's nice to
