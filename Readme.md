@@ -2,6 +2,16 @@
 
 A command line program with shortcuts for managing hosts file entries.
 
+## Installation
+
+To get started, add the `hosts` script to your path.
+
+### Homebrew
+
+To install with homebrew, use the following command:
+
+    brew install alphabetum/taps/hosts
+
 ## Usage
 
     Usage:
