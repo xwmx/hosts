@@ -595,7 +595,6 @@ Usage:
   $_me enable ( <ip> | <hostname> | <search string> )
   $_me edit
   $_me file
-  $_me command [--command-options] [<arguments>]
   $_me -h | --help
   $_me --version
 
