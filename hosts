@@ -137,6 +137,11 @@ _VERSION="0.1.0-alpha"
 # environment has an existing $DEFAULT_COMMAND set, then that value is used.
 DEFAULT_COMMAND="${DEFAULT_COMMAND:-list}"
 
+# HOSTS_PATH
+#
+# The path to the hosts file. This will almost always be /etc/hosts
+HOSTS_PATH="${HOSTS_PATH:-/etc/hosts}"
+
 ###############################################################################
 # Debug
 ###############################################################################
@@ -663,10 +668,12 @@ add() {
     printf "Please include a hostname\n"
     $_me help add
     exit 1
-  elif grep "^${ip}.*[^A-Za-z0-9\.]${hostname}$" /etc/hosts ; then
-    _die printf "Duplicate address/host combination, /etc/hosts unchanged.\n"
+  elif grep "^${ip}.*[^A-Za-z0-9\.]${hostname}$" "${HOSTS_PATH}" ; then
+    _die printf \
+      "Duplicate address/host combination, %s unchanged.\n" \
+      "${HOSTS_PATH}"
   else
-    printf "%s\t%s\n" "${ip}" "${hostname}" >> /etc/hosts
+    printf "%s\t%s\n" "${ip}" "${hostname}" >> "${HOSTS_PATH}"
   fi
 }
 
@@ -687,10 +694,10 @@ disable() {
     exit 1
   else
 
-    targets=$(sed -n "s/^\([^#]*${search_term}.*\)$/\1/p" /etc/hosts)
+    targets=$(sed -n "s/^\([^#]*${search_term}.*\)$/\1/p" "${HOSTS_PATH}")
     printf "Disabling:\n%s\n" "${targets}"
 
-    sed -i "s/^\([^#]*${search_term}.*\)$/\#disabled: \1/g" /etc/hosts
+    sed -i "s/^\([^#]*${search_term}.*\)$/\#disabled: \1/g" "${HOSTS_PATH}"
   fi
 }
 
@@ -701,13 +708,13 @@ Usage:
   $_me edit
 
 Description:
-  Open the /etc/hosts file in your \$EDITOR.
+  Open the ${HOSTS_PATH} file in your \$EDITOR.
 EOM
 edit() {
   if [[ -z "$EDITOR" ]]; then
     _die printf "\$EDITOR not set.\n"
   else
-    "$EDITOR" /etc/hosts
+    "$EDITOR" "${HOSTS_PATH}"
   fi
 }
 
@@ -729,10 +736,10 @@ enable() {
   else
     target_regex="s/^\#disabled: \(.*${search_term}.*\)$/\1/"
 
-    targets=$(sed -n "${target_regex}p" /etc/hosts)
+    targets=$(sed -n "${target_regex}p" "${HOSTS_PATH}")
     printf "Enabling:\n%s\n" "${targets}"
 
-    sed -i "${target_regex}g" /etc/hosts
+    sed -i "${target_regex}g" "${HOSTS_PATH}"
   fi
 }
 
@@ -743,10 +750,10 @@ Usage:
   $_me file
 
 Description:
-  Print the entire contents of the /etc/hosts file.
+  Print the entire contents of the ${HOSTS_PATH} file.
 EOM
 file() {
-  cat /etc/hosts
+  cat "${HOSTS_PATH}"
 }
 
 # ------------------------------------------------------------------------ list
@@ -762,20 +769,20 @@ Description:
 EOM
 list() {
   # Get the disabled records up front for the two cases where they are needed.
-  disabled_records=$(sed -n "s/^\#disabled: \(.*\)$/\1/p" /etc/hosts)
+  disabled_records=$(sed -n "s/^\#disabled: \(.*\)$/\1/p" "${HOSTS_PATH}")
 
   if [[ -n "$1" ]]; then
     if [[ "$1" == disabled ]]; then
       printf "%s\n" "${disabled_records}"
     elif [[ "$1" == enabled ]]; then
-      grep -v -e '^$' -e '^\s*\#' /etc/hosts
+      grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
     else
       $_me show "$1"
     fi
   else
     # NOTE: use separate expressions since using a | for the or results in
     # inconsistent behavior.
-    grep -v -e '^$' -e '^\s*\#' /etc/hosts
+    grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
     if [[ -n "${disabled_records}" ]]; then
       printf "\nDisabled:\n%s\n" "${disabled_records}"
     fi
@@ -797,7 +804,7 @@ remove() {
     $_me help remove
     exit 1
   else
-    sed -i "/^[^#].*[^A-Za-z0-9\.]${hostname}$/d" /etc/hosts
+    sed -i "/^[^#].*[^A-Za-z0-9\.]${hostname}$/d" "${HOSTS_PATH}"
   fi
 }
 
@@ -813,8 +820,8 @@ EOM
 show() {
   if [[ -n "$1" ]]; then
     # Run `sed` before `grep` to avoid conflict that supress `sed` output.
-    disabled_records=$(sed -n "s/^\#\(disabled: .*$1.*\)$/\1/p" /etc/hosts)
-    enabled_records=$(grep "^[^#]*$1" /etc/hosts)
+    disabled_records=$(sed -n "s/^\#\(disabled: .*$1.*\)$/\1/p" "${HOSTS_PATH}")
+    enabled_records=$(grep "^[^#]*$1" "${HOSTS_PATH}")
     # Output disabled records secondly for better organization.
     [[ -n "$enabled_records"  ]] && printf "%s\n" "$enabled_records"
     [[ -n "$disabled_records" ]] && printf "%s\n" "$disabled_records"
