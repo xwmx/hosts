@@ -19,7 +19,7 @@ For full usage, run:
 
     hosts help
 
-or
+For help with a particular command, try:
 
     hosts help <command name>
 
