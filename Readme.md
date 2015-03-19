@@ -7,11 +7,11 @@ A command line program with shortcuts for managing hosts file entries.
     Usage:
       hosts
       hosts add <ip> <hostname>
-      hosts remove ( <ip> | <hostname> | <search term> ) [--force]
+      hosts remove ( <ip> | <hostname> | <search string> ) [--force]
       hosts list [enabled | disabled | <search string>]
       hosts show ( <ip> | <hostname> | <search string> )
-      hosts disable ( <ip> | <hostname> | <search term> )
-      hosts enable ( <ip> | <hostname> | <search term> )
+      hosts disable ( <ip> | <hostname> | <search string> )
+      hosts enable ( <ip> | <hostname> | <search string> )
       hosts edit
       hosts file
 
