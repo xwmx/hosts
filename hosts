@@ -812,7 +812,12 @@ Description:
 EOM
 show() {
   if [[ -n "$1" ]]; then
-    grep "^[^#]*$1" /etc/hosts
+    # Run `sed` before `grep` to avoid conflict that supress `sed` output.
+    disabled_records=$(sed -n "s/^\#\(disabled: .*$1.*\)$/\1/p" /etc/hosts)
+    enabled_records=$(grep "^[^#]*$1" /etc/hosts)
+    # Output disabled records secondly for better organization.
+    [[ -n "$enabled_records"  ]] && printf "%s\n" "$enabled_records"
+    [[ -n "$disabled_records" ]] && printf "%s\n" "$disabled_records"
   else
     $_me help show
     exit 1
