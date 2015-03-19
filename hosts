@@ -572,7 +572,10 @@ Usage:
   $_me
   $_me add <ip> <hostname>
   $_me remove <hostname>
-  $_me list [127.]
+  $_me list [enabled | disabled | <search string>]
+  $_me show ( <ip> | <hostname> | <search string> )
+  $_me disable ( <ip> | <hostname> | <search term> )
+  $_me enable ( <ip> | <hostname> | <search term> )
   $_me edit
   $_me file
   $_me command [--command-options] [<arguments>]
