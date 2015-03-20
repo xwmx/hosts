@@ -621,6 +621,19 @@ disable() {
   fi
 }
 
+# -------------------------------------------------------------------- disabled
+
+desc disabled <<EOM
+Usage:
+  $_me disabled
+
+Description:
+  List all disabled records. This is an alias for \`hosts list disabled\`.
+EOM
+disabled() {
+  $_me list disabled
+}
+
 # ------------------------------------------------------------------------ edit
 
 desc edit <<EOM
@@ -663,6 +676,19 @@ enable() {
 
     sed -i "${target_regex}g" "${HOSTS_PATH}"
   fi
+}
+
+# --------------------------------------------------------------------- enabled
+
+desc enabled <<EOM
+Usage:
+  $_me enabled
+
+Description:
+  List all enabled records. This is an alias for \`hosts list enabled\`.
+EOM
+enabled() {
+  $_me list enabled
 }
 
 # ------------------------------------------------------------------------ file
