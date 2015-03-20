@@ -41,8 +41,9 @@ Add a given IP address and hostname pair.
 
 ###### `hosts remove ( <ip> | <hostname> | <search string> ) [--force]`
 
-Remove one or more disabled records based on a given IP address, hostname,
-or search string.
+Remove one or more records based on a given IP address, hostname, or search
+string. When the `--force` option is used, the confirmation prompt is
+supressed.
 
 ###### `hosts list [enabled | disabled | <search string>]`
 

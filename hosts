@@ -721,8 +721,8 @@ Options:
   --force  Skip the confirmation prompt.
 
 Description:
-  Remove one or more disabled records based on a given IP address, hostname,
-  or search string.
+  Remove one or more records based on a given IP address, hostname, or search
+  string.
 EOM
 remove() {
   _verify_write_permissions
