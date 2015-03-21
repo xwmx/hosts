@@ -789,6 +789,10 @@ remove() {
     exit 1
   else
     local target_records=$(sed -n "s/^\(.*${search_string}.*\)$/\1/p" "${HOSTS_PATH}")
+    if [[ -z ${target_records:-} ]]; then
+      printf "No matching records found.\n"
+      exit 1
+    fi
     if ! _command_argv_includes "--force"; then
       printf "Removing the following records:\n%s\n" "$target_records"
       while true; do
