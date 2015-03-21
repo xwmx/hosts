@@ -365,6 +365,22 @@ _contains() {
   return 1
 }
 
+# _join()
+#
+# Takes a separator and a list of items, joining that list of items with the
+# separator.
+#
+# Usage:
+#   _join "," a b c
+#   _join "${an_array[@]}"
+_join() {
+  local separator="$1"
+  local target_array=(${@:2})
+  local dirty="$(printf "${separator}%s"  "${target_array[@]}")"
+  local clean="${dirty:${#separator}}"
+  printf "%s" "${clean}"
+}
+
 # _command_argv_includes()
 #
 # Takes a possible command argument and determines whether it is included in
@@ -494,7 +510,7 @@ Version: $_VERSION
 
 Usage:
   $_me
-  $_me add <ip> <hostname>
+  $_me add <ip> <hostname> [comment]
   $_me remove ( <ip> | <hostname> | <search string> ) [--force]
   $_me list [enabled | disabled | <search string>]
   $_me show ( <ip> | <hostname> | <search string> )
@@ -573,15 +589,16 @@ commands() {
 
 desc add <<EOM
 Usage:
-  $_me add <ip> <hostname>
+  $_me add <ip> <hostname> [comment]
 
 Description:
-  Add a given IP address and hostname pair.
+  Add a given IP address and hostname pair, along with an optional comment.
 EOM
 add() {
   _verify_write_permissions
   local ip=${1:-}
   local hostname=${2:-}
+  local comment=${*:3}
   if [[ -z ${ip} ]]; then
     $_me help add
     exit 1
@@ -589,12 +606,24 @@ add() {
     printf "Please include a hostname\n"
     $_me help add
     exit 1
-  elif grep "^${ip}.*[^A-Za-z0-9\.]${hostname}$" "${HOSTS_PATH}" ; then
-    _die printf \
-      "Duplicate address/host combination, %s unchanged.\n" \
-      "${HOSTS_PATH}"
+  elif grep \
+    -e "^${ip}\t${hostname}$" \
+    -e "^${ip}\t${hostname}\t.*$" "${HOSTS_PATH}" ; then
+      _die printf \
+        "Duplicate address/host combination, %s unchanged.\n" \
+        "${HOSTS_PATH}"
   else
-    printf "%s\t%s\n" "${ip}" "${hostname}" >> "${HOSTS_PATH}"
+    if [[ -n ${comment} ]]; then
+      local formmatted_comment=$(_join " " "${comment[@]}")
+      printf "%s\t%s\t# %s\n" \
+        "${ip}" \
+        "${hostname}" \
+        "${formmatted_comment}" >> "${HOSTS_PATH}"
+    else
+      printf "%s\t%s\n" \
+        "${ip}" \
+        "${hostname}" >> "${HOSTS_PATH}"
+    fi
   fi
 }
 

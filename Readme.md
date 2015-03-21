@@ -16,7 +16,7 @@ To install with homebrew, use the following command:
 
     Usage:
       hosts
-      hosts add <ip> <hostname>
+      hosts add <ip> <hostname> [comment]
       hosts remove ( <ip> | <hostname> | <search string> ) [--force]
       hosts list [enabled | disabled | <search string>]
       hosts show ( <ip> | <hostname> | <search string> )
@@ -37,9 +37,9 @@ For help with a particular command, try:
 
 ## Commands
 
-###### `hosts add <ip> <hostname>`
+###### `hosts add <ip> <hostname> [comment]`
 
-Add a given IP address and hostname pair.
+Add a given IP address and hostname pair, along with an optional comment.
 
 ###### `hosts remove ( <ip> | <hostname> | <search string> ) [--force]`
 
