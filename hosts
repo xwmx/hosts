@@ -245,12 +245,12 @@ _debug printf "\$command_parameters: %s\n" "${command_parameters[*]:-}"
 # Environment
 ###############################################################################
 
-# $_me
+# $_ME
 #
 # Set to the program's basename.
-_me=$(basename "$0")
+_ME=$(basename "$0")
 
-_debug printf "\$_me: %s\n" "$_me"
+_debug printf "\$_ME: %s\n" "$_ME"
 
 ###############################################################################
 # Load Commands
@@ -475,7 +475,7 @@ _print_desc() {
 
 desc version <<EOM
 Usage:
-  $_me ( version | --version )
+  $_ME ( version | --version )
 
 Description:
   Display the current program version.
@@ -490,10 +490,10 @@ version() {
 
 desc help <<EOM
 Usage:
-  $_me help [<command>]
+  $_ME help [<command>]
 
 Description:
-  Display help information for $_me or a specified command.
+  Display help information for $_ME or a specified command.
 EOM
 help() {
   if [[ ${#command_argv[@]} = 1 ]]; then
@@ -509,26 +509,26 @@ A program for managing host file entries.
 Version: $_VERSION
 
 Usage:
-  $_me
-  $_me add <ip> <hostname> [comment]
-  $_me remove ( <ip> | <hostname> | <search string> ) [--force]
-  $_me list [enabled | disabled | <search string>]
-  $_me show ( <ip> | <hostname> | <search string> )
-  $_me disable ( <ip> | <hostname> | <search string> )
-  $_me disabled
-  $_me enable ( <ip> | <hostname> | <search string> )
-  $_me enabled
-  $_me edit
-  $_me file
-  $_me -h | --help
-  $_me --version
+  $_ME
+  $_ME add <ip> <hostname> [comment]
+  $_ME remove ( <ip> | <hostname> | <search string> ) [--force]
+  $_ME list [enabled | disabled | <search string>]
+  $_ME show ( <ip> | <hostname> | <search string> )
+  $_ME disable ( <ip> | <hostname> | <search string> )
+  $_ME disabled
+  $_ME enable ( <ip> | <hostname> | <search string> )
+  $_ME enabled
+  $_ME edit
+  $_ME file
+  $_ME -h | --help
+  $_ME --version
 
 Options:
   -h --help  Display this help information.
   --version  Display version information.
 
 Help:
-  $_me help [<command>]
+  $_ME help [<command>]
 
 $(commands)
 EOM
@@ -541,7 +541,7 @@ EOM
 
 desc commands <<EOM
 Usage:
-  $_me commands [--raw]
+  $_ME commands [--raw]
 
 Options:
   --raw  Display the command list without formatting.
@@ -570,7 +570,7 @@ commands() {
 #
 # desc example <<EOM
 #   Usage:
-#     $_me example
+#     $_ME example
 #
 #   Description:
 #     Print "Hello, World!"
@@ -589,7 +589,7 @@ commands() {
 
 desc add <<EOM
 Usage:
-  $_me add <ip> <hostname> [comment]
+  $_ME add <ip> <hostname> [comment]
 
 Description:
   Add a given IP address and hostname pair, along with an optional comment.
@@ -600,11 +600,11 @@ add() {
   local hostname=${2:-}
   local comment=${*:3}
   if [[ -z ${ip} ]]; then
-    $_me help add
+    $_ME help add
     exit 1
   elif [[ -z ${hostname} ]]; then
     printf "Please include a hostname\n"
-    $_me help add
+    $_ME help add
     exit 1
   elif grep \
     -e "^${ip}\t${hostname}$" \
@@ -631,7 +631,7 @@ add() {
 
 desc disable <<EOM
 Usage:
-  $_me disable ( <ip> | <hostname> | <search string> )
+  $_ME disable ( <ip> | <hostname> | <search string> )
 
 Description:
   Disable one or more records based on a given ip address, hostname, or
@@ -641,7 +641,7 @@ disable() {
   _verify_write_permissions
   local search_term=$1
   if [[ -z "${search_term}" ]]; then
-    $_me help disable
+    $_ME help disable
     exit 1
   else
 
@@ -656,20 +656,20 @@ disable() {
 
 desc disabled <<EOM
 Usage:
-  $_me disabled
+  $_ME disabled
 
 Description:
   List all disabled records. This is an alias for \`hosts list disabled\`.
 EOM
 disabled() {
-  $_me list disabled
+  $_ME list disabled
 }
 
 # ------------------------------------------------------------------------ edit
 
 desc edit <<EOM
 Usage:
-  $_me edit
+  $_ME edit
 
 Description:
   Open the ${HOSTS_PATH} file in your \$EDITOR.
@@ -687,7 +687,7 @@ edit() {
 
 desc enable <<EOM
 Usage:
-  $_me enable ( <ip> | <hostname> | <search string> )
+  $_ME enable ( <ip> | <hostname> | <search string> )
 
 Description:
   Enable one or more disabled records based on a given ip address, hostname,
@@ -697,7 +697,7 @@ enable() {
   _verify_write_permissions
   local search_term=$1
   if [[ -z "${search_term}" ]]; then
-    $_me help enable
+    $_ME help enable
     exit 1
   else
     target_regex="s/^\#disabled: \(.*${search_term}.*\)$/\1/"
@@ -713,20 +713,20 @@ enable() {
 
 desc enabled <<EOM
 Usage:
-  $_me enabled
+  $_ME enabled
 
 Description:
   List all enabled records. This is an alias for \`hosts list enabled\`.
 EOM
 enabled() {
-  $_me list enabled
+  $_ME list enabled
 }
 
 # ------------------------------------------------------------------------ file
 
 desc file <<EOM
 Usage:
-  $_me file
+  $_ME file
 
 Description:
   Print the entire contents of the ${HOSTS_PATH} file.
@@ -739,7 +739,7 @@ file() {
 
 desc list <<EOM
 Usage:
-  $_me list [enabled | disabled | <search string>]
+  $_ME list [enabled | disabled | <search string>]
 
 Description:
   List the existing IP / hostname pairs, optionally limited to a specified
@@ -756,7 +756,7 @@ list() {
     elif [[ "$1" == enabled ]]; then
       grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
     else
-      $_me show "$1"
+      $_ME show "$1"
     fi
   else
     # NOTE: use separate expressions since using a | for the or results in
@@ -772,7 +772,7 @@ list() {
 
 desc remove <<EOM
 Usage:
-  $_me remove ( <ip> | <hostname> | <search string> ) [--force]
+  $_ME remove ( <ip> | <hostname> | <search string> ) [--force]
 
 Options:
   --force  Skip the confirmation prompt.
@@ -785,7 +785,7 @@ remove() {
   _verify_write_permissions
   local search_string=${1:-}
   if [[ -z $search_string ]]; then
-    $_me help remove
+    $_ME help remove
     exit 1
   else
     local target_records=$(sed -n "s/^\(.*${search_string}.*\)$/\1/p" "${HOSTS_PATH}")
@@ -820,7 +820,7 @@ remove() {
 
 desc show <<EOM
 Usage:
-  $_me show ( <ip> | <hostname> | <search string> )
+  $_ME show ( <ip> | <hostname> | <search string> )
 
 Description:
   Print entries matching a given IP address, hostname, or search string.
@@ -834,7 +834,7 @@ show() {
     [[ -n "$enabled_records"  ]] && printf "%s\n" "$enabled_records"
     [[ -n "$disabled_records" ]] && printf "%s\n" "$disabled_records"
   else
-    $_me help show
+    $_ME help show
     exit 1
   fi
 }
