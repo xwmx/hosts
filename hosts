@@ -616,12 +616,12 @@ add() {
         "${HOSTS_PATH}"
   else
     if [[ -n ${comment} ]]; then
-      local formmatted_comment
-      formmatted_comment=$(_join " " "${comment[@]}")
+      local formatted_comment
+      formatted_comment=$(_join " " "${comment[@]}")
       printf "%s\t%s\t# %s\n" \
         "${ip}" \
         "${hostname}" \
-        "${formmatted_comment}" >> "${HOSTS_PATH}"
+        "${formatted_comment}" >> "${HOSTS_PATH}"
     else
       printf "%s\t%s\n" \
         "${ip}" \
