@@ -280,7 +280,8 @@ _load_commands() {
   do
     # Each element has the format `declare -f function_name`, so set the name
     # to only the 'function_name' part of the string.
-    local function_name=$(printf "%s" "$c" | awk '{ print $3 }')
+    local function_name
+    function_name=$(printf "%s" "$c" | awk '{ print $3 }')
 
     _debug printf "_load_commands() \$function_name: %s\n" "$function_name"
 
@@ -376,7 +377,8 @@ _contains() {
 _join() {
   local separator="$1"
   local target_array=(${@:2})
-  local dirty="$(printf "${separator}%s"  "${target_array[@]}")"
+  local dirty
+  dirty="$(printf "${separator}%s"  "${target_array[@]}")"
   local clean="${dirty:${#separator}}"
   printf "%s" "${clean}"
 }
@@ -614,7 +616,8 @@ add() {
         "${HOSTS_PATH}"
   else
     if [[ -n ${comment} ]]; then
-      local formmatted_comment=$(_join " " "${comment[@]}")
+      local formmatted_comment
+      formmatted_comment=$(_join " " "${comment[@]}")
       printf "%s\t%s\t# %s\n" \
         "${ip}" \
         "${hostname}" \
@@ -788,7 +791,8 @@ remove() {
     $_ME help remove
     exit 1
   else
-    local target_records=$(sed -n "s/^\(.*${search_string}.*\)$/\1/p" "${HOSTS_PATH}")
+    local target_records
+    target_records=$(sed -n "s/^\(.*${search_string}.*\)$/\1/p" "${HOSTS_PATH}")
     if [[ -z ${target_records:-} ]]; then
       printf "No matching records found.\n"
       exit 1
