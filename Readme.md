@@ -4,13 +4,25 @@ A command line program with shortcuts for managing hosts file entries.
 
 ## Installation
 
-To get started, add the `hosts` script to your path.
-
 ### Homebrew
 
-To install with homebrew, use the following command:
+To install with [Homebrew](http://brew.sh/):
 
     brew install alphabetum/taps/hosts
+
+### bpkg
+
+To install with [bpkg](http://www.bpkg.io/):
+
+    bpkg install alphabetum/hosts
+
+### Manual
+
+To install manually, simply add the `hosts` script to your `$PATH`. If
+you already have a `~/bin` directory, you can use the following command:
+
+    curl -L https://raw.github.com/alphabetum/hosts/master/hosts \
+      -o ~/bin/hosts && chmod +x ~/bin/hosts
 
 ## Usage
 
