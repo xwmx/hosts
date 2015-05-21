@@ -1,3 +1,9 @@
+        __               __
+       / /_  ____  _____/ /______
+      / __ \/ __ \/ ___/ __/ ___/
+     / / / / /_/ (__  ) /_(__  )
+    /_/ /_/\____/____/\__/____/
+
 # Hosts
 
 A command line program with shortcuts for managing hosts file entries.
