@@ -647,11 +647,16 @@ disable() {
     $_ME help disable
     exit 1
   else
+    _debug printf "disable() \$search_term: %s\n" "$search_term"
 
     targets=$(sed -n "s/^\([^#]*${search_term}.*\)$/\1/p" "${HOSTS_PATH}")
+    _debug printf "disable() \$targets: %s\n" "$targets"
+
     printf "Disabling:\n%s\n" "${targets}"
 
-    sed -i "s/^\([^#]*${search_term}.*\)$/\#disabled: \1/g" "${HOSTS_PATH}"
+    # -i '' - in place edit. BSD sed requires extension argument, for GNU
+    # it's optional. More info: http://stackoverflow.com/a/16746032
+    sed -i '' "s/^\([^#]*${search_term}.*\)$/\#disabled: \1/g" "${HOSTS_PATH}"
   fi
 }
 
@@ -708,7 +713,9 @@ enable() {
     targets=$(sed -n "${target_regex}p" "${HOSTS_PATH}")
     printf "Enabling:\n%s\n" "${targets}"
 
-    sed -i "${target_regex}g" "${HOSTS_PATH}"
+    # -i '' - in place edit. BSD sed requires extension argument, for GNU
+    # it's optional. More info: http://stackoverflow.com/a/16746032
+    sed -i '' "${target_regex}g" "${HOSTS_PATH}"
   fi
 }
 
@@ -815,7 +822,9 @@ remove() {
         esac
       done
     fi
-    sed -i "/^.*${search_string}.*$/d" "${HOSTS_PATH}"
+    # -i '' - in place edit. BSD sed requires extension argument, for GNU
+    # it's optional. More info: http://stackoverflow.com/a/16746032
+    sed -i '' "/^.*${search_string}.*$/d" "${HOSTS_PATH}"
     printf "Removed:\n%s\n" "${target_records}"
   fi
 }
