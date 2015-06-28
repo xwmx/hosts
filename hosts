@@ -62,7 +62,8 @@ HOSTS_PATH="${HOSTS_PATH:-/etc/hosts}"
 # variable has been set. The command is expected to print a message and
 # should typically be either `echo`, `printf`, or `cat`.
 _debug() {
-  if [[ "${_use_debug:-"0"}" -eq 1 ]]; then
+  if [[ "${_use_debug:-"0"}" -eq 1 ]]
+  then
     # Prefix debug message with "bug (U+1F41B)"
     printf "🐛  "
     "$@"
@@ -154,12 +155,14 @@ optstring=h
 # argument to the option, such as wget -qO-)
 unset options
 # while the number of arguments is greater than 0
-while (($#)); do
+while (($#))
+do
   case $1 in
     # if option is of type -ab
     -[!-]?*)
       # loop over each character starting with the second
-      for ((i=1; i<${#1}; i++)); do
+      for ((i=1; i<${#1}; i++))
+      do
         # extract 1 character from position 'i'
         c=${1:i:1}
         # add current char to options
@@ -167,14 +170,17 @@ while (($#)); do
 
         # if option takes a required argument, and it's not the last char
         # make the rest of the string its argument
-        if [[ $optstring = *"$c:"* && ${1:i+1} ]]; then
+        if [[ $optstring = *"$c:"* && ${1:i+1} ]]
+        then
           options+=("${1:i+1}")
           break
         fi
       done
       ;;
     # if option is of type --foo=bar, split on first '='
-    --?*=*) options+=("${1%%=*}" "${1#*=}");;
+    --?*=*)
+      options+=("${1%%=*}" "${1#*=}")
+      ;;
     # end of options, stop breaking them up
     --)
       options+=(--endopts)
@@ -183,7 +189,9 @@ while (($#)); do
       break
       ;;
     # otherwise, nothing special
-    *) options+=("$1");;
+    *)
+      options+=("$1")
+      ;;
   esac
 
   shift
@@ -206,7 +214,8 @@ command_argv=("$0")
 cmd=""
 _use_debug=0
 
-while [ $# -gt 0 ]; do
+while [ $# -gt 0 ]
+do
   opt="$1"
   shift
   case "$opt" in
@@ -222,7 +231,8 @@ while [ $# -gt 0 ]; do
     *)
       # The first non-option argument is assumed to be the command name.
       # All subsequent arguments are added to $command_arguments.
-      if [[ -n $cmd ]]; then
+      if [[ -n $cmd ]]
+      then
         command_argv+=("$opt")
       else
         cmd="$opt"
@@ -292,7 +302,8 @@ _load_commands() {
            [[ "$function_name" == "desc"  ]] || \
            [[ "$function_name" == "debug" ]] || \
            [[ "$function_name" == "die"   ]]
-    ); then
+    )
+    then
       defined_commands+=("$function_name")
     fi
   done
@@ -319,7 +330,8 @@ _main() {
   _debug printf "main() \$cmd (upon entering): %s\n" "$cmd"
 
   # If $cmd is blank, then set to help
-  if [[ -z $cmd ]]; then
+  if [[ -z $cmd ]]
+  then
     cmd="$DEFAULT_COMMAND"
   fi
 
@@ -327,7 +339,8 @@ _main() {
   _load_commands
 
   # If the command is defined, run it, otherwise return an error.
-  if ( _contains "$cmd" "${defined_commands[*]:-}" ); then
+  if ( _contains "$cmd" "${defined_commands[*]:-}" )
+  then
     # Pass all comment arguments to the program except for the first ($0).
     $cmd "${command_parameters[@]:-}"
   else
@@ -358,7 +371,8 @@ _contains() {
   for _test_element in "${test_list[@]:-}"
   do
     _debug printf "_contains() \$_test_element: %s\n" "$_test_element"
-    if [[ "$_test_element" == "$1" ]]; then
+    if [[ "$_test_element" == "$1" ]]
+    then
       _debug printf "_contains() match: %s\n" "$1"
       return 0
     fi
@@ -402,7 +416,8 @@ _command_argv_includes() {
 # Print a helpful error message when the specified operation can't be
 # performed due to the lack of write permissions.
 _verify_write_permissions() {
-  if ! test -w "${HOSTS_PATH}"; then
+  if ! test -w "${HOSTS_PATH}"
+  then
     _die printf \
 "You don't have permission to perform this operation. Try again with:
 sudo !!\n"
@@ -441,7 +456,8 @@ sudo !!\n"
 desc() {
   set +e
   [[ -z $1 ]] && _die printf "desc: No command name specified.\n"
-  if [[ -n ${2:-} ]]; then
+  if [[ -n ${2:-} ]]
+  then
     read -d '' "_desc_$1" <<EOM
 $2
 EOM
@@ -462,7 +478,8 @@ EOM
 # set using the desc() function.
 _print_desc() {
   local var="_desc_$1"
-  if [[ -n ${!var:-} ]]; then
+  if [[ -n ${!var:-} ]]
+  then
     printf "%s\n" "${!var}"
   else
     printf "No additional information for \`%s\`\n" "$1"
@@ -498,7 +515,8 @@ Description:
   Display help information for $_ME or a specified command.
 EOM
 help() {
-  if [[ ${#command_argv[@]} = 1 ]]; then
+  if [[ ${#command_argv[@]} = 1 ]]
+  then
     cat <<EOM
     __               __
    / /_  ____  _____/ /______
@@ -552,7 +570,8 @@ Description:
   Display the list of available commands.
 EOM
 commands() {
-  if _command_argv_includes "--raw"; then
+  if _command_argv_includes "--raw"
+  then
     printf "%s\n" "${defined_commands[@]}"
   else
     printf "Available commands:\n"
@@ -601,21 +620,25 @@ add() {
   local ip=${1:-}
   local hostname=${2:-}
   local comment=${*:3}
-  if [[ -z ${ip} ]]; then
+  if [[ -z ${ip} ]]
+  then
     $_ME help add
     exit 1
-  elif [[ -z ${hostname} ]]; then
+  elif [[ -z ${hostname} ]]
+  then
     printf "Please include a hostname\n"
     $_ME help add
     exit 1
   elif grep \
     -e "^${ip}\t${hostname}$" \
-    -e "^${ip}\t${hostname}\t.*$" "${HOSTS_PATH}" ; then
-      _die printf \
-        "Duplicate address/host combination, %s unchanged.\n" \
-        "${HOSTS_PATH}"
+    -e "^${ip}\t${hostname}\t.*$" "${HOSTS_PATH}"
+  then
+    _die printf \
+      "Duplicate address/host combination, %s unchanged.\n" \
+      "${HOSTS_PATH}"
   else
-    if [[ -n ${comment} ]]; then
+    if [[ -n ${comment} ]]
+    then
       local formatted_comment
       formatted_comment=$(_join " " "${comment[@]}")
       printf "%s\t%s\t# %s\n" \
@@ -643,7 +666,8 @@ EOM
 disable() {
   _verify_write_permissions
   local search_term=$1
-  if [[ -z "${search_term}" ]]; then
+  if [[ -z "${search_term}" ]]
+  then
     $_ME help disable
     exit 1
   else
@@ -684,7 +708,8 @@ Description:
 EOM
 edit() {
   _verify_write_permissions
-  if [[ -z "$EDITOR" ]]; then
+  if [[ -z "$EDITOR" ]]
+  then
     _die printf "\$EDITOR not set.\n"
   else
     "$EDITOR" "${HOSTS_PATH}"
@@ -704,7 +729,8 @@ EOM
 enable() {
   _verify_write_permissions
   local search_term=$1
-  if [[ -z "${search_term}" ]]; then
+  if [[ -z "${search_term}" ]]
+  then
     $_ME help enable
     exit 1
   else
@@ -760,10 +786,13 @@ list() {
   # Get the disabled records up front for the two cases where they are needed.
   disabled_records=$(sed -n "s/^\#disabled: \(.*\)$/\1/p" "${HOSTS_PATH}")
 
-  if [[ -n "$1" ]]; then
-    if [[ "$1" == disabled ]]; then
+  if [[ -n "$1" ]]
+  then
+    if [[ "$1" == disabled ]]
+    then
       printf "%s\n" "${disabled_records}"
-    elif [[ "$1" == enabled ]]; then
+    elif [[ "$1" == enabled ]]
+    then
       grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
     else
       $_ME show "$1"
@@ -772,7 +801,8 @@ list() {
     # NOTE: use separate expressions since using a | for the or results in
     # inconsistent behavior.
     grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
-    if [[ -n "${disabled_records}" ]]; then
+    if [[ -n "${disabled_records}" ]]
+    then
       printf "\nDisabled:\n%s\n" "${disabled_records}"
     fi
   fi
@@ -794,19 +824,23 @@ EOM
 remove() {
   _verify_write_permissions
   local search_string=${1:-}
-  if [[ -z $search_string ]]; then
+  if [[ -z $search_string ]]
+  then
     $_ME help remove
     exit 1
   else
     local target_records
     target_records=$(sed -n "s/^\(.*${search_string}.*\)$/\1/p" "${HOSTS_PATH}")
-    if [[ -z ${target_records:-} ]]; then
+    if [[ -z ${target_records:-} ]]
+    then
       printf "No matching records found.\n"
       exit 1
     fi
-    if ! _command_argv_includes "--force"; then
+    if ! _command_argv_includes "--force"
+    then
       printf "Removing the following records:\n%s\n" "$target_records"
-      while true; do
+      while true
+      do
         read -p "Are you sure you want to proceed? [y/n] " yn
         case $yn in
           [Yy]* )
@@ -839,7 +873,8 @@ Description:
   Print entries matching a given IP address, hostname, or search string.
 EOM
 show() {
-  if [[ -n "$1" ]]; then
+  if [[ -n "$1" ]]
+  then
     # Run `sed` before `grep` to avoid conflict that supress `sed` output.
     disabled_records=$(sed -n "s/^\#\(disabled: .*$1.*\)$/\1/p" "${HOSTS_PATH}")
     enabled_records=$(grep "^[^#]*$1" "${HOSTS_PATH}")
