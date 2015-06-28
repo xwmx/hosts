@@ -117,7 +117,7 @@ die() {
 ###############################################################################
 
 # Get raw options for any commands that expect them.
-raw_options="$*"
+_RAW_OPTIONS="$*"
 
 # Steps:
 #
@@ -202,17 +202,17 @@ unset options
 
 # Parse Options ###############################################################
 
-# Initialize command_argv array
+# Initialize $_COMMAND_ARGV array
 #
 # This array contains all of the arguments that get passed along to each
 # command. This is essentially the same as the program arguments, minus those
 # that have been filtered out in the program option parsing loop. This array
 # is initialized with $0, which is the program's name.
-command_argv=("$0")
-# Initialize $cmd and $_use_debug, which can continue to be blank depending on
-# what the program needs.
-cmd=""
-_use_debug=0
+_COMMAND_ARGV=("$0")
+# Initialize $_CMD and `$_USE_DEBUG`, which can continue to be blank depending
+# on what the program needs.
+_CMD=""
+_USE_DEBUG=0
 
 while [ $# -gt 0 ]
 do
@@ -220,36 +220,36 @@ do
   shift
   case "$opt" in
     -h|--help)
-      cmd="help"
+      _CMD="help"
       ;;
     --version)
-      cmd="version"
+      _CMD="version"
       ;;
     --debug)
-      _use_debug=1
+      _USE_DEBUG=1
       ;;
     *)
       # The first non-option argument is assumed to be the command name.
-      # All subsequent arguments are added to $command_arguments.
-      if [[ -n $cmd ]]
+      # All subsequent arguments are added to $_COMMAND_ARGV.
+      if [[ -n $_CMD ]]
       then
-        command_argv+=("$opt")
+        _COMMAND_ARGV+=("$opt")
       else
-        cmd="$opt"
+        _CMD="$opt"
       fi
       ;;
   esac
 done
 
-# Set $command_parameters to $command_argv, minus the initial element, $0. This
+# Set $_COMMAND_PARAMETERS to $_COMMAND_ARGV, minus the initial element, $0. This
 # provides an array that is equivalent to $* and $@ within each command
 # function, though the array is zero-indexed, which could lead to confusion.
-command_parameters=("${command_argv[@]:1}")
+_COMMAND_PARAMETERS=("${_COMMAND_ARGV[@]:1}")
 
-_debug printf "\$cmd: %s\n" "$cmd"
-_debug printf "\$raw_options (one per line):\n%s\n" "$raw_options"
-_debug printf "\$command_argv: %s\n" "${command_argv[*]}"
-_debug printf "\$command_parameters: %s\n" "${command_parameters[*]:-}"
+_debug printf "\$_CMD: %s\n" "$_CMD"
+_debug printf "\$_RAW_OPTIONS (one per line):\n%s\n" "$_RAW_OPTIONS"
+_debug printf "\$_COMMAND_ARGV: %s\n" "${_COMMAND_ARGV[*]}"
+_debug printf "\$_COMMAND_PARAMETERS: %s\n" "${_COMMAND_PARAMETERS[*]:-}"
 
 ###############################################################################
 # Environment
@@ -266,15 +266,15 @@ _debug printf "\$_ME: %s\n" "$_ME"
 # Load Commands
 ###############################################################################
 
-# Initialize defined_commands array.
-defined_commands=()
+# Initialize $_DEFINED_COMMANDS array.
+_DEFINED_COMMANDS=()
 
 # _load_commands()
 #
-# Loads all of the commands sourced in the environment.
-#
 # Usage:
 #   _load_commands
+#
+# Loads all of the commands sourced in the environment.
 _load_commands() {
 
   _debug printf "_load_commands(): entering...\n"
@@ -295,7 +295,7 @@ _load_commands() {
 
     _debug printf "_load_commands() \$function_name: %s\n" "$function_name"
 
-    # Add the function name to the $defined_commands array unless it starts
+    # Add the function name to the $_DEFINED_COMMANDS array unless it starts
     # with an underscore or is one of the desc(), debug(), or die() functions,
     # since these are treated as having 'private' visibility.
     if ! ( [[ "$function_name" =~ ^_(.*)  ]] || \
@@ -304,13 +304,13 @@ _load_commands() {
            [[ "$function_name" == "die"   ]]
     )
     then
-      defined_commands+=("$function_name")
+      _DEFINED_COMMANDS+=("$function_name")
     fi
   done
 
   _debug printf \
-    "commands() \$defined_commands:\n%s\n" \
-    "${defined_commands[*]:-}"
+    "commands() \$_DEFINED_COMMANDS:\n%s\n" \
+    "${_DEFINED_COMMANDS[*]:-}"
 }
 
 ###############################################################################
@@ -327,24 +327,24 @@ _load_commands() {
 # NOTE: must be called at end of program after all commands have been defined.
 _main() {
   _debug printf "main(): entering...\n"
-  _debug printf "main() \$cmd (upon entering): %s\n" "$cmd"
+  _debug printf "main() \$_CMD (upon entering): %s\n" "$_CMD"
 
-  # If $cmd is blank, then set to help
-  if [[ -z $cmd ]]
+  # If $_CMD is blank, then set to `$DEFAULT_COMMAND`
+  if [[ -z $_CMD ]]
   then
-    cmd="$DEFAULT_COMMAND"
+    _CMD="$DEFAULT_COMMAND"
   fi
 
   # Load all of the commands.
   _load_commands
 
   # If the command is defined, run it, otherwise return an error.
-  if ( _contains "$cmd" "${defined_commands[*]:-}" )
+  if _contains "$_CMD" "${_DEFINED_COMMANDS[*]:-}"
   then
     # Pass all comment arguments to the program except for the first ($0).
-    $cmd "${command_parameters[@]:-}"
+    $_CMD "${_COMMAND_PARAMETERS[@]:-}"
   else
-    _die printf "Unknown command: %s\n" "$cmd"
+    _die printf "Unknown command: %s\n" "$_CMD"
   fi
 }
 
@@ -354,18 +354,35 @@ _main() {
 
 # _function_exists()
 #
+# Usage:
+#   _function_exists "possible_function_name"
+#
 # Takes a potential function name as an argument and returns whether a function
 # exists with that name.
 _function_exists() {
   [ "$(type -t "$1")" == 'function' ]
 }
 
-# _contains()
+# _command_exists()
 #
-# Takes an item and a list and determines whether the list contains the item.
+# Usage:
+#   _command_exists "possible_command_name"
+#
+# Takes a potential command name as an argument and returns whether a command
+# exists with that name.
+#
+# For information on why `hash` is used here, see:
+# http://stackoverflow.com/a/677212
+_command_exists() {
+  hash "$1" 2>/dev/null
+}
+
+# _contains()
 #
 # Usage:
 #   _contains "$item" "${list[*]}"
+#
+# Takes an item and a list and determines whether the list contains the item.
 _contains() {
   local test_list=(${*:2})
   for _test_element in "${test_list[@]:-}"
@@ -382,33 +399,56 @@ _contains() {
 
 # _join()
 #
-# Takes a separator and a list of items, joining that list of items with the
-# separator.
-#
 # Usage:
 #   _join "," a b c
 #   _join "${an_array[@]}"
+#
+# Takes a separator and a list of items, joining that list of items with the
+# separator.
 _join() {
-  local separator="$1"
-  local target_array=(${@:2})
+  local separator
+  local target_array
   local dirty
+  local clean
+  separator="$1"
+  target_array=(${@:2})
   dirty="$(printf "${separator}%s"  "${target_array[@]}")"
-  local clean="${dirty:${#separator}}"
+  clean="${dirty:${#separator}}"
   printf "%s" "${clean}"
 }
 
 # _command_argv_includes()
+#
+# Usage:
+#   _command_argv_includes "an_argument"
 #
 # Takes a possible command argument and determines whether it is included in
 # the command argument list.
 #
 # This is a shortcut for simple cases where a command wants to check for the
 # presence of options quickly without parsing the options again.
+_command_argv_includes() {
+  _contains "$1" "${_COMMAND_ARGV[*]}"
+}
+
+# _blank()
 #
 # Usage:
-#   _command_argv_includes "an_argument"
-_command_argv_includes() {
-  _contains "$1" "${command_argv[*]}"
+#   _blank "$an_argument"
+#
+# Takes an argument and returns true if it is blank.
+_blank() {
+  [[ -z "${1:-}" ]]
+}
+
+# _present()
+#
+# Usage:
+#   _present "$an_argument"
+#
+# Takes an argument and returns true if it is present.
+_present() {
+  [[ -n "${1:-}" ]]
 }
 
 # _verify_write_permissions
@@ -515,7 +555,7 @@ Description:
   Display help information for $_ME or a specified command.
 EOM
 help() {
-  if [[ ${#command_argv[@]} = 1 ]]
+  if [[ ${#_COMMAND_ARGV[@]} = 1 ]]
   then
     cat <<EOM
     __               __
@@ -572,10 +612,10 @@ EOM
 commands() {
   if _command_argv_includes "--raw"
   then
-    printf "%s\n" "${defined_commands[@]}"
+    printf "%s\n" "${_DEFINED_COMMANDS[@]}"
   else
     printf "Available commands:\n"
-    printf "  %s\n" "${defined_commands[@]}"
+    printf "  %s\n" "${_DEFINED_COMMANDS[@]}"
   fi
 }
 
