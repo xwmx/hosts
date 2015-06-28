@@ -30,7 +30,7 @@
 set -o nounset
 set -o errexit
 set -o pipefail
-IFS="$(printf '\n\t')"
+IFS=$'\n\t'
 
 ###############################################################################
 # Globals
