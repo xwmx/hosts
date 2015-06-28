@@ -492,7 +492,7 @@ _print_desc() {
 
 # Version #####################################################################
 
-desc version <<EOM
+desc "version" <<EOM
 Usage:
   $_ME ( version | --version )
 
@@ -507,7 +507,7 @@ version() {
 
 # Help ########################################################################
 
-desc help <<EOM
+desc "help" <<EOM
 Usage:
   $_ME help [<command>]
 
@@ -559,7 +559,7 @@ EOM
 
 # Command List ################################################################
 
-desc commands <<EOM
+desc "commands" <<EOM
 Usage:
   $_ME commands [--raw]
 
@@ -608,7 +608,7 @@ commands() {
 
 # ------------------------------------------------------------------------- add
 
-desc add <<EOM
+desc "add" <<EOM
 Usage:
   $_ME add <ip> <hostname> [comment]
 
@@ -655,7 +655,7 @@ add() {
 
 # --------------------------------------------------------------------- disable
 
-desc disable <<EOM
+desc "disable" <<EOM
 Usage:
   $_ME disable ( <ip> | <hostname> | <search string> )
 
@@ -686,7 +686,7 @@ disable() {
 
 # -------------------------------------------------------------------- disabled
 
-desc disabled <<EOM
+desc "disabled" <<EOM
 Usage:
   $_ME disabled
 
@@ -699,7 +699,7 @@ disabled() {
 
 # ------------------------------------------------------------------------ edit
 
-desc edit <<EOM
+desc "edit" <<EOM
 Usage:
   $_ME edit
 
@@ -718,7 +718,7 @@ edit() {
 
 # ---------------------------------------------------------------------- enable
 
-desc enable <<EOM
+desc "enable" <<EOM
 Usage:
   $_ME enable ( <ip> | <hostname> | <search string> )
 
@@ -747,7 +747,7 @@ enable() {
 
 # --------------------------------------------------------------------- enabled
 
-desc enabled <<EOM
+desc "enabled" <<EOM
 Usage:
   $_ME enabled
 
@@ -760,7 +760,7 @@ enabled() {
 
 # ------------------------------------------------------------------------ file
 
-desc file <<EOM
+desc "file" <<EOM
 Usage:
   $_ME file
 
@@ -773,7 +773,7 @@ file() {
 
 # ------------------------------------------------------------------------ list
 
-desc list <<EOM
+desc "list" <<EOM
 Usage:
   $_ME list [enabled | disabled | <search string>]
 
@@ -810,7 +810,7 @@ list() {
 
 # ---------------------------------------------------------------------- remove
 
-desc remove <<EOM
+desc "remove" <<EOM
 Usage:
   $_ME remove ( <ip> | <hostname> | <search string> ) [--force]
 
@@ -865,7 +865,7 @@ remove() {
 
 # ------------------------------------------------------------------------ show
 
-desc show <<EOM
+desc "show" <<EOM
 Usage:
   $_ME show ( <ip> | <hostname> | <search string> )
 
