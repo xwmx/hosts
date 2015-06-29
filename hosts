@@ -49,6 +49,17 @@ DEFAULT_COMMAND="${DEFAULT_COMMAND:-list}"
 # The path to the hosts file. This will almost always be /etc/hosts
 HOSTS_PATH="${HOSTS_PATH:-/etc/hosts}"
 
+# Space and tab for regular expressions
+#
+# sed regular expressions have slightly different behaviors dependending on
+# the environment, and POSIX [[:space:]] matches whitespace characters other
+# than just space and tab. These variables provide an easier, portable way to
+# test for just these two characters.
+_TAB_=$'\t'
+_SPACE_=$' '
+_TAB_SPACE_="${_TAB_}${_SPACE_}"
+_TAB_SPACE_CC_="[${_TAB_SPACE_}]"
+
 ###############################################################################
 # Debug
 ###############################################################################
@@ -872,8 +883,16 @@ remove() {
     $_ME help remove
     exit 1
   else
+    # Regular Expression Notes
+    #
+    # - Note double periods in regular expression in order to emulate /.+/,
+    #   which apparently doesn't work properly with all versions of sed.
     local target_records=$(
-      sed -n "s/^\(.*${search_string}.*\)$/\1/p" "${HOSTS_PATH}"
+      sed -n \
+        -e "s/^\(${search_string}[${_TAB_SPACE_}]..*\)$/\1/p" \
+        -e "s/^\(..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\)$/\1/p" \
+        -e "s/^\(..*[${_TAB_SPACE_}]${search_string}\)$/\1/p" \
+        "${HOSTS_PATH}"
     )
 
     if [[ -z ${target_records:-} ]]
@@ -901,9 +920,18 @@ remove() {
         esac
       done
     fi
-    # -i '' - in place edit. BSD sed requires extension argument, for GNU
-    # it's optional. More info: http://stackoverflow.com/a/16746032
-    sed -i '' "/^.*${search_string}.*$/d" "${HOSTS_PATH}"
+    # Regular Expression Notes
+    #
+    # - -i '' - in place edit. BSD sed requires extension argument, for GNU
+    #   it's optional. More info: http://stackoverflow.com/a/16746032
+    #
+    # - Note double periods in regular expression in order to emulate /.+/,
+    #   which apparently doesn't work properly with all versions of sed.
+    sed -i '' \
+      -e "/^${search_string}[${_TAB_SPACE_}]..*$/d" \
+      -e "/^..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*$/d" \
+      -e "/^..*[${_TAB_SPACE_}]${search_string}$/d" \
+      "${HOSTS_PATH}"
     printf "Removed:\n%s\n" "${target_records}"
   fi
 }
