@@ -14,7 +14,7 @@ A command line program with shortcuts for managing hosts file entries.
 
 To install with [Homebrew](http://brew.sh/):
 
-    brew install alphabetum/taps/hosts
+    brew tap alphabetum/taps && brew install alphabetum/taps/hosts
 
 ### bpkg
 
