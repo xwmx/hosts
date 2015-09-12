@@ -732,8 +732,8 @@ disable() {
     _debug printf "disable() \$search_term: %s\n" "$search_term"
 
     target_regex_ip="^\(${search_term}[${_TAB_SPACE_}]..*\)$"
-    target_regex_commented_domain="^\([^#]..*[${_TAB_SPACE_}]${search_term}[${_TAB_SPACE_}]..*\)$"
-    target_regex_domain="^\([^#]..*[${_TAB_SPACE_}]${search_term}\)$"
+    target_regex_commented_hostname="^\([^#]..*[${_TAB_SPACE_}]${search_term}[${_TAB_SPACE_}]..*\)$"
+    target_regex_hostname="^\([^#]..*[${_TAB_SPACE_}]${search_term}\)$"
 
     # Regular Expression Notes
     #
@@ -743,8 +743,8 @@ disable() {
     targets=$(
       sed -n \
         -e "s/${target_regex_ip}/\1/p" \
-        -e "s/${target_regex_commented_domain}/\1/p" \
-        -e "s/${target_regex_domain}/\1/p" \
+        -e "s/${target_regex_commented_hostname}/\1/p" \
+        -e "s/${target_regex_hostname}/\1/p" \
         "${HOSTS_PATH}"
     )
     _debug printf "disable() \$targets: %s\n" "$targets"
@@ -759,8 +759,8 @@ disable() {
     # it's optional. More info: http://stackoverflow.com/a/16746032
     sed -i '' \
       -e "s/${target_regex_ip}/\#disabled: \1/g" \
-      -e "s/${target_regex_commented_domain}/\#disabled: \1/g" \
-      -e "s/${target_regex_domain}/\#disabled: \1/g" \
+      -e "s/${target_regex_commented_hostname}/\#disabled: \1/g" \
+      -e "s/${target_regex_hostname}/\#disabled: \1/g" \
       "${HOSTS_PATH}"
   fi
 }
@@ -818,8 +818,8 @@ enable() {
     _debug printf "enable() \$search_term: %s\n" "$search_term"
 
     target_regex_ip="^\#disabled: \(${search_term}[${_TAB_SPACE_}]..*\)$"
-    target_regex_commented_domain="^\#disabled: \(..*[${_TAB_SPACE_}]${search_term}[${_TAB_SPACE_}]..*\)$"
-    target_regex_domain="^\#disabled: \(..*[${_TAB_SPACE_}]${search_term}\)$"
+    target_regex_commented_hostname="^\#disabled: \(..*[${_TAB_SPACE_}]${search_term}[${_TAB_SPACE_}]..*\)$"
+    target_regex_hostname="^\#disabled: \(..*[${_TAB_SPACE_}]${search_term}\)$"
 
     # Regular Expression Notes
     #
@@ -829,8 +829,8 @@ enable() {
     targets=$(
       sed -n \
         -e "s/${target_regex_ip}/\1/p" \
-        -e "s/${target_regex_commented_domain}/\1/p" \
-        -e "s/${target_regex_domain}/\1/p" \
+        -e "s/${target_regex_commented_hostname}/\1/p" \
+        -e "s/${target_regex_hostname}/\1/p" \
         "${HOSTS_PATH}"
     )
     _debug printf "enable() \$targets: %s\n" "$targets"
@@ -845,8 +845,8 @@ enable() {
     # it's optional. More info: http://stackoverflow.com/a/16746032
     sed -i '' \
       -e "s/${target_regex_ip}/\1/g" \
-      -e "s/${target_regex_commented_domain}/\1/g" \
-      -e "s/${target_regex_domain}/\1/g" \
+      -e "s/${target_regex_commented_hostname}/\1/g" \
+      -e "s/${target_regex_hostname}/\1/g" \
       "${HOSTS_PATH}"
   fi
 }
