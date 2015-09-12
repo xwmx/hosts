@@ -723,17 +723,17 @@ Description:
 EOM
 disable() {
   _verify_write_permissions
-  local search_term=$1
-  if [[ -z "${search_term}" ]]
+  local search_string=$1
+  if [[ -z "${search_string}" ]]
   then
     $_ME help disable
     exit 1
   else
-    _debug printf "disable() \$search_term: %s\n" "$search_term"
+    _debug printf "disable() \$search_string: %s\n" "$search_string"
 
-    target_regex_ip="^\(${search_term}[${_TAB_SPACE_}]..*\)$"
-    target_regex_commented_hostname="^\([^#]..*[${_TAB_SPACE_}]${search_term}[${_TAB_SPACE_}]..*\)$"
-    target_regex_hostname="^\([^#]..*[${_TAB_SPACE_}]${search_term}\)$"
+    target_regex_ip="^\(${search_string}[${_TAB_SPACE_}]..*\)$"
+    target_regex_commented_hostname="^\([^#]..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\)$"
+    target_regex_hostname="^\([^#]..*[${_TAB_SPACE_}]${search_string}\)$"
 
     # Regular Expression Notes
     #
@@ -750,7 +750,7 @@ disable() {
     _debug printf "disable() \$targets: %s\n" "$targets"
     if [[ -z "${targets}" ]]
     then
-      _die printf "Not found: %s\n" "${search_term}"
+      _die printf "Not found: %s\n" "${search_string}"
     fi
 
     printf "Disabling:\n%s\n" "${targets}"
@@ -809,17 +809,17 @@ Description:
 EOM
 enable() {
   _verify_write_permissions
-  local search_term=$1
-  if [[ -z "${search_term}" ]]
+  local search_string=$1
+  if [[ -z "${search_string}" ]]
   then
     $_ME help enable
     exit 1
   else
-    _debug printf "enable() \$search_term: %s\n" "$search_term"
+    _debug printf "enable() \$search_string: %s\n" "$search_string"
 
-    target_regex_ip="^\#disabled: \(${search_term}[${_TAB_SPACE_}]..*\)$"
-    target_regex_commented_hostname="^\#disabled: \(..*[${_TAB_SPACE_}]${search_term}[${_TAB_SPACE_}]..*\)$"
-    target_regex_hostname="^\#disabled: \(..*[${_TAB_SPACE_}]${search_term}\)$"
+    target_regex_ip="^\#disabled: \(${search_string}[${_TAB_SPACE_}]..*\)$"
+    target_regex_commented_hostname="^\#disabled: \(..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\)$"
+    target_regex_hostname="^\#disabled: \(..*[${_TAB_SPACE_}]${search_string}\)$"
 
     # Regular Expression Notes
     #
@@ -836,7 +836,7 @@ enable() {
     _debug printf "enable() \$targets: %s\n" "$targets"
     if [[ -z "${targets}" ]]
     then
-      _die printf "Not found: %s\n" "${search_term}"
+      _die printf "Not found: %s\n" "${search_string}"
     fi
 
     printf "Enabling:\n%s\n" "${targets}"
