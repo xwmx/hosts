@@ -679,7 +679,8 @@ add() {
   else
     if [[ -n ${comment} ]]
     then
-      local formatted_comment=$(_join " " "${comment[@]}")
+      local formatted_comment
+      formatted_comment=$(_join " " "${comment[@]}")
       printf "%s\t%s\t# %s\n" \
         "${ip}" \
         "${hostname}" \
@@ -712,7 +713,8 @@ disable() {
   else
     _debug printf "disable() \$search_term: %s\n" "$search_term"
 
-    local targets=$(
+    local targets
+    targets=$(
       sed -n "s/^\([^#]*${search_term}.*\)$/\1/p" "${HOSTS_PATH}"
     )
     _debug printf "disable() \$targets: %s\n" "$targets"
@@ -777,7 +779,8 @@ enable() {
   else
     local target_regex="s/^\#disabled: \(.*${search_term}.*\)$/\1/"
 
-    local targets=$(sed -n "${target_regex}p" "${HOSTS_PATH}")
+    local targets
+    targets=$(sed -n "${target_regex}p" "${HOSTS_PATH}")
     printf "Enabling:\n%s\n" "${targets}"
 
     # -i '' - in place edit. BSD sed requires extension argument, for GNU
@@ -825,7 +828,8 @@ Description:
 EOM
 list() {
   # Get the disabled records up front for the two cases where they are needed.
-  local disabled_records=$(
+  local disabled_records
+  disabled_records=$(
     sed -n "s/^\#disabled: \(.*\)$/\1/p" "${HOSTS_PATH}"
   )
 
@@ -872,7 +876,8 @@ remove() {
     $_ME help remove
     exit 1
   else
-    local target_records=$(
+    local target_records
+    target_records=$(
       sed -n "s/^\(.*${search_string}.*\)$/\1/p" "${HOSTS_PATH}"
     )
 
@@ -921,10 +926,12 @@ show() {
   if [[ -n "$1" ]]
   then
     # Run `sed` before `grep` to avoid conflict that supress `sed` output.
-    local disabled_records=$(
+    local disabled_records
+    disabled_records=$(
       sed -n "s/^\#\(disabled: .*$1.*\)$/\1/p" "${HOSTS_PATH}"
     )
-    local enabled_records=$(
+    local enabled_records
+    enabled_records=$(
       grep "^[^#]*$1" "${HOSTS_PATH}"
     )
     # Output disabled records secondly for better organization.
