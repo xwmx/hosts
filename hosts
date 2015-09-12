@@ -731,9 +731,21 @@ disable() {
   else
     _debug printf "disable() \$search_term: %s\n" "$search_term"
 
+    target_regex_ip="^\([^#]${search_term}[${_TAB_SPACE_}]..*\)$"
+    target_regex_commented_domain="^\([^#]..*[${_TAB_SPACE_}]${search_term}[${_TAB_SPACE_}]..*\)$"
+    target_regex_domain="^\([^#]..*[${_TAB_SPACE_}]${search_term}\)$"
+
+    # Regular Expression Notes
+    #
+    # - Note double periods in regular expression in order to emulate /.+/,
+    #   which apparently doesn't work properly with all versions of sed.
     local targets
     targets=$(
-      sed -n "s/^\([^#]*${search_term}.*\)$/\1/p" "${HOSTS_PATH}"
+      sed -n \
+        -e "s/${target_regex_ip}/\1/p" \
+        -e "s/${target_regex_commented_domain}/\1/p" \
+        -e "s/${target_regex_domain}/\1/p" \
+        "${HOSTS_PATH}"
     )
     _debug printf "disable() \$targets: %s\n" "$targets"
     if [[ -z "${targets}" ]]
@@ -745,7 +757,11 @@ disable() {
 
     # -i '' - in place edit. BSD sed requires extension argument, for GNU
     # it's optional. More info: http://stackoverflow.com/a/16746032
-    sed -i '' "s/^\([^#]*${search_term}.*\)$/\#disabled: \1/g" "${HOSTS_PATH}"
+    sed -i '' \
+      -e "s/${target_regex_ip}/\#disabled: \1/g" \
+      -e "s/${target_regex_commented_domain}/\#disabled: \1/g" \
+      -e "s/${target_regex_domain}/\#disabled: \1/g" \
+      "${HOSTS_PATH}"
   fi
 }
 
@@ -799,11 +815,25 @@ enable() {
     $_ME help enable
     exit 1
   else
-    local target_regex="s/^\#disabled: \(.*${search_term}.*\)$/\1/"
+    _debug printf "enable() \$search_term: %s\n" "$search_term"
 
+    target_regex_ip="^\#disabled: \(${search_term}[${_TAB_SPACE_}]..*\)$"
+    target_regex_commented_domain="^\#disabled: \(..*[${_TAB_SPACE_}]${search_term}[${_TAB_SPACE_}]..*\)$"
+    target_regex_domain="^\#disabled: \(..*[${_TAB_SPACE_}]${search_term}\)$"
+
+    # Regular Expression Notes
+    #
+    # - Note double periods in regular expression in order to emulate /.+/,
+    #   which apparently doesn't work properly with all versions of sed.
     local targets
-    targets=$(sed -n "${target_regex}p" "${HOSTS_PATH}")
-        _debug printf "enable() \$targets: %s\n" "$targets"
+    targets=$(
+      sed -n \
+        -e "s/${target_regex_ip}/\1/p" \
+        -e "s/${target_regex_commented_domain}/\1/p" \
+        -e "s/${target_regex_domain}/\1/p" \
+        "${HOSTS_PATH}"
+    )
+    _debug printf "enable() \$targets: %s\n" "$targets"
     if [[ -z "${targets}" ]]
     then
       _die printf "Not found: %s\n" "${search_term}"
@@ -813,7 +843,11 @@ enable() {
 
     # -i '' - in place edit. BSD sed requires extension argument, for GNU
     # it's optional. More info: http://stackoverflow.com/a/16746032
-    sed -i '' "${target_regex}g" "${HOSTS_PATH}"
+    sed -i '' \
+      -e "s/${target_regex_ip}/\1/g" \
+      -e "s/${target_regex_commented_domain}/\1/g" \
+      -e "s/${target_regex_domain}/\1/g" \
+      "${HOSTS_PATH}"
   fi
 }
 
