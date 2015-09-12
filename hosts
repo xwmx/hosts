@@ -725,6 +725,10 @@ disable() {
       sed -n "s/^\([^#]*${search_term}.*\)$/\1/p" "${HOSTS_PATH}"
     )
     _debug printf "disable() \$targets: %s\n" "$targets"
+    if [[ -z "${targets}" ]]
+    then
+      _die printf "Not found: %s\n" "${search_term}"
+    fi
 
     printf "Disabling:\n%s\n" "${targets}"
 
@@ -788,6 +792,12 @@ enable() {
 
     local targets
     targets=$(sed -n "${target_regex}p" "${HOSTS_PATH}")
+        _debug printf "enable() \$targets: %s\n" "$targets"
+    if [[ -z "${targets}" ]]
+    then
+      _die printf "Not found: %s\n" "${search_term}"
+    fi
+
     printf "Enabling:\n%s\n" "${targets}"
 
     # -i '' - in place edit. BSD sed requires extension argument, for GNU
