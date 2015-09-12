@@ -55,10 +55,10 @@ HOSTS_PATH="${HOSTS_PATH:-/etc/hosts}"
 # the environment, and POSIX [[:space:]] matches whitespace characters other
 # than just space and tab. These variables provide an easier, portable way to
 # test for just these two characters.
-_TAB_=$'\t'
-_SPACE_=$' '
-_TAB_SPACE_="${_TAB_}${_SPACE_}"
-_TAB_SPACE_CC_="[${_TAB_SPACE_}]"
+export _TAB_=$'\t'
+export _SPACE_=$' '
+export _TAB_SPACE_="${_TAB_}${_SPACE_}"
+export _TAB_SPACE_CC_="[${_TAB_SPACE_}]"
 
 ###############################################################################
 # Debug
