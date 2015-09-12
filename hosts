@@ -935,9 +935,9 @@ EOM
 remove() {
   _verify_write_permissions
   local is_search_pair=0
-  local search_ip
-  local search_hostname
-  local search_string
+  local search_ip=""
+  local search_hostname=""
+  local search_string=""
 
   _debug printf "remove() \$1: %s\n" "${1:-}"
   _debug printf "remove() \$2: %s\n" "${2:-}"
@@ -957,6 +957,14 @@ remove() {
     _debug printf "remove() \$search_string: %s\n" "$search_string"
   fi
 
+  # IP / Hostname pair regular expressions:
+  local target_regex_ip_hostname_commented="^\(${search_ip}[${_TAB_SPACE_}]*${search_hostname}[${_TAB_SPACE_}]..*\)$"
+  local target_regex_ip_hostname="^\(${search_ip}[${_TAB_SPACE_}]*${search_hostname}\)$"
+  # Search string regular expressions:
+  local target_regex_ip="^\(${search_string}[${_TAB_SPACE_}]..*\)$"
+  local target_regex_commented_hostname="^\(..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\)$"
+  local target_regex_hostname="^\(..*[${_TAB_SPACE_}]${search_string}\)$"
+
   # Regular Expression Notes
   #
   # - Note double periods in regular expression in order to emulate /.+/,
@@ -967,16 +975,16 @@ remove() {
   then
     target_records=$(
       sed -n \
-        -e "s/^\(${search_ip}[${_TAB_SPACE_}]*${search_hostname}[${_TAB_SPACE_}]..*\)$/\1/p" \
-        -e "s/^\(${search_ip}[${_TAB_SPACE_}]*${search_hostname}\)$/\1/p" \
+        -e "s/${target_regex_ip_hostname_commented}/\1/p" \
+        -e "s/${target_regex_ip_hostname}/\1/p" \
         "${HOSTS_PATH}"
     )
   else
     target_records=$(
       sed -n \
-        -e "s/^\(${search_string}[${_TAB_SPACE_}]..*\)$/\1/p" \
-        -e "s/^\(..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\)$/\1/p" \
-        -e "s/^\(..*[${_TAB_SPACE_}]${search_string}\)$/\1/p" \
+        -e "s/${target_regex_ip}/\1/p" \
+        -e "s/${target_regex_commented_hostname}/\1/p" \
+        -e "s/${target_regex_hostname}/\1/p" \
         "${HOSTS_PATH}"
     )
   fi
@@ -1016,14 +1024,14 @@ remove() {
   if ((is_search_pair))
   then
     sed -i '' \
-      -e "s/^${search_ip}[${_TAB_SPACE_}]${search_hostname}[${_TAB_SPACE_}]..*$/d" \
-      -e "s/^${search_ip}[${_TAB_SPACE_}]${search_hostname}$/d" \
+      -e "/${target_regex_ip_hostname_commented}/d" \
+      -e "/${target_regex_ip_hostname}/d" \
       "${HOSTS_PATH}"
   else
     sed -i '' \
-      -e "/^${search_string}[${_TAB_SPACE_}]..*$/d" \
-      -e "/^..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*$/d" \
-      -e "/^..*[${_TAB_SPACE_}]${search_string}$/d" \
+      -e "/${target_regex_ip}/d" \
+      -e "/${target_regex_commented_hostname}/d" \
+      -e "/${target_regex_hostname}/d" \
       "${HOSTS_PATH}"
   fi
   printf "Removed:\n%s\n" "${target_records}"
