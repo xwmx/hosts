@@ -731,7 +731,7 @@ disable() {
   else
     _debug printf "disable() \$search_term: %s\n" "$search_term"
 
-    target_regex_ip="^\([^#]${search_term}[${_TAB_SPACE_}]..*\)$"
+    target_regex_ip="^\(${search_term}[${_TAB_SPACE_}]..*\)$"
     target_regex_commented_domain="^\([^#]..*[${_TAB_SPACE_}]${search_term}[${_TAB_SPACE_}]..*\)$"
     target_regex_domain="^\([^#]..*[${_TAB_SPACE_}]${search_term}\)$"
 
