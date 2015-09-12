@@ -36,7 +36,7 @@ IFS=$'\n\t'
 # Globals
 ###############################################################################
 
-_VERSION="1.4.3"
+_VERSION="1.5.0"
 
 # DEFAULT_COMMAND
 #
@@ -690,15 +690,23 @@ add() {
   else
     if [[ -n ${comment} ]]
     then
-      local formatted_comment=$(_join " " "${comment[@]}")
+      local formatted_comment
+      formatted_comment=$(_join " " "${comment[@]}")
       printf "%s\t%s\t# %s\n" \
         "${ip}" \
         "${hostname}" \
         "${formatted_comment}" >> "${HOSTS_PATH}"
+      printf "Added:\n%s\t%s\t# %s\n" \
+        "${ip}" \
+        "${hostname}" \
+        "${formatted_comment}"
     else
       printf "%s\t%s\n" \
         "${ip}" \
         "${hostname}" >> "${HOSTS_PATH}"
+      printf "Added:\n%s\t%s\n" \
+        "${ip}" \
+        "${hostname}"
     fi
   fi
 }
@@ -723,10 +731,15 @@ disable() {
   else
     _debug printf "disable() \$search_term: %s\n" "$search_term"
 
-    local targets=$(
+    local targets
+    targets=$(
       sed -n "s/^\([^#]*${search_term}.*\)$/\1/p" "${HOSTS_PATH}"
     )
     _debug printf "disable() \$targets: %s\n" "$targets"
+    if [[ -z "${targets}" ]]
+    then
+      _die printf "Not found: %s\n" "${search_term}"
+    fi
 
     printf "Disabling:\n%s\n" "${targets}"
 
@@ -788,7 +801,14 @@ enable() {
   else
     local target_regex="s/^\#disabled: \(.*${search_term}.*\)$/\1/"
 
-    local targets=$(sed -n "${target_regex}p" "${HOSTS_PATH}")
+    local targets
+    targets=$(sed -n "${target_regex}p" "${HOSTS_PATH}")
+        _debug printf "enable() \$targets: %s\n" "$targets"
+    if [[ -z "${targets}" ]]
+    then
+      _die printf "Not found: %s\n" "${search_term}"
+    fi
+
     printf "Enabling:\n%s\n" "${targets}"
 
     # -i '' - in place edit. BSD sed requires extension argument, for GNU
@@ -836,7 +856,8 @@ Description:
 EOM
 list() {
   # Get the disabled records up front for the two cases where they are needed.
-  local disabled_records=$(
+  local disabled_records
+  disabled_records=$(
     sed -n "s/^\#disabled: \(.*\)$/\1/p" "${HOSTS_PATH}"
   )
 
@@ -887,7 +908,8 @@ remove() {
     #
     # - Note double periods in regular expression in order to emulate /.+/,
     #   which apparently doesn't work properly with all versions of sed.
-    local target_records=$(
+    local target_records
+    target_records=$(
       sed -n \
         -e "s/^\(${search_string}[${_TAB_SPACE_}]..*\)$/\1/p" \
         -e "s/^\(..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\)$/\1/p" \
@@ -949,10 +971,12 @@ show() {
   if [[ -n "$1" ]]
   then
     # Run `sed` before `grep` to avoid conflict that supress `sed` output.
-    local disabled_records=$(
+    local disabled_records
+    disabled_records=$(
       sed -n "s/^\#\(disabled: .*$1.*\)$/\1/p" "${HOSTS_PATH}"
     )
-    local enabled_records=$(
+    local enabled_records
+    enabled_records=$(
       grep "^[^#]*$1" "${HOSTS_PATH}"
     )
     # Output disabled records secondly for better organization.

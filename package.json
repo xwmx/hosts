@@ -1,6 +1,6 @@
 {
   "name": "hosts",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "description": "A command line tool for managing hosts file entries.",
   "global": true,
   "install": "make install"
