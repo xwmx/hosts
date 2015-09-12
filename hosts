@@ -922,27 +922,56 @@ list() {
 desc "remove" <<EOM
 Usage:
   $_ME remove ( <ip> | <hostname> | <search string> ) [--force]
+  $_ME remove <ip> <hostname>
 
 Options:
   --force  Skip the confirmation prompt.
 
 Description:
   Remove one or more records based on a given IP address, hostname, or search
-  string.
+  string. If an IP and hostname are both provided, only records matching the
+  IP and hostname pair will be removed.
 EOM
 remove() {
   _verify_write_permissions
-  local search_string=${1:-}
-  if [[ -z $search_string ]]
+  local is_search_pair=0
+  local search_ip
+  local search_hostname
+  local search_string
+
+  _debug printf "remove() \$1: %s\n" "${1:-}"
+  _debug printf "remove() \$2: %s\n" "${2:-}"
+
+  if [[ -z "${1:-}" ]]
   then
     $_ME help remove
     exit 1
+  elif [[ -n "${2:-}" ]] && [[ ! "${2}" =~ ^-\* ]]
+  then
+    search_ip="${1}"
+    search_hostname="${2}"
+    is_search_pair=1
+    _debug printf "remove() \$is_search_pair: %s\n" "$is_search_pair"
   else
-    # Regular Expression Notes
-    #
-    # - Note double periods in regular expression in order to emulate /.+/,
-    #   which apparently doesn't work properly with all versions of sed.
-    local target_records
+    search_string=${1:-}
+    _debug printf "remove() \$search_string: %s\n" "$search_string"
+  fi
+
+  # Regular Expression Notes
+  #
+  # - Note double periods in regular expression in order to emulate /.+/,
+  #   which apparently doesn't work properly with all versions of sed.
+  local target_records
+
+  if ((is_search_pair))
+  then
+    target_records=$(
+      sed -n \
+        -e "s/^\(${search_ip}[${_TAB_SPACE_}]*${search_hostname}[${_TAB_SPACE_}]..*\)$/\1/p" \
+        -e "s/^\(${search_ip}[${_TAB_SPACE_}]*${search_hostname}\)$/\1/p" \
+        "${HOSTS_PATH}"
+    )
+  else
     target_records=$(
       sed -n \
         -e "s/^\(${search_string}[${_TAB_SPACE_}]..*\)$/\1/p" \
@@ -950,46 +979,54 @@ remove() {
         -e "s/^\(..*[${_TAB_SPACE_}]${search_string}\)$/\1/p" \
         "${HOSTS_PATH}"
     )
+  fi
 
-    if [[ -z ${target_records:-} ]]
-    then
-      printf "No matching records found.\n"
-      exit 1
-    fi
-    if ! _command_argv_includes "--force"
-    then
-      printf "Removing the following records:\n%s\n" "$target_records"
-      while true
-      do
-        read -p "Are you sure you want to proceed? [y/n] " yn
-        case $yn in
-          [Yy]* )
-            break
-            ;;
-          [Nn]* )
-            printf "Exiting...\n"
-            exit 0
-            ;;
-          * )
-            printf "Please answer yes or no.\n"
-            ;;
-        esac
-      done
-    fi
-    # Regular Expression Notes
-    #
-    # - -i '' - in place edit. BSD sed requires extension argument, for GNU
-    #   it's optional. More info: http://stackoverflow.com/a/16746032
-    #
-    # - Note double periods in regular expression in order to emulate /.+/,
-    #   which apparently doesn't work properly with all versions of sed.
+  if [[ -z ${target_records:-} ]]
+  then
+    printf "No matching records found.\n"
+    exit 1
+  fi
+  if ! _command_argv_includes "--force"
+  then
+    printf "Removing the following records:\n%s\n" "$target_records"
+    while true
+    do
+      read -p "Are you sure you want to proceed? [y/n] " yn
+      case $yn in
+        [Yy]* )
+          break
+          ;;
+        [Nn]* )
+          printf "Exiting...\n"
+          exit 0
+          ;;
+        * )
+          printf "Please answer yes or no.\n"
+          ;;
+      esac
+    done
+  fi
+  # Regular Expression Notes
+  #
+  # - -i '' - in place edit. BSD sed requires extension argument, for GNU
+  #   it's optional. More info: http://stackoverflow.com/a/16746032
+  #
+  # - Note double periods in regular expression in order to emulate /.+/,
+  #   which apparently doesn't work properly with all versions of sed.
+  if ((is_search_pair))
+  then
+    sed -i '' \
+      -e "s/^${search_ip}[${_TAB_SPACE_}]${search_hostname}[${_TAB_SPACE_}]..*$/d" \
+      -e "s/^${search_ip}[${_TAB_SPACE_}]${search_hostname}$/d" \
+      "${HOSTS_PATH}"
+  else
     sed -i '' \
       -e "/^${search_string}[${_TAB_SPACE_}]..*$/d" \
       -e "/^..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*$/d" \
       -e "/^..*[${_TAB_SPACE_}]${search_string}$/d" \
       "${HOSTS_PATH}"
-    printf "Removed:\n%s\n" "${target_records}"
   fi
+  printf "Removed:\n%s\n" "${target_records}"
 }
 
 # ------------------------------------------------------------------------ show
