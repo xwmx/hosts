@@ -999,17 +999,14 @@ remove() {
     printf "Removing the following records:\n%s\n" "$target_records"
     while true
     do
-      read -p "Are you sure you want to proceed? [y/n] " yn
+      read -p "Are you sure you want to proceed? [y/N] " yn
       case $yn in
         [Yy]* )
           break
           ;;
-        [Nn]* )
+        * )
           printf "Exiting...\n"
           exit 0
-          ;;
-        * )
-          printf "Please answer yes or no.\n"
           ;;
       esac
     done
