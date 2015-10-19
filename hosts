@@ -256,8 +256,8 @@ done
 # provides an array that is equivalent to $* and $@ within each command
 # function, though the array is zero-indexed, which could lead to confusion.
 #
-# Use `unset` to remove the first element rather than slicing (e.g., not
-# `_COMMAND_PARAMETERS=("${_COMMAND_ARGV[@]:1})`) because under bash 3.2 the
+# Use `unset` to remove the first element rather than slicing (e.g.,
+# `_COMMAND_PARAMETERS=("${_COMMAND_ARGV[@]:1}")`) because under bash 3.2 the
 # resulting slice is treated as a quoted string and doesn't easily get coaxed
 # into a new array.
 _COMMAND_PARAMETERS=(${_COMMAND_ARGV[*]})
