@@ -673,6 +673,10 @@ Description:
   Add a given IP address and hostname pair, along with an optional comment.
 EOM
 add() {
+  _debug printf "add() \$1: %s\n" "${1:-}"
+  _debug printf "add() \$2: %s\n" "${2:-}"
+  _debug printf "add() \$3: %s\n" "${3:-}"
+
   _verify_write_permissions
   local ip=${1:-}
   local hostname=${2:-}
