@@ -985,6 +985,11 @@ remove() {
     _debug printf "remove() \$search_string: %s\n" "$search_string"
   fi
 
+  # Regular Expression Notes
+  #
+  # Note double periods in regular expression in order to emulate /.+/,
+  # which apparently doesn't work properly with all versions of sed.
+  #
   # IP / Hostname pair regular expressions:
   local target_regex_ip_hostname_commented="^\(${search_ip}[${_TAB_SPACE_}]*${search_hostname}[${_TAB_SPACE_}]..*\)$"
   local target_regex_ip_hostname="^\(${search_ip}[${_TAB_SPACE_}]*${search_hostname}\)$"
@@ -993,10 +998,6 @@ remove() {
   local target_regex_commented_hostname="^\(..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\)$"
   local target_regex_hostname="^\(..*[${_TAB_SPACE_}]${search_string}\)$"
 
-  # Regular Expression Notes
-  #
-  # - Note double periods in regular expression in order to emulate /.+/,
-  #   which apparently doesn't work properly with all versions of sed.
   local target_records
 
   if ((is_search_pair))
@@ -1041,11 +1042,8 @@ remove() {
   fi
   # Regular Expression Notes
   #
-  # - -i '' - in place edit. BSD sed requires extension argument, for GNU
-  #   it's optional. More info: http://stackoverflow.com/a/16746032
-  #
-  # - Note double periods in regular expression in order to emulate /.+/,
-  #   which apparently doesn't work properly with all versions of sed.
+  # -i '' - in place edit. BSD sed requires extension argument, for GNU
+  # it's optional. More info: http://stackoverflow.com/a/16746032
   if ((is_search_pair))
   then
     sed -i '' \
