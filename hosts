@@ -907,10 +907,10 @@ list() {
 
   if [[ -n "$1" ]]
   then
-    if [[ "$1" == disabled ]]
+    if [[ "$1" == "disabled" ]]
     then
       printf "%s\n" "${disabled_records}"
-    elif [[ "$1" == enabled ]]
+    elif [[ "$1" == "enabled" ]]
     then
       grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
     else
