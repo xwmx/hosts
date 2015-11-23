@@ -1023,6 +1023,7 @@ remove() {
     printf "No matching records found.\n"
     exit 1
   fi
+
   if ! ((force_skip_prompt))
   then
     printf "Removing the following records:\n%s\n" "$target_records"
@@ -1040,6 +1041,7 @@ remove() {
       esac
     done
   fi
+
   # Regular Expression Notes
   #
   # -i '' - in place edit. BSD sed requires extension argument, for GNU
