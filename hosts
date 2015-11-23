@@ -945,6 +945,8 @@ EOM
 remove() {
   _verify_write_permissions
   local is_search_pair=0
+  local force_skip_prompt=0
+  local arguments=()
   local search_ip=""
   local search_hostname=""
   local search_string=""
@@ -952,18 +954,34 @@ remove() {
   _debug printf "remove() \$1: %s\n" "${1:-}"
   _debug printf "remove() \$2: %s\n" "${2:-}"
 
-  if [[ -z "${1:-}" ]]
+  for arg in "${_COMMAND_ARGV[@]:-}"
+  do
+    case $arg in
+      --force)
+        force_skip_prompt=1
+        ;;
+      *)
+        arguments+=($arg)
+        ;;
+    esac
+  done
+
+  _debug printf "remove() \${arguments[0]}: %s\n" "${arguments[0]:-}"
+  _debug printf "remove() \${arguments[1]}: %s\n" "${arguments[1]:-}"
+  _debug printf "remove() \${arguments[2]}: %s\n" "${arguments[2]:-}"
+
+  if [[ -z "${arguments[1]:-}" ]]
   then
     $_ME help remove
     exit 1
-  elif [[ -n "${2:-}" ]] && [[ ! "${2}" =~ ^-\* ]]
+  elif [[ -n "${arguments[2]:-}" ]]
   then
-    search_ip="${1}"
-    search_hostname="${2}"
+    search_ip="${arguments[1]}"
+    search_hostname="${arguments[2]}"
     is_search_pair=1
     _debug printf "remove() \$is_search_pair: %s\n" "$is_search_pair"
   else
-    search_string=${1:-}
+    search_string="${arguments[1]:-}"
     _debug printf "remove() \$search_string: %s\n" "$search_string"
   fi
 
@@ -1004,7 +1022,7 @@ remove() {
     printf "No matching records found.\n"
     exit 1
   fi
-  if ! _command_argv_includes "--force"
+  if ! ((force_skip_prompt))
   then
     printf "Removing the following records:\n%s\n" "$target_records"
     while true
