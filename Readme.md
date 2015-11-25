@@ -6,7 +6,7 @@
 
 # Hosts
 
-A command line program with shortcuts for managing hosts file entries.
+A command line program for managing hosts file entries.
 
 ## Installation
 
