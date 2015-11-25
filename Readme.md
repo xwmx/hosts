@@ -14,44 +14,56 @@ A command line program with shortcuts for managing hosts file entries.
 
 To install with [Homebrew](http://brew.sh/):
 
-    brew tap alphabetum/taps && brew install alphabetum/taps/hosts
+```bash
+brew tap alphabetum/taps && brew install alphabetum/taps/hosts
+```
 
 ### bpkg
 
 To install with [bpkg](http://www.bpkg.io/):
 
-    bpkg install alphabetum/hosts
+```bash
+bpkg install alphabetum/hosts
+```
 
 ### Manual
 
 To install manually, simply add the `hosts` script to your `$PATH`. If
 you already have a `~/bin` directory, you can use the following command:
 
-    curl -L https://raw.github.com/alphabetum/hosts/master/hosts \
-      -o ~/bin/hosts && chmod +x ~/bin/hosts
+```bash
+curl -L https://raw.github.com/alphabetum/hosts/master/hosts \
+  -o ~/bin/hosts && chmod +x ~/bin/hosts
+```
 
 ## Usage
 
-    Usage:
-      hosts
-      hosts add <ip> <hostname> [comment]
-      hosts remove ( <ip> | <hostname> | <search string> ) [--force]
-      hosts list [enabled | disabled | <search string>]
-      hosts show ( <ip> | <hostname> | <search string> )
-      hosts disable ( <ip> | <hostname> | <search string> )
-      hosts disabled
-      hosts enable ( <ip> | <hostname> | <search string> )
-      hosts enabled
-      hosts edit
-      hosts file
+```text
+Usage:
+  hosts
+  hosts add <ip> <hostname> [comment]
+  hosts remove ( <ip> | <hostname> | <search string> ) [--force]
+  hosts list [enabled | disabled | <search string>]
+  hosts show ( <ip> | <hostname> | <search string> )
+  hosts disable ( <ip> | <hostname> | <search string> )
+  hosts disabled
+  hosts enable ( <ip> | <hostname> | <search string> )
+  hosts enabled
+  hosts edit
+  hosts file
+```
 
 For full usage, run:
 
-    hosts help
+```text
+hosts help
+```
 
 For help with a particular command, try:
 
-    hosts help <command name>
+```text
+hosts help <command name>
+```
 
 ## Commands
 
