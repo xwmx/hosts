@@ -1084,8 +1084,14 @@ show() {
       grep "^[^#]*$1" "${HOSTS_PATH}"
     )
     # Output disabled records secondly for better organization.
-    [[ -n "$enabled_records"  ]] && printf "%s\n" "$enabled_records"
-    [[ -n "$disabled_records" ]] && printf "%s\n" "$disabled_records"
+    if [[ -n "$enabled_records"  ]]
+    then
+      printf "%s\n" "$enabled_records"
+    fi
+    if [[ -n "$disabled_records" ]]
+    then
+      printf "%s\n" "$disabled_records"
+    fi
   else
     $_ME help show
     exit 1
