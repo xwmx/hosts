@@ -42,15 +42,15 @@ curl -L https://raw.github.com/alphabetum/hosts/master/hosts \
 Usage:
   hosts
   hosts add <ip> <hostname> [comment]
-  hosts remove ( <ip> | <hostname> | <search string> ) [--force]
-  hosts list [enabled | disabled | <search string>]
-  hosts show ( <ip> | <hostname> | <search string> )
   hosts disable ( <ip> | <hostname> | <search string> )
   hosts disabled
+  hosts edit
   hosts enable ( <ip> | <hostname> | <search string> )
   hosts enabled
-  hosts edit
   hosts file
+  hosts list [enabled | disabled | <search string>]
+  hosts show ( <ip> | <hostname> | <search string> )
+  hosts remove ( <ip> | <hostname> | <search string> ) [--force]
 ```
 
 For full usage, run:
