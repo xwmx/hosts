@@ -2,12 +2,12 @@
 
 load test_helper
 
-@test "when passed no arguments exit with status 0" {
+@test "\`hosts\` with no arguments exits with status 0." {
   run "$_HOSTS"
   [ "$status" -eq 0 ]
 }
 
-@test "when passed no arguments print enabled rules." {
+@test "\`hosts\` with no arguments prints enabled rules." {
   run "$_HOSTS"
   [[ "${lines[0]}" == "127.0.0.1	localhost" ]]
   [[ "${lines[1]}" == "255.255.255.255	broadcasthost" ]]
