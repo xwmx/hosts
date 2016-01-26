@@ -34,7 +34,7 @@ teardown() {
 # Usage:
 #   _compare <expected> <actual>
 #
-# Descriotion:
+# Description:
 #   Compare the content of a variable against an expected value. When used
 #   within a `@test` block the output is only displayed when the test fails.
 _compare() {
