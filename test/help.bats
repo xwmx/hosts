@@ -23,17 +23,17 @@ export _HELP_HEADER
   [[ $(IFS=$'\n'; echo "${lines[*]:0:5}") == "$_HELP_HEADER" ]]
 }
 
-@test "\`notes -h\` prints default help." {
+@test "\`hosts -h\` prints default help." {
   run "$_HOSTS" -h
   [[ $(IFS=$'\n'; echo "${lines[*]:0:5}") == "$_HELP_HEADER" ]]
 }
 
-@test "\`notes --help\` prints default help." {
+@test "\`hosts --help\` prints default help." {
   run "$_HOSTS" --help
   [[ $(IFS=$'\n'; echo "${lines[*]:0:5}") == "$_HELP_HEADER" ]]
 }
 
-@test "\`notes help help\` prints \`help\` subcommand usage." {
+@test "\`hosts help help\` prints \`help\` subcommand usage." {
   run "$_HOSTS" help help
   _expected="$(
     cat <<HEREDOC
