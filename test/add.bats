@@ -110,3 +110,18 @@ load test_helper
   [[ "${lines[0]}" == "Added:" ]]
   [[ "${lines[1]}" == "0.0.0.0	example.com	# Comment." ]]
 }
+
+# help ########################################################################
+
+@test "\`help add\` exits with status 0." {
+  run "$_HOSTS" help add
+  [[ $status -eq 0 ]]
+}
+
+@test "\`help add\` prints help information." {
+  run "$_HOSTS" help add
+  printf "\$status: %s\n" "$status"
+  printf "\$output: '%s'\n" "$output"
+  [[ "${lines[0]}" == "Usage:" ]]
+  [[ "${lines[1]}" == "  hosts add <ip> <hostname> [comment]" ]]
+}
