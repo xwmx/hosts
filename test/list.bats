@@ -42,3 +42,18 @@ Disabled:
   _compare "'$_expected'" "'$output'"
   [[ "$output" == "$_expected" ]]
 }
+
+# help ########################################################################
+
+@test "\`help list\` exits with status 0." {
+  run "$_HOSTS" help list
+  [[ $status -eq 0 ]]
+}
+
+@test "\`help list\` prints help information." {
+  run "$_HOSTS" help list
+  printf "\$status: %s\n" "$status"
+  printf "\$output: '%s'\n" "$output"
+  [[ "${lines[0]}" == "Usage:" ]]
+  [[ "${lines[1]}" == "  hosts list [enabled | disabled | <search string>]" ]]
+}
