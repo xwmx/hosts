@@ -9,6 +9,7 @@ load test_helper
 
 @test "\`hosts\` with no arguments prints enabled rules." {
   run "$_HOSTS"
+  [[ "${#lines[@]}" -eq 4 ]]
   [[ "${lines[0]}" == "127.0.0.1	localhost" ]]
   [[ "${lines[1]}" == "255.255.255.255	broadcasthost" ]]
   [[ "${lines[2]}" == "::1             localhost" ]]
