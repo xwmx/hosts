@@ -23,3 +23,18 @@ load test_helper
   printf "'%s'" "$output"
   echo "$output" | grep -q '\d\+\.\d\+\.\d\+'
 }
+
+# help ########################################################################
+
+@test "\`help version\` exits with status 0." {
+  run "$_HOSTS" help version
+  [[ $status -eq 0 ]]
+}
+
+@test "\`help version\` prints help information." {
+  run "$_HOSTS" help version
+  printf "\$status: %s\n" "$status"
+  printf "\$output: '%s'\n" "$output"
+  [[ "${lines[0]}" == "Usage:" ]]
+  [[ "${lines[1]}" == "  hosts ( version | --version )" ]]
+}
