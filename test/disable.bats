@@ -5,10 +5,6 @@ load test_helper
 # `hosts disable` #############################################################
 
 @test "\`disable\` with no arguments exits with status 1." {
-  {
-    run "$_HOSTS" add 0.0.0.0 example.com
-  }
-
   run "$_HOSTS" disable
   printf "\$status: %s\n" "$status"
   printf "\$output: '%s'\n" "$output"
@@ -16,9 +12,6 @@ load test_helper
 }
 
 @test "\`disable\` with no argument does not change the hosts file." {
-  {
-    run "$_HOSTS" add 0.0.0.0 example.com
-  }
   _original="$(cat "${HOSTS_PATH}")"
 
   run "$_HOSTS" disable
@@ -28,10 +21,6 @@ load test_helper
 }
 
 @test "\`disable\` with no arguments prints help information." {
-  {
-    run "$_HOSTS" add 0.0.0.0 example.com
-  }
-
   run "$_HOSTS" disable
   printf "\$status: %s\n" "$status"
   printf "\$output: '%s'\n" "$output"

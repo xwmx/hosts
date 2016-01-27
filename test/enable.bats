@@ -5,13 +5,6 @@ load test_helper
 # `hosts enable` ##############################################################
 
 @test "\`enable\` with no arguments exits with status 1." {
-  {
-    run "$_HOSTS" add 0.0.0.0 example.com
-    run "$_HOSTS" add 0.0.0.0 example.net
-    run "$_HOSTS" add 127.0.0.2 example.com
-    run "$_HOSTS" disable example.com
-  }
-
   run "$_HOSTS" enable
   printf "\$status: %s\n" "$status"
   printf "\$output: '%s'\n" "$output"
@@ -19,12 +12,6 @@ load test_helper
 }
 
 @test "\`enable\` with no argument does not change the hosts file." {
-  {
-    run "$_HOSTS" add 0.0.0.0 example.com
-    run "$_HOSTS" add 0.0.0.0 example.net
-    run "$_HOSTS" add 127.0.0.2 example.com
-    run "$_HOSTS" disable example.com
-  }
   _original="$(cat "${HOSTS_PATH}")"
 
   run "$_HOSTS" enable
@@ -34,13 +21,6 @@ load test_helper
 }
 
 @test "\`enable\` with no arguments prints help information." {
-  {
-    run "$_HOSTS" add 0.0.0.0 example.com
-    run "$_HOSTS" add 0.0.0.0 example.net
-    run "$_HOSTS" add 127.0.0.2 example.com
-    run "$_HOSTS" disable example.com
-  }
-
   run "$_HOSTS" enable
   printf "\$status: %s\n" "$status"
   printf "\$output: '%s'\n" "$output"
