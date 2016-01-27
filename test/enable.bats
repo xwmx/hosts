@@ -208,3 +208,18 @@ load test_helper
   [[ "${lines[0]}" == "Enabling:" ]]
   [[ "${lines[1]}" == "0.0.0.0	example.net" ]]
 }
+
+# help ########################################################################
+
+@test "\`help enable\` exits with status 0." {
+  run "$_HOSTS" help enable
+  [[ $status -eq 0 ]]
+}
+
+@test "\`help enable\` prints help information." {
+  run "$_HOSTS" help enable
+  printf "\$status: %s\n" "$status"
+  printf "\$output: '%s'\n" "$output"
+  [[ "${lines[0]}" == "Usage:" ]]
+  [[ "${lines[1]}" == "  hosts enable ( <ip> | <hostname> | <search string> )" ]]
+}
