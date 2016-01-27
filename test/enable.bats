@@ -25,7 +25,7 @@ load test_helper
   printf "\$status: %s\n" "$status"
   printf "\$output: '%s'\n" "$output"
   [[ "${lines[0]}" == "Usage:" ]]
-  [[ "${lines[1]}" == "  hosts enable ( <ip> | <hostname> | <search string> )" ]]
+  [[ "${lines[1]}" == "  hosts enable (<ip> | <hostname> | <search string>)" ]]
 }
 
 # `hosts enable <ip>` #########################################################
@@ -201,5 +201,5 @@ load test_helper
   printf "\$status: %s\n" "$status"
   printf "\$output: '%s'\n" "$output"
   [[ "${lines[0]}" == "Usage:" ]]
-  [[ "${lines[1]}" == "  hosts enable ( <ip> | <hostname> | <search string> )" ]]
+  [[ "${lines[1]}" == "  hosts enable (<ip> | <hostname> | <search string>)" ]]
 }

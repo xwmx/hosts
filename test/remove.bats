@@ -25,7 +25,7 @@ load test_helper
   printf "\$status: %s\n" "$status"
   printf "\$output: '%s'\n" "$output"
   [[ "${lines[0]}" == "Usage:" ]]
-  [[ "${lines[1]}" == "  hosts remove ( <ip> | <hostname> | <search string> ) [--force]" ]]
+  [[ "${lines[1]}" == "  hosts remove (<ip> | <hostname> | <search string>) [--force]" ]]
 }
 
 # `hosts remove <invalid> --force` ############################################
@@ -223,5 +223,5 @@ Removed:
   printf "\$status: %s\n" "$status"
   printf "\$output: '%s'\n" "$output"
   [[ "${lines[0]}" == "Usage:" ]]
-  [[ "${lines[1]}" == "  hosts remove ( <ip> | <hostname> | <search string> ) [--force]" ]]
+  [[ "${lines[1]}" == "  hosts remove (<ip> | <hostname> | <search string>) [--force]" ]]
 }

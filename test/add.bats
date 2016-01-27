@@ -25,7 +25,7 @@ load test_helper
   printf "\$status: %s\n" "$status"
   printf "\$output: '%s'\n" "$output"
   [[ "${lines[0]}" == "Usage:" ]]
-  [[ "${lines[1]}" == "  hosts add <ip> <hostname> [comment]" ]]
+  [[ "${lines[1]}" == "  hosts add <ip> <hostname> [<comment>]" ]]
 }
 
 # `hosts add <ip>` ############################################################
@@ -52,7 +52,7 @@ load test_helper
   printf "\$output: '%s'\n" "$output"
   [[ "${lines[0]}" == "Please include a hostname" ]]
   [[ "${lines[1]}" == "Usage:" ]]
-  [[ "${lines[2]}" == "  hosts add <ip> <hostname> [comment]" ]]
+  [[ "${lines[2]}" == "  hosts add <ip> <hostname> [<comment>]" ]]
 }
 
 # `hosts add <ip> <hostname>` #################################################
@@ -123,5 +123,5 @@ load test_helper
   printf "\$status: %s\n" "$status"
   printf "\$output: '%s'\n" "$output"
   [[ "${lines[0]}" == "Usage:" ]]
-  [[ "${lines[1]}" == "  hosts add <ip> <hostname> [comment]" ]]
+  [[ "${lines[1]}" == "  hosts add <ip> <hostname> [<comment>]" ]]
 }
