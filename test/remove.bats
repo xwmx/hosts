@@ -28,6 +28,34 @@ load test_helper
   [[ "${lines[1]}" == "  hosts remove ( <ip> | <hostname> | <search string> ) [--force]" ]]
 }
 
+# `hosts remove <invalid> --force` ############################################
+
+@test "\`remove <invalid> --force\` exits with status 1." {
+  {
+    run "$_HOSTS" add 0.0.0.0 example.com
+    run "$_HOSTS" add 0.0.0.0 example.net
+    run "$_HOSTS" add 127.0.0.2 example.com
+  }
+
+  run "$_HOSTS" remove 127.0.0.3 --force
+  printf "\$status: %s\n" "$status"
+  printf "\$output: '%s'\n" "$output"
+  [[ $status -eq 1 ]]
+}
+
+@test "\`remove <invalid> --force\` prints error message." {
+  {
+    run "$_HOSTS" add 0.0.0.0 example.com
+    run "$_HOSTS" add 0.0.0.0 example.net
+    run "$_HOSTS" add 127.0.0.2 example.com
+  }
+
+  run "$_HOSTS" remove 127.0.0.3 --force
+  printf "\$status: %s\n" "$status"
+  printf "\$output: '%s'\n" "$output"
+  [[ $output == "No matching records found." ]]
+}
+
 # `hosts remove <ip> --force` #################################################
 
 @test "\`remove <ip> --force\` exits with status 0." {
