@@ -33,3 +33,18 @@ load test_helper
   [[ "${lines[1]}" == "127.0.0.1	example.com" ]]
   [[ "${lines[2]}" == "" ]]
 }
+
+# help ########################################################################
+
+@test "\`help disabled\` exits with status 0." {
+  run "$_HOSTS" help disabled
+  [[ $status -eq 0 ]]
+}
+
+@test "\`help disabled\` prints help information." {
+  run "$_HOSTS" help disabled
+  printf "\$status: %s\n" "$status"
+  printf "\$output: '%s'\n" "$output"
+  [[ "${lines[0]}" == "Usage:" ]]
+  [[ "${lines[1]}" == "  hosts disabled" ]]
+}
