@@ -14,27 +14,27 @@ HEREDOC
 export _HELP_HEADER
 
 @test "\`help\` with no arguments exits with status 0." {
-  run "$_HOSTS" help
-  [ "$status" -eq 0 ]
+  run "${_HOSTS}" help
+  [ "${status}" -eq 0 ]
 }
 
 @test "\`help\` with no arguments prints default help." {
-  run "$_HOSTS" help
-  [[ $(IFS=$'\n'; echo "${lines[*]:0:5}") == "$_HELP_HEADER" ]]
+  run "${_HOSTS}" help
+  [[ $(IFS=$'\n'; echo "${lines[*]:0:5}") == "${_HELP_HEADER}" ]]
 }
 
 @test "\`hosts -h\` prints default help." {
-  run "$_HOSTS" -h
-  [[ $(IFS=$'\n'; echo "${lines[*]:0:5}") == "$_HELP_HEADER" ]]
+  run "${_HOSTS}" -h
+  [[ $(IFS=$'\n'; echo "${lines[*]:0:5}") == "${_HELP_HEADER}" ]]
 }
 
 @test "\`hosts --help\` prints default help." {
-  run "$_HOSTS" --help
-  [[ $(IFS=$'\n'; echo "${lines[*]:0:5}") == "$_HELP_HEADER" ]]
+  run "${_HOSTS}" --help
+  [[ $(IFS=$'\n'; echo "${lines[*]:0:5}") == "${_HELP_HEADER}" ]]
 }
 
 @test "\`hosts help help\` prints \`help\` subcommand usage." {
-  run "$_HOSTS" help help
+  run "${_HOSTS}" help help
   _expected="$(
     cat <<HEREDOC
 Usage:
@@ -44,5 +44,5 @@ Description:
   Display help information for hosts or a specified command.
 HEREDOC
   )"
-  [[ "$output" == "$_expected" ]]
+  [[ "${output}" == "${_expected}" ]]
 }

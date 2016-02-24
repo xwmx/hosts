@@ -77,7 +77,7 @@ _debug() {
   then
     # Prefix debug message with "bug (U+1F41B)"
     printf "🐛  "
-    "$@"
+    "${@}"
     printf "――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――\n"
   fi
 }
@@ -90,7 +90,7 @@ _debug() {
 #
 # This is a shortcut for the _debug() function that simply echos the message.
 debug() {
-  _debug echo "$@"
+  _debug echo "${@}"
 }
 
 ###############################################################################
@@ -108,7 +108,7 @@ debug() {
 _die() {
   # Prefix die message with "cross mark (U+274C)", often displayed as a red x.
   printf "❌  "
-  "$@" 1>&2
+  "${@}" 1>&2
   exit 1
 }
 # die()
@@ -120,7 +120,7 @@ _die() {
 #
 # This is a shortcut for the _die() function that simply echos the message.
 die() {
-  _die echo "$@"
+  _die echo "${@}"
 }
 
 ###############################################################################
@@ -128,7 +128,7 @@ die() {
 ###############################################################################
 
 # Get raw options for any commands that expect them.
-_RAW_OPTIONS="$*"
+_RAW_OPTIONS="${*}"
 
 # Steps:
 #
@@ -166,9 +166,9 @@ optstring=h
 # argument to the option, such as wget -qO-)
 unset options
 # while the number of arguments is greater than 0
-while (($#))
+while ((${#}))
 do
-  case $1 in
+  case ${1} in
     # if option is of type -ab
     -[!-]?*)
       # loop over each character starting with the second
@@ -177,11 +177,11 @@ do
         # extract 1 character from position 'i'
         c=${1:i:1}
         # add current char to options
-        options+=("-$c")
+        options+=("-${c}")
 
         # if option takes a required argument, and it's not the last char
         # make the rest of the string its argument
-        if [[ $optstring = *"$c:"* && ${1:i+1} ]]
+        if [[ ${optstring} = *"${c}:"* && ${1:i+1} ]]
         then
           options+=("${1:i+1}")
           break
@@ -196,12 +196,12 @@ do
     --)
       options+=(--endopts)
       shift
-      options+=("$@")
+      options+=("${@}")
       break
       ;;
     # otherwise, nothing special
     *)
-      options+=("$1")
+      options+=("${1}")
       ;;
   esac
 
@@ -219,17 +219,17 @@ unset options
 # command. This is essentially the same as the program arguments, minus those
 # that have been filtered out in the program option parsing loop. This array
 # is initialized with $0, which is the program's name.
-_COMMAND_ARGV=("$0")
+_COMMAND_ARGV=("${0}")
 # Initialize $_CMD and `$_USE_DEBUG`, which can continue to be blank depending
 # on what the program needs.
 _CMD=""
 _USE_DEBUG=0
 
-while [ $# -gt 0 ]
+while [ ${#} -gt 0 ]
 do
-  opt="$1"
+  opt="${1}"
   shift
-  case "$opt" in
+  case "${opt}" in
     -h|--help)
       _CMD="help"
       ;;
@@ -242,11 +242,11 @@ do
     *)
       # The first non-option argument is assumed to be the command name.
       # All subsequent arguments are added to $_COMMAND_ARGV.
-      if [[ -n $_CMD ]]
+      if [[ -n ${_CMD} ]]
       then
-        _COMMAND_ARGV+=("$opt")
+        _COMMAND_ARGV+=("${opt}")
       else
-        _CMD="$opt"
+        _CMD="${opt}"
       fi
       ;;
   esac
@@ -263,10 +263,18 @@ done
 _COMMAND_PARAMETERS=(${_COMMAND_ARGV[*]})
 unset _COMMAND_PARAMETERS[0]
 
-_debug printf "\$_CMD: %s\n" "$_CMD"
-_debug printf "\$_RAW_OPTIONS (one per line):\n%s\n" "$_RAW_OPTIONS"
-_debug printf "\$_COMMAND_ARGV: %s\n" "${_COMMAND_ARGV[*]}"
-_debug printf "\$_COMMAND_PARAMETERS: %s\n" "${_COMMAND_PARAMETERS[*]:-}"
+_debug printf \
+  "\${_CMD}: %s\n" \
+  "${_CMD}"
+_debug printf \
+  "\${_RAW_OPTIONS} (one per line):\n%s\n" \
+  "${_RAW_OPTIONS}"
+_debug printf \
+  "\${_COMMAND_ARGV[*]}: %s\n" \
+  "${_COMMAND_ARGV[*]}"
+_debug printf \
+  "\${_COMMAND_PARAMETERS[*]:-}: %s\n" \
+  "${_COMMAND_PARAMETERS[*]:-}"
 
 ###############################################################################
 # Environment
@@ -275,9 +283,9 @@ _debug printf "\$_COMMAND_PARAMETERS: %s\n" "${_COMMAND_PARAMETERS[*]:-}"
 # $_ME
 #
 # Set to the program's basename.
-_ME=$(basename "$0")
+_ME=$(basename "${0}")
 
-_debug printf "\$_ME: %s\n" "$_ME"
+_debug printf "\${_ME}: %s\n" "${_ME}"
 
 ###############################################################################
 # Load Commands
@@ -308,25 +316,25 @@ _load_commands() {
     # Each element has the format `declare -f function_name`, so set the name
     # to only the 'function_name' part of the string.
     local function_name
-    function_name=$(printf "%s" "$c" | awk '{ print $3 }')
+    function_name=$(printf "%s" "${c}" | awk '{ print $3 }')
 
-    _debug printf "_load_commands() \$function_name: %s\n" "$function_name"
+    _debug printf "_load_commands() \${function_name}: %s\n" "${function_name}"
 
     # Add the function name to the $_DEFINED_COMMANDS array unless it starts
     # with an underscore or is one of the desc(), debug(), or die() functions,
     # since these are treated as having 'private' visibility.
-    if ! ( [[ "$function_name" =~ ^_(.*)  ]] || \
-           [[ "$function_name" == "desc"  ]] || \
-           [[ "$function_name" == "debug" ]] || \
-           [[ "$function_name" == "die"   ]]
+    if ! ( [[ "${function_name}" =~ ^_(.*)  ]] || \
+           [[ "${function_name}" == "desc"  ]] || \
+           [[ "${function_name}" == "debug" ]] || \
+           [[ "${function_name}" == "die"   ]]
     )
     then
-      _DEFINED_COMMANDS+=("$function_name")
+      _DEFINED_COMMANDS+=("${function_name}")
     fi
   done
 
   _debug printf \
-    "commands() \$_DEFINED_COMMANDS:\n%s\n" \
+    "commands() \${_DEFINED_COMMANDS[*]:-}:\n%s\n" \
     "${_DEFINED_COMMANDS[*]:-}"
 }
 
@@ -344,24 +352,24 @@ _load_commands() {
 # NOTE: must be called at end of program after all commands have been defined.
 _main() {
   _debug printf "main(): entering...\n"
-  _debug printf "main() \$_CMD (upon entering): %s\n" "$_CMD"
+  _debug printf "main() \${_CMD} (upon entering): %s\n" "${_CMD}"
 
   # If $_CMD is blank, then set to `$DEFAULT_COMMAND`
-  if [[ -z $_CMD ]]
+  if [[ -z ${_CMD} ]]
   then
-    _CMD="$DEFAULT_COMMAND"
+    _CMD="${DEFAULT_COMMAND}"
   fi
 
   # Load all of the commands.
   _load_commands
 
   # If the command is defined, run it, otherwise return an error.
-  if _contains "$_CMD" "${_DEFINED_COMMANDS[*]:-}"
+  if _contains "${_CMD}" "${_DEFINED_COMMANDS[*]:-}"
   then
     # Pass all comment arguments to the program except for the first ($0).
-    $_CMD "${_COMMAND_PARAMETERS[@]:-}"
+    ${_CMD} "${_COMMAND_PARAMETERS[@]:-}"
   else
-    _die printf "Unknown command: %s\n" "$_CMD"
+    _die printf "Unknown command: %s\n" "${_CMD}"
   fi
 }
 
@@ -377,7 +385,7 @@ _main() {
 # Takes a potential function name as an argument and returns whether a function
 # exists with that name.
 _function_exists() {
-  [ "$(type -t "$1")" == 'function' ]
+  [ "$(type -t "${1}")" == 'function' ]
 }
 
 # _command_exists()
@@ -391,7 +399,7 @@ _function_exists() {
 # For information on why `hash` is used here, see:
 # http://stackoverflow.com/a/677212
 _command_exists() {
-  hash "$1" 2>/dev/null
+  hash "${1}" 2>/dev/null
 }
 
 # _contains()
@@ -404,10 +412,10 @@ _contains() {
   local test_list=(${*:2})
   for _test_element in "${test_list[@]:-}"
   do
-    _debug printf "_contains() \$_test_element: %s\n" "$_test_element"
-    if [[ "$_test_element" == "$1" ]]
+    _debug printf "_contains() \${_test_element}: %s\n" "${_test_element}"
+    if [[ "${_test_element}" == "${1}" ]]
     then
-      _debug printf "_contains() match: %s\n" "$1"
+      _debug printf "_contains() match: %s\n" "${1}"
       return 0
     fi
   done
@@ -427,7 +435,7 @@ _join() {
   local target_array
   local dirty
   local clean
-  separator="$1"
+  separator="${1}"
   target_array=(${@:2})
   dirty="$(printf "${separator}%s"  "${target_array[@]}")"
   clean="${dirty:${#separator}}"
@@ -445,7 +453,7 @@ _join() {
 # This is a shortcut for simple cases where a command wants to check for the
 # presence of options quickly without parsing the options again.
 _command_argv_includes() {
-  _contains "$1" "${_COMMAND_ARGV[*]}"
+  _contains "${1}" "${_COMMAND_ARGV[*]}"
 }
 
 # _blank()
@@ -512,16 +520,16 @@ sudo !!\n"
 # escaping backslashes, which is more common.
 desc() {
   set +e
-  [[ -z $1 ]] && _die printf "desc: No command name specified.\n"
+  [[ -z ${1} ]] && _die printf "desc: No command name specified.\n"
   if [[ -n ${2:-} ]]
   then
-    read -d '' "_desc_$1" <<EOM
-$2
+    read -d '' "_desc_${1}" <<EOM
+${2}
 EOM
-    _debug printf "desc() set with argument: _desc_%s\n" "$1"
+    _debug printf "desc() set with argument: _desc_%s\n" "${1}"
   else
-    read -d '' "_desc_$1"
-    _debug printf "desc() set with pipe: _desc_%s\n" "$1"
+    read -d '' "_desc_${1}"
+    _debug printf "desc() set with pipe: _desc_%s\n" "${1}"
   fi
   set -e
 }
@@ -534,12 +542,12 @@ EOM
 # Prints the description for a given command, provided the description has been
 # set using the desc() function.
 _print_desc() {
-  local var="_desc_$1"
+  local var="_desc_${1}"
   if [[ -n ${!var:-} ]]
   then
     printf "%s\n" "${!var}"
   else
-    printf "No additional information for \`%s\`\n" "$1"
+    printf "No additional information for \`%s\`\n" "${1}"
   fi
 }
 
@@ -551,25 +559,25 @@ _print_desc() {
 
 desc "version" <<EOM
 Usage:
-  $_ME (version | --version)
+  ${_ME} (version | --version)
 
 Description:
   Display the current program version.
 
-  To save you the trouble, the current version is $_VERSION
+  To save you the trouble, the current version is ${_VERSION}
 EOM
 version() {
-  printf "%s\n" "$_VERSION"
+  printf "%s\n" "${_VERSION}"
 }
 
 # Help ########################################################################
 
 desc "help" <<EOM
 Usage:
-  $_ME help [<command>]
+  ${_ME} help [<command>]
 
 Description:
-  Display help information for $_ME or a specified command.
+  Display help information for ${_ME} or a specified command.
 EOM
 help() {
   if [[ ${#_COMMAND_ARGV[@]} = 1 ]]
@@ -583,34 +591,34 @@ help() {
 
 A program for managing host file entries.
 
-Version: $_VERSION
+Version: ${_VERSION}
 
 Usage:
-  $_ME
-  $_ME add <ip> <hostname> [<comment>]
-  $_ME disable (<ip> | <hostname> | <search string>)
-  $_ME disabled
-  $_ME edit
-  $_ME enable (<ip> | <hostname> | <search string>)
-  $_ME enabled
-  $_ME file
-  $_ME list [enabled | disabled | <search string>]
-  $_ME show (<ip> | <hostname> | <search string>)
-  $_ME remove (<ip> | <hostname> | <search string>) [--force]
-  $_ME -h | --help
-  $_ME --version
+  ${_ME}
+  ${_ME} add <ip> <hostname> [<comment>]
+  ${_ME} disable (<ip> | <hostname> | <search string>)
+  ${_ME} disabled
+  ${_ME} edit
+  ${_ME} enable (<ip> | <hostname> | <search string>)
+  ${_ME} enabled
+  ${_ME} file
+  ${_ME} list [enabled | disabled | <search string>]
+  ${_ME} show (<ip> | <hostname> | <search string>)
+  ${_ME} remove (<ip> | <hostname> | <search string>) [--force]
+  ${_ME} -h | --help
+  ${_ME} --version
 
 Options:
   -h --help  Display this help information.
   --version  Display version information.
 
 Help:
-  $_ME help [<command>]
+  ${_ME} help [<command>]
 
 $(commands)
 EOM
   else
-    _print_desc "$1"
+    _print_desc "${1}"
   fi
 }
 
@@ -618,7 +626,7 @@ EOM
 
 desc "commands" <<EOM
 Usage:
-  $_ME commands [--raw]
+  ${_ME} commands [--raw]
 
 Options:
   --raw  Display the command list without formatting.
@@ -667,15 +675,15 @@ commands() {
 
 desc "add" <<EOM
 Usage:
-  $_ME add <ip> <hostname> [<comment>]
+  ${_ME} add <ip> <hostname> [<comment>]
 
 Description:
   Add a given IP address and hostname pair, along with an optional comment.
 EOM
 add() {
-  _debug printf "add() \$1: %s\n" "${1:-}"
-  _debug printf "add() \$2: %s\n" "${2:-}"
-  _debug printf "add() \$3: %s\n" "${3:-}"
+  _debug printf "add() \${1}: %s\n" "${1:-}"
+  _debug printf "add() \${2}: %s\n" "${2:-}"
+  _debug printf "add() \${3}: %s\n" "${3:-}"
 
   _verify_write_permissions
   local ip=${1:-}
@@ -683,12 +691,12 @@ add() {
   local comment=${*:3}
   if [[ -z ${ip} ]]
   then
-    $_ME help add
+    ${_ME} help add
     exit 1
   elif [[ -z ${hostname} ]]
   then
     printf "Please include a hostname\n"
-    $_ME help add
+    ${_ME} help add
     exit 1
   elif grep \
     -e "^${ip}\t${hostname}$" \
@@ -725,7 +733,7 @@ add() {
 
 desc "disable" <<EOM
 Usage:
-  $_ME disable (<ip> | <hostname> | <search string>)
+  ${_ME} disable (<ip> | <hostname> | <search string>)
 
 Description:
   Disable one or more records based on a given ip address, hostname, or
@@ -733,13 +741,13 @@ Description:
 EOM
 disable() {
   _verify_write_permissions
-  local search_string=$1
+  local search_string="${1}"
   if [[ -z "${search_string}" ]]
   then
-    $_ME help disable
+    ${_ME} help disable
     exit 1
   else
-    _debug printf "disable() \$search_string: %s\n" "$search_string"
+    _debug printf "disable() \${search_string}: %s\n" "${search_string}"
 
     target_regex_ip="^\(${search_string}[${_TAB_SPACE_}]..*\)$"
     target_regex_commented_hostname="^\([^#]..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\)$"
@@ -757,7 +765,7 @@ disable() {
         -e "s/${target_regex_hostname}/\1/p" \
         "${HOSTS_PATH}"
     )
-    _debug printf "disable() \$targets: %s\n" "$targets"
+    _debug printf "disable() \${targets}: %s\n" "${targets}"
     if [[ -z "${targets}" ]]
     then
       _die printf "Not found: %s\n" "${search_string}"
@@ -779,31 +787,31 @@ disable() {
 
 desc "disabled" <<EOM
 Usage:
-  $_ME disabled
+  ${_ME} disabled
 
 Description:
   List all disabled records. This is an alias for \`hosts list disabled\`.
 EOM
 disabled() {
-  $_ME list disabled
+  ${_ME} list disabled
 }
 
 # ------------------------------------------------------------------------ edit
 
 desc "edit" <<EOM
 Usage:
-  $_ME edit
+  ${_ME} edit
 
 Description:
   Open the ${HOSTS_PATH} file in your \$EDITOR.
 EOM
 edit() {
   _verify_write_permissions
-  if [[ -z "$EDITOR" ]]
+  if [[ -z "${EDITOR}" ]]
   then
     _die printf "\$EDITOR not set.\n"
   else
-    "$EDITOR" "${HOSTS_PATH}"
+    "${EDITOR}" "${HOSTS_PATH}"
   fi
 }
 
@@ -811,7 +819,7 @@ edit() {
 
 desc "enable" <<EOM
 Usage:
-  $_ME enable (<ip> | <hostname> | <search string>)
+  ${_ME} enable (<ip> | <hostname> | <search string>)
 
 Description:
   Enable one or more disabled records based on a given ip address, hostname,
@@ -819,13 +827,13 @@ Description:
 EOM
 enable() {
   _verify_write_permissions
-  local search_string=$1
+  local search_string="${1}"
   if [[ -z "${search_string}" ]]
   then
-    $_ME help enable
+    ${_ME} help enable
     exit 1
   else
-    _debug printf "enable() \$search_string: %s\n" "$search_string"
+    _debug printf "enable() \${search_string}: %s\n" "${search_string}"
 
     target_regex_ip="^\#disabled: \(${search_string}[${_TAB_SPACE_}]..*\)$"
     target_regex_commented_hostname="^\#disabled: \(..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\)$"
@@ -843,7 +851,7 @@ enable() {
         -e "s/${target_regex_hostname}/\1/p" \
         "${HOSTS_PATH}"
     )
-    _debug printf "enable() \$targets: %s\n" "$targets"
+    _debug printf "enable() \${targets}: %s\n" "${targets}"
     if [[ -z "${targets}" ]]
     then
       _die printf "Not found: %s\n" "${search_string}"
@@ -865,20 +873,20 @@ enable() {
 
 desc "enabled" <<EOM
 Usage:
-  $_ME enabled
+  ${_ME} enabled
 
 Description:
   List all enabled records. This is an alias for \`hosts list enabled\`.
 EOM
 enabled() {
-  $_ME list enabled
+  ${_ME} list enabled
 }
 
 # ------------------------------------------------------------------------ file
 
 desc "file" <<EOM
 Usage:
-  $_ME file
+  ${_ME} file
 
 Description:
   Print the entire contents of the ${HOSTS_PATH} file.
@@ -891,7 +899,7 @@ file() {
 
 desc "list" <<EOM
 Usage:
-  $_ME list [enabled | disabled | <search string>]
+  ${_ME} list [enabled | disabled | <search string>]
 
 Description:
   List the existing IP / hostname pairs, optionally limited to a specified
@@ -905,16 +913,16 @@ list() {
     sed -n "s/^\#disabled: \(.*\)$/\1/p" "${HOSTS_PATH}"
   )
 
-  if [[ -n "$1" ]]
+  if [[ -n "${1}" ]]
   then
-    if [[ "$1" == "disabled" ]]
+    if [[ "${1}" == "disabled" ]]
     then
       printf "%s\n" "${disabled_records}"
-    elif [[ "$1" == "enabled" ]]
+    elif [[ "${1}" == "enabled" ]]
     then
       grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
     else
-      $_ME show "$1"
+      ${_ME} show "${1}"
     fi
   else
     # NOTE: use separate expressions since using a | for the or results in
@@ -931,8 +939,8 @@ list() {
 
 desc "remove" <<EOM
 Usage:
-  $_ME remove (<ip> | <hostname> | <search string>) [--force]
-  $_ME remove <ip> <hostname>
+  ${_ME} remove (<ip> | <hostname> | <search string>) [--force]
+  ${_ME} remove <ip> <hostname>
 
 Options:
   --force  Skip the confirmation prompt.
@@ -951,17 +959,17 @@ remove() {
   local search_hostname=""
   local search_string=""
 
-  _debug printf "remove() \$1: %s\n" "${1:-}"
-  _debug printf "remove() \$2: %s\n" "${2:-}"
+  _debug printf "remove() \${1}: %s\n" "${1:-}"
+  _debug printf "remove() \${2}: %s\n" "${2:-}"
 
   for arg in "${_COMMAND_ARGV[@]:-}"
   do
-    case $arg in
+    case ${arg} in
       --force)
         force_skip_prompt=1
         ;;
       *)
-        arguments+=($arg)
+        arguments+=(${arg})
         ;;
     esac
   done
@@ -972,17 +980,17 @@ remove() {
 
   if [[ -z "${arguments[1]:-}" ]]
   then
-    $_ME help remove
+    ${_ME} help remove
     exit 1
   elif [[ -n "${arguments[2]:-}" ]]
   then
     search_ip="${arguments[1]}"
     search_hostname="${arguments[2]}"
     is_search_pair=1
-    _debug printf "remove() \$is_search_pair: %s\n" "$is_search_pair"
+    _debug printf "remove() \${is_search_pair}: %s\n" "${is_search_pair}"
   else
     search_string="${arguments[1]:-}"
-    _debug printf "remove() \$search_string: %s\n" "$search_string"
+    _debug printf "remove() \${search_string}: %s\n" "${search_string}"
   fi
 
   # Regular Expression Notes
@@ -1026,11 +1034,11 @@ remove() {
 
   if ! ((force_skip_prompt))
   then
-    printf "Removing the following records:\n%s\n" "$target_records"
+    printf "Removing the following records:\n%s\n" "${target_records}"
     while true
     do
       read -p "Are you sure you want to proceed? [y/N] " yn
-      case $yn in
+      case ${yn} in
         [Yy]* )
           break
           ;;
@@ -1066,34 +1074,34 @@ remove() {
 
 desc "show" <<EOM
 Usage:
-  $_ME show (<ip> | <hostname> | <search string>)
+  ${_ME} show (<ip> | <hostname> | <search string>)
 
 Description:
   Print entries matching a given IP address, hostname, or search string.
 EOM
 show() {
-  if [[ -n "$1" ]]
+  if [[ -n "${1}" ]]
   then
     # Run `sed` before `grep` to avoid conflict that supress `sed` output.
     local disabled_records
     disabled_records=$(
-      sed -n "s/^\#\(disabled: .*$1.*\)$/\1/p" "${HOSTS_PATH}"
+      sed -n "s/^\#\(disabled: .*${1}.*\)$/\1/p" "${HOSTS_PATH}"
     )
     local enabled_records
     enabled_records=$(
-      grep "^[^#]*$1" "${HOSTS_PATH}"
+      grep "^[^#]*${1}" "${HOSTS_PATH}"
     )
     # Output disabled records secondly for better organization.
-    if [[ -n "$enabled_records"  ]]
+    if [[ -n "${enabled_records}"  ]]
     then
-      printf "%s\n" "$enabled_records"
+      printf "%s\n" "${enabled_records}"
     fi
-    if [[ -n "$disabled_records" ]]
+    if [[ -n "${disabled_records}" ]]
     then
-      printf "%s\n" "$disabled_records"
+      printf "%s\n" "${disabled_records}"
     fi
   else
-    $_ME help show
+    ${_ME} help show
     exit 1
   fi
 }
