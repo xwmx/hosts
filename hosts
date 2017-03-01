@@ -510,9 +510,9 @@ sudo !!\n"
 # implementation and simplicity. There is an alternative assignment form
 # that could be used here:
 #
-# var="$(cat <<'EOM'
+# var="$(cat <<'HEREDOC'
 # some message
-# EOM
+# HEREDOC
 # )
 #
 # However, this form appears to require trailing space after backslases to
@@ -523,9 +523,9 @@ desc() {
   [[ -z ${1} ]] && _die printf "desc: No command name specified.\n"
   if [[ -n ${2:-} ]]
   then
-    read -d '' "_desc_${1}" <<EOM
+    read -d '' "_desc_${1}" <<HEREDOC
 ${2}
-EOM
+HEREDOC
     _debug printf "desc() set with argument: _desc_%s\n" "${1}"
   else
     read -d '' "_desc_${1}"
@@ -557,7 +557,7 @@ _print_desc() {
 
 # Version #####################################################################
 
-desc "version" <<EOM
+desc "version" <<HEREDOC
 Usage:
   ${_ME} (version | --version)
 
@@ -565,24 +565,24 @@ Description:
   Display the current program version.
 
   To save you the trouble, the current version is ${_VERSION}
-EOM
+HEREDOC
 version() {
   printf "%s\n" "${_VERSION}"
 }
 
 # Help ########################################################################
 
-desc "help" <<EOM
+desc "help" <<HEREDOC
 Usage:
   ${_ME} help [<command>]
 
 Description:
   Display help information for ${_ME} or a specified command.
-EOM
+HEREDOC
 help() {
   if [[ ${#_COMMAND_ARGV[@]} = 1 ]]
   then
-    cat <<EOM
+    cat <<HEREDOC
     __               __
    / /_  ____  _____/ /______
   / __ \/ __ \/ ___/ __/ ___/
@@ -616,7 +616,7 @@ Help:
   ${_ME} help [<command>]
 
 $(commands)
-EOM
+HEREDOC
   else
     _print_desc "${1}"
   fi
@@ -624,7 +624,7 @@ EOM
 
 # Command List ################################################################
 
-desc "commands" <<EOM
+desc "commands" <<HEREDOC
 Usage:
   ${_ME} commands [--raw]
 
@@ -633,7 +633,7 @@ Options:
 
 Description:
   Display the list of available commands.
-EOM
+HEREDOC
 commands() {
   if _command_argv_includes "--raw"
   then
@@ -654,7 +654,7 @@ commands() {
 # example() { : }   - The command called by the user.
 #
 #
-# desc example <<EOM
+# desc example <<HEREDOC
 #   Usage:
 #     $_ME example
 #
@@ -664,7 +664,7 @@ commands() {
 #     For usage formatting conventions see:
 #     - http://docopt.org/
 #     - http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html
-# EOM
+# HEREDOC
 # example() {
 #   printf "Hello, World!\n"
 # }
@@ -673,13 +673,13 @@ commands() {
 
 # ------------------------------------------------------------------------- add
 
-desc "add" <<EOM
+desc "add" <<HEREDOC
 Usage:
   ${_ME} add <ip> <hostname> [<comment>]
 
 Description:
   Add a given IP address and hostname pair, along with an optional comment.
-EOM
+HEREDOC
 add() {
   _debug printf "add() \${1}: %s\n" "${1:-}"
   _debug printf "add() \${2}: %s\n" "${2:-}"
@@ -731,14 +731,14 @@ add() {
 
 # --------------------------------------------------------------------- disable
 
-desc "disable" <<EOM
+desc "disable" <<HEREDOC
 Usage:
   ${_ME} disable (<ip> | <hostname> | <search string>)
 
 Description:
   Disable one or more records based on a given ip address, hostname, or
   search string.
-EOM
+HEREDOC
 disable() {
   _verify_write_permissions
   local search_string="${1}"
@@ -785,26 +785,26 @@ disable() {
 
 # -------------------------------------------------------------------- disabled
 
-desc "disabled" <<EOM
+desc "disabled" <<HEREDOC
 Usage:
   ${_ME} disabled
 
 Description:
   List all disabled records. This is an alias for \`hosts list disabled\`.
-EOM
+HEREDOC
 disabled() {
   ${_ME} list disabled
 }
 
 # ------------------------------------------------------------------------ edit
 
-desc "edit" <<EOM
+desc "edit" <<HEREDOC
 Usage:
   ${_ME} edit
 
 Description:
   Open the ${HOSTS_PATH} file in your \$EDITOR.
-EOM
+HEREDOC
 edit() {
   _verify_write_permissions
   if [[ -z "${EDITOR}" ]]
@@ -817,14 +817,14 @@ edit() {
 
 # ---------------------------------------------------------------------- enable
 
-desc "enable" <<EOM
+desc "enable" <<HEREDOC
 Usage:
   ${_ME} enable (<ip> | <hostname> | <search string>)
 
 Description:
   Enable one or more disabled records based on a given ip address, hostname,
   or search string.
-EOM
+HEREDOC
 enable() {
   _verify_write_permissions
   local search_string="${1}"
@@ -871,33 +871,33 @@ enable() {
 
 # --------------------------------------------------------------------- enabled
 
-desc "enabled" <<EOM
+desc "enabled" <<HEREDOC
 Usage:
   ${_ME} enabled
 
 Description:
   List all enabled records. This is an alias for \`hosts list enabled\`.
-EOM
+HEREDOC
 enabled() {
   ${_ME} list enabled
 }
 
 # ------------------------------------------------------------------------ file
 
-desc "file" <<EOM
+desc "file" <<HEREDOC
 Usage:
   ${_ME} file
 
 Description:
   Print the entire contents of the ${HOSTS_PATH} file.
-EOM
+HEREDOC
 file() {
   cat "${HOSTS_PATH}"
 }
 
 # ------------------------------------------------------------------------ list
 
-desc "list" <<EOM
+desc "list" <<HEREDOC
 Usage:
   ${_ME} list [enabled | disabled | <search string>]
 
@@ -905,7 +905,7 @@ Description:
   List the existing IP / hostname pairs, optionally limited to a specified
   state. When provided with a seach string, all matching enabled records will
   be printed.
-EOM
+HEREDOC
 list() {
   # Get the disabled records up front for the two cases where they are needed.
   local disabled_records
@@ -937,7 +937,7 @@ list() {
 
 # ---------------------------------------------------------------------- remove
 
-desc "remove" <<EOM
+desc "remove" <<HEREDOC
 Usage:
   ${_ME} remove (<ip> | <hostname> | <search string>) [--force]
   ${_ME} remove <ip> <hostname>
@@ -949,7 +949,7 @@ Description:
   Remove one or more records based on a given IP address, hostname, or search
   string. If an IP and hostname are both provided, only records matching the
   IP and hostname pair will be removed.
-EOM
+HEREDOC
 remove() {
   _verify_write_permissions
   local is_search_pair=0
@@ -1072,13 +1072,13 @@ remove() {
 
 # ------------------------------------------------------------------------ show
 
-desc "show" <<EOM
+desc "show" <<HEREDOC
 Usage:
   ${_ME} show (<ip> | <hostname> | <search string>)
 
 Description:
   Print entries matching a given IP address, hostname, or search string.
-EOM
+HEREDOC
 show() {
   if [[ -n "${1}" ]]
   then
