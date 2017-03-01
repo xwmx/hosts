@@ -1070,6 +1070,24 @@ remove() {
   printf "Removed:\n%s\n" "${target_records}"
 }
 
+# ---------------------------------------------------------------------- search
+
+desc "search" <<HEREDOC
+Usage:
+  $_ME search <search string>
+
+Description:
+  Search entries for <search string>.
+HEREDOC
+search() {
+  if _blank "${_COMMAND_ARGV[1]:-}"
+  then
+    $_ME help "search"
+    return 1
+  fi
+  list "$@"
+}
+
 # ------------------------------------------------------------------------ show
 
 desc "show" <<HEREDOC

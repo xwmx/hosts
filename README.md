@@ -50,6 +50,7 @@ Usage:
   hosts file
   hosts list [enabled | disabled | <search string>]
   hosts show (<ip> | <hostname> | <search string>)
+  hosts search <search string>
   hosts remove (<ip> | <hostname> | <search string>) [--force]
 ```
 
@@ -112,6 +113,10 @@ Open the hosts file (/etc/hosts) file in your editor.
 ###### `hosts file`
 
 Print the entire contents of the /etc/hosts file.
+
+###### `hosts search <search string>`
+
+Search entries for a given search string.
 
 ## Tests
 
