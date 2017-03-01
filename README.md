@@ -113,6 +113,11 @@ Open the hosts file (/etc/hosts) file in your editor.
 
 Print the entire contents of the /etc/hosts file.
 
+## Tests
+
+To run the test suite, install [Bats](https://github.com/sstephenson/bats) and
+run `bats test` in the project root directory.
+
 ## Acknowledgements
 
 Based on prior work by:
