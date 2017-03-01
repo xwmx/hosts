@@ -70,64 +70,179 @@ hosts help <command name>
 
 ## Commands
 
-###### `hosts add <ip> <hostname> [<comment>]`
+## `hosts add`
 
-Add a given IP address and hostname pair, along with an optional comment.
+```text
+Usage:
+  hosts add <ip> <hostname> [<comment>]
 
-###### `hosts remove (<ip> | <hostname> | <search string>) [--force]`
+Description:
+  Add a given IP address and hostname pair, along with an optional comment.
+```
 
-Remove one or more records based on a given IP address, hostname, or search
-string. When the `--force` option is used, the confirmation prompt is
-suppressed.
+### `hosts block`
 
-###### `hosts list [enabled | disabled | <search string>]`
+```text
+Usage:
+  hosts block <hostname>
 
-List the existing IP / hostname pairs, optionally limited to a specified
-state. When provided with a search string, all matching enabled records will
-be printed.
+Description:
+  Block a given hostname by adding new entries assigning it to `127.0.0.1`
+  for IPv4 and both `fe80::1%lo0` and `::1` for IPv6.
+```
 
-###### `hosts show (<ip> | <hostname> | <search string>)`
+### `hosts commands`
 
-Print entries matching a given IP address, hostname, or search string.
+```text
+Usage:
+  hosts commands [--raw]
 
-###### `hosts disable (<ip> | <hostname> | <search string>)`
+Options:
+  --raw  Display the command list without formatting.
 
-Disable one or more records based on a given ip address, hostname, or
-search string.
+Description:
+  Display the list of available commands.
+```
 
-###### `hosts disabled`
+### `hosts disable`
 
-List all disabled records. This is an alias for `hosts list disabled`.
+```text
+Usage:
+  hosts disable (<ip> | <hostname> | <search string>)
 
-###### `hosts enable (<ip> | <hostname> | <search string>)`
+Description:
+  Disable one or more records based on a given ip address, hostname, or
+  search string.
+```
 
-Enable one or more disabled records based on a given ip address, hostname,
-or search string.
+### `hosts disabled`
 
-###### `hosts enabled`
+```text
+Usage:
+  hosts disabled
 
-List all enabled records. This is an alias for `hosts list enabled`.
+Description:
+  List all disabled records. This is an alias for `hosts list disabled`.
+```
 
-###### `hosts edit`
+### `hosts edit`
 
-Open the hosts file (/etc/hosts) file in your editor.
+```text
+Usage:
+  hosts edit
 
-###### `hosts file`
+Description:
+  Open the /etc/hosts file in your $EDITOR.
+```
 
-Print the entire contents of the /etc/hosts file.
+### `hosts enable`
 
-###### `hosts search <search string>`
+```text
+Usage:
+  hosts enable (<ip> | <hostname> | <search string>)
 
-Search entries for a given search string.
+Description:
+  Enable one or more disabled records based on a given ip address, hostname,
+  or search string.
+```
 
-###### `block <hostname>`
+### `hosts enabled`
 
-Block a given hostname by adding new entries assigning it to `127.0.0.1` for
-IPv4 and both `fe80::1%lo0` and `::1` for IPv6.
+```text
+Usage:
+  hosts enabled
 
-###### `unblock <hostname>`
+Description:
+  List all enabled records. This is an alias for `hosts list enabled`.
+```
 
-Unblock a given hostname by removing its entries from the hosts file.
+### `hosts file`
+
+```text
+Usage:
+  hosts file
+
+Description:
+  Print the entire contents of the /etc/hosts file.
+```
+
+### `hosts help`
+
+```text
+Usage:
+  hosts help [<command>]
+
+Description:
+  Display help information for hosts or a specified command.
+```
+
+### `hosts list`
+
+```text
+Usage:
+  hosts list [enabled | disabled | <search string>]
+
+Description:
+  List the existing IP / hostname pairs, optionally limited to a specified
+  state. When provided with a seach string, all matching enabled records will
+  be printed.
+```
+
+### `hosts remove`
+
+```text
+Usage:
+  hosts remove (<ip> | <hostname> | <search string>) [--force]
+  hosts remove <ip> <hostname>
+
+Options:
+  --force  Skip the confirmation prompt.
+
+Description:
+  Remove one or more records based on a given IP address, hostname, or search
+  string. If an IP and hostname are both provided, only records matching the
+  IP and hostname pair will be removed.
+```
+
+### `hosts search`
+
+```text
+Usage:
+  hosts search <search string>
+
+Description:
+  Search entries for <search string>.
+```
+
+### `hosts show`
+
+```text
+Usage:
+  hosts show (<ip> | <hostname> | <search string>)
+
+Description:
+  Print entries matching a given IP address, hostname, or search string.
+```
+
+### `hosts unblock`
+
+```text
+Usage:
+  hosts unblock <hostname>
+
+Description:
+  Unblock a given hostname by removing its entries from the hosts file.
+```
+
+### `hosts version`
+
+```text
+Usage:
+  hosts (version | --version)
+
+Description:
+  Display the current program version.
+```
 
 ## Tests
 
