@@ -113,11 +113,6 @@ Open the hosts file (/etc/hosts) file in your editor.
 
 Print the entire contents of the /etc/hosts file.
 
-## Why
-
-Although it's easy to just edit the hosts file manually, it's nice to
-have a structured way to edit it and keep things a little organized.
-
 ## Acknowledgements
 
 Based on prior work by:
