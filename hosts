@@ -523,12 +523,12 @@ desc() {
   [[ -z ${1} ]] && _die printf "desc: No command name specified.\n"
   if [[ -n ${2:-} ]]
   then
-    read -d '' "_desc_${1}" <<HEREDOC
+    read -r -d '' "_desc_${1}" <<HEREDOC
 ${2}
 HEREDOC
     _debug printf "desc() set with argument: _desc_%s\n" "${1}"
   else
-    read -d '' "_desc_${1}"
+    read -r -d '' "_desc_${1}"
     _debug printf "desc() set with pipe: _desc_%s\n" "${1}"
   fi
   set -e
@@ -1037,7 +1037,7 @@ remove() {
     printf "Removing the following records:\n%s\n" "${target_records}"
     while true
     do
-      read -p "Are you sure you want to proceed? [y/N] " yn
+      read -r -p "Are you sure you want to proceed? [y/N] " yn
       case ${yn} in
         [Yy]* )
           break
