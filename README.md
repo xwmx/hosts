@@ -42,6 +42,7 @@ curl -L https://raw.github.com/alphabetum/hosts/master/hosts \
 Usage:
   hosts
   hosts add <ip> <hostname> [<comment>]
+  hosts block <hostname>
   hosts disable (<ip> | <hostname> | <search string>)
   hosts disabled
   hosts edit
@@ -52,6 +53,7 @@ Usage:
   hosts show (<ip> | <hostname> | <search string>)
   hosts search <search string>
   hosts remove (<ip> | <hostname> | <search string>) [--force]
+  hosts unblock <hostname>
 ```
 
 For full usage, run:
@@ -117,6 +119,15 @@ Print the entire contents of the /etc/hosts file.
 ###### `hosts search <search string>`
 
 Search entries for a given search string.
+
+###### `block <hostname>`
+
+Block a given hostname by adding new entries assigning it to `127.0.0.1` for
+IPv4 and both `fe80::1%lo0` and `::1` for IPv6.
+
+###### `unblock <hostname>`
+
+Unblock a given hostname by removing its entries from the hosts file.
 
 ## Tests
 
