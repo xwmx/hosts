@@ -76,12 +76,12 @@ Add a given IP address and hostname pair, along with an optional comment.
 
 Remove one or more records based on a given IP address, hostname, or search
 string. When the `--force` option is used, the confirmation prompt is
-supressed.
+suppressed.
 
 ###### `hosts list [enabled | disabled | <search string>]`
 
 List the existing IP / hostname pairs, optionally limited to a specified
-state. When provided with a seach string, all matching enabled records will
+state. When provided with a search string, all matching enabled records will
 be printed.
 
 ###### `hosts show (<ip> | <hostname> | <search string>)`
