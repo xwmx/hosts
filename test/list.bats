@@ -87,7 +87,7 @@ Disabled:
     run "${_HOSTS}" disable example.com
   }
 
-  run "${_HOSTS}" disabled
+  run "${_HOSTS}" list disabled
   printf "\${status}: %s\n" "${status}"
   printf "\${output}: '%s'\n" "${output}"
   [[ ${status} -eq 0 ]]
