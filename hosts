@@ -604,6 +604,7 @@ Usage:
   ${_ME} enabled
   ${_ME} file
   ${_ME} list [enabled | disabled | <search string>]
+  ${_ME} search <search string>
   ${_ME} show (<ip> | <hostname> | <search string>)
   ${_ME} remove (<ip> | <hostname> | <search string>) [--force]
   ${_ME} unblock <hostname>

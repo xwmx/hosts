@@ -50,8 +50,8 @@ Usage:
   hosts enabled
   hosts file
   hosts list [enabled | disabled | <search string>]
-  hosts show (<ip> | <hostname> | <search string>)
   hosts search <search string>
+  hosts show (<ip> | <hostname> | <search string>)
   hosts remove (<ip> | <hostname> | <search string>) [--force]
   hosts unblock <hostname>
 ```
