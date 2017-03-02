@@ -8,18 +8,9 @@
 #
 # A program for managing host file entries.
 #
+# https://github.com/alphabetum/hosts
+#
 # Based on Bash Boilerplate: https://github.com/alphabetum/bash-boilerplate
-#
-# Based on prior work by:
-#
-# - https://github.com/nddrylliog
-#   - https://gist.github.com/nddrylliog/1368532
-# - https://github.com/dfeyer
-#   - https://gist.github.com/dfeyer/1369760
-#
-# Original idea and interface (since changed) via:
-#
-# https://github.com/macmade/host-manager
 #
 # Updates copyright (c) 2015 William Melody • hi@williammelody.com
 
