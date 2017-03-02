@@ -756,6 +756,7 @@ Description:
   for IPv4 and both \`fe80::1%lo0\` and \`::1\` for IPv6.
 HEREDOC
 block() {
+  _verify_write_permissions "$@"
   if [[ -z "${1}" ]]
   then
     ${_ME} help block
@@ -1173,6 +1174,7 @@ Description:
   Unblock a given hostname by removing its entries from the hosts file.
 HEREDOC
 unblock() {
+  _verify_write_permissions "$@"
   if [[ -z "${1}" ]]
   then
     ${_ME} help unblock
