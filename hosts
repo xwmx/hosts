@@ -483,7 +483,8 @@ _present() {
 # _verify_write_permissions
 #
 # Print a helpful error message when the specified operation can't be
-# performed due to the lack of write permissions.
+# performed due to the lack of write permissions. If `$_AUTO_SUDO` is enabled,
+# then run the command with sudo and exit with the command's exit value.
 _verify_write_permissions() {
   if ! test -w "${HOSTS_PATH}"
   then
