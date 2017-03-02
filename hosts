@@ -36,6 +36,10 @@ IFS=$'\n\t'
 # Globals
 ###############################################################################
 
+# $_VERSION
+#
+# Manually set this to to current version of the program. Adhere to the
+# semantic versioning specification: http://semver.org
 _VERSION="2.3.1"
 
 # $HOSTS_DEFAULT_COMMAND
@@ -45,7 +49,7 @@ _VERSION="2.3.1"
 # used.
 HOSTS_DEFAULT_COMMAND="${HOSTS_DEFAULT_COMMAND:-list}"
 
-# HOSTS_PATH
+# $HOSTS_PATH
 #
 # The path to the hosts file. This will almost always be /etc/hosts
 HOSTS_PATH="${HOSTS_PATH:-/etc/hosts}"
