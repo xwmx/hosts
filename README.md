@@ -285,13 +285,6 @@ run `bats test` in the project root directory.
 
 ## Acknowledgements
 
-Based on prior work by:
-
-- https://github.com/nddrylliog
-  - https://gist.github.com/nddrylliog/1368532
-- https://github.com/dfeyer
-  - https://gist.github.com/dfeyer/1369760
-
-Original idea and interface (since changed) via:
-
-https://github.com/macmade/host-manager
+- https://gist.github.com/nddrylliog/1368532
+- https://gist.github.com/dfeyer/1369760
+- https://github.com/macmade/host-manager
