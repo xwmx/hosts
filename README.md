@@ -260,8 +260,8 @@ Description:
 ### `--auto-sudo`
 
 When specified, all write operations that require `sudo` will automatically
-rerun the command using `sudo` when the current user does not have write the
-permissions to write to the hosts file.
+rerun the command using `sudo` when the current user does not have write
+permissions for the hosts file.
 
 To have this option always enabled, add the following line to your shell
 configuration (`.bashrc`, `.zshrc`, or similar):
