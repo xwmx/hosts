@@ -224,6 +224,7 @@ _COMMAND_ARGV=("${0}")
 # on what the program needs.
 _CMD=""
 _USE_DEBUG=0
+_AUTO_SUDO=0
 
 while [ ${#} -gt 0 ]
 do
@@ -238,6 +239,9 @@ do
       ;;
     --debug)
       _USE_DEBUG=1
+      ;;
+    --auto-sudo|--sudo)
+      _AUTO_SUDO=1
       ;;
     *)
       # The first non-option argument is assumed to be the command name.
@@ -483,9 +487,15 @@ _present() {
 _verify_write_permissions() {
   if ! test -w "${HOSTS_PATH}"
   then
-    _die printf \
+    if ((_AUTO_SUDO))
+    then
+      sudo "${_ME}" "${_CMD}" "${_COMMAND_PARAMETERS[@]:-}"
+      exit $?
+    else
+      _die printf \
 "You don't have permission to perform this operation. Try again with:
 sudo !!\n"
+    fi
   fi
 }
 
@@ -608,12 +618,14 @@ Usage:
   ${_ME} show (<ip> | <hostname> | <search string>)
   ${_ME} remove (<ip> | <hostname> | <search string>) [--force]
   ${_ME} unblock <hostname>
+  ${_ME} --auto-sudo
   ${_ME} -h | --help
   ${_ME} --version
 
 Options:
-  -h --help  Display this help information.
-  --version  Display version information.
+  --auto-sudo  Run write commands with \`sudo\` automatically.
+  -h --help    Display this help information.
+  --version    Display version information.
 
 Help:
   ${_ME} help [<command>]
@@ -688,7 +700,7 @@ add() {
   _debug printf "add() \${2}: %s\n" "${2:-}"
   _debug printf "add() \${3}: %s\n" "${3:-}"
 
-  _verify_write_permissions
+  _verify_write_permissions "$@"
   local ip=${1:-}
   local hostname=${2:-}
   local comment=${*:3}
@@ -766,7 +778,7 @@ Description:
   search string.
 HEREDOC
 disable() {
-  _verify_write_permissions
+  _verify_write_permissions "$@"
   local search_string="${1}"
   if [[ -z "${search_string}" ]]
   then
@@ -832,7 +844,7 @@ Description:
   Open the ${HOSTS_PATH} file in your \$EDITOR.
 HEREDOC
 edit() {
-  _verify_write_permissions
+  _verify_write_permissions "$@"
   if [[ -z "${EDITOR}" ]]
   then
     _die printf "\$EDITOR not set.\n"
@@ -852,7 +864,7 @@ Description:
   or search string.
 HEREDOC
 enable() {
-  _verify_write_permissions
+  _verify_write_permissions "$@"
   local search_string="${1}"
   if [[ -z "${search_string}" ]]
   then
@@ -977,7 +989,7 @@ Description:
   IP and hostname pair will be removed.
 HEREDOC
 remove() {
-  _verify_write_permissions
+  _verify_write_permissions "$@"
   local is_search_pair=0
   local force_skip_prompt=0
   local arguments=()

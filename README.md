@@ -54,6 +54,17 @@ Usage:
   hosts show (<ip> | <hostname> | <search string>)
   hosts remove (<ip> | <hostname> | <search string>) [--force]
   hosts unblock <hostname>
+  hosts --auto-sudo
+  hosts -h | --help
+  hosts --version
+
+Options:
+  --auto-sudo  Run write commands with `sudo` automatically.
+  -h --help    Display this help information.
+  --version    Display version information.
+
+Help:
+  hosts help [<command>]
 ```
 
 For full usage, run:
@@ -243,6 +254,29 @@ Usage:
 Description:
   Display the current program version.
 ```
+
+## Options
+
+### `--auto-sudo`
+
+When specified, all write operations that require `sudo` will automatically
+rerun the command using `sudo` when the current user does not have write the
+permissions to write to the hosts file.
+
+To have this option always enabled, add the following line to your shell
+configuration (`.bashrc`, `.zshrc`, or similar):
+
+```bash
+alias hosts="hosts --auto-sudo"
+```
+
+### `-h` `--help`
+
+Display help information.
+
+### `--version`
+
+Display version information.
 
 ## Tests
 
