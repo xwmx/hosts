@@ -373,7 +373,11 @@ _main() {
     # Pass all comment arguments to the program except for the first ($0).
     ${_CMD} "${_COMMAND_PARAMETERS[@]:-}"
   else
-    _die printf "Unknown command: %s\n" "${_CMD}"
+    local _parameters=()
+    _parameters+=("${_CMD}")
+    _parameters+=(${_COMMAND_PARAMETERS[@]:-})
+
+    "${DEFAULT_COMMAND}" "${_parameters[@]:-}"
   fi
 }
 
@@ -605,7 +609,7 @@ A program for managing host file entries.
 Version: ${_VERSION}
 
 Usage:
-  ${_ME}
+  ${_ME} [<search string>]
   ${_ME} add <ip> <hostname> [<comment>]
   ${_ME} block <hostname>
   ${_ME} disable (<ip> | <hostname> | <search string>)

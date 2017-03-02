@@ -40,7 +40,7 @@ curl -L https://raw.github.com/alphabetum/hosts/master/hosts \
 
 ```text
 Usage:
-  hosts
+  hosts [<search string>]
   hosts add <ip> <hostname> [<comment>]
   hosts block <hostname>
   hosts disable (<ip> | <hostname> | <search string>)
@@ -80,6 +80,20 @@ hosts help <command name>
 ```
 
 ## Commands
+
+## `hosts`
+
+```text
+Usage:
+  hosts [<search string>]
+
+Description:
+  List the existing IP / hostname pairs, optionally limited to a specified
+  state. When provided with a seach string, all matching enabled records will
+  be printed.
+
+  Alias for `hosts list`
+```
 
 ## `hosts add`
 
