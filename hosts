@@ -265,7 +265,7 @@ done
 # resulting slice is treated as a quoted string and doesn't easily get coaxed
 # into a new array.
 _COMMAND_PARAMETERS=(${_COMMAND_ARGV[*]})
-unset _COMMAND_PARAMETERS[0]
+unset "_COMMAND_PARAMETERS[0]"
 
 _debug printf \
   "\${_CMD}: %s\n" \
