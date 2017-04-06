@@ -81,7 +81,7 @@ hosts help <command name>
 
 ## Commands
 
-## `hosts`
+### `hosts`
 
 ```text
 Usage:
@@ -95,7 +95,7 @@ Description:
   Alias for `hosts list`
 ```
 
-## `hosts add`
+### `hosts add`
 
 ```text
 Usage:
