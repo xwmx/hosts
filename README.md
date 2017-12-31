@@ -116,6 +116,11 @@ Description:
   for IPv4 and both `fe80::1%lo0` and `::1` for IPv6.
 ```
 
+#### Blocklists
+
+- [jmdugan/blocklists](https://github.com/jmdugan/blocklists)
+- [notracking/hosts-blocklists](https://github.com/notracking/hosts-blocklists)
+
 ### `hosts commands`
 
 ```text
@@ -302,3 +307,4 @@ run `bats test` in the project root directory.
 - https://gist.github.com/nddrylliog/1368532
 - https://gist.github.com/dfeyer/1369760
 - https://github.com/macmade/host-manager
+
