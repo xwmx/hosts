@@ -596,9 +596,9 @@ help() {
     cat <<HEREDOC
     __               __
    / /_  ____  _____/ /______
-  / __ \/ __ \/ ___/ __/ ___/
+  / __ \\/ __ \\/ ___/ __/ ___/
  / / / / /_/ (__  ) /_(__  )
-/_/ /_/\____/____/\__/____/
+/_/ /_/\\____/____/\\__/____/
 
 A program for managing host file entries.
 
@@ -715,8 +715,8 @@ add() {
     ${_ME} help add
     exit 1
   elif grep \
-    -e "^${ip}\t${hostname}$" \
-    -e "^${ip}\t${hostname}\t.*$" "${HOSTS_PATH}"
+    -e "^${ip}\\t${hostname}$" \
+    -e "^${ip}\\t${hostname}\\t.*$" "${HOSTS_PATH}"
   then
     _die printf \
       "Duplicate address/host combination, %s unchanged.\\n" \
@@ -726,19 +726,19 @@ add() {
     then
       local formatted_comment
       formatted_comment=$(_join " " "${comment[@]}")
-      printf "%s\t%s\t# %s\\n" \
+      printf "%s\\t%s\\t# %s\\n" \
         "${ip}" \
         "${hostname}" \
         "${formatted_comment}" >> "${HOSTS_PATH}"
-      printf "Added:\\n%s\t%s\t# %s\\n" \
+      printf "Added:\\n%s\\t%s\\t# %s\\n" \
         "${ip}" \
         "${hostname}" \
         "${formatted_comment}"
     else
-      printf "%s\t%s\\n" \
+      printf "%s\\t%s\\n" \
         "${ip}" \
         "${hostname}" >> "${HOSTS_PATH}"
-      printf "Added:\\n%s\t%s\\n" \
+      printf "Added:\\n%s\\t%s\\n" \
         "${ip}" \
         "${hostname}"
     fi
@@ -789,9 +789,9 @@ disable() {
   else
     _debug printf "disable() \${search_string}: %s\\n" "${search_string}"
 
-    target_regex_ip="^\(${search_string}[${_TAB_SPACE_}]..*\)$"
-    target_regex_commented_hostname="^\([^#]..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\)$"
-    target_regex_hostname="^\([^#]..*[${_TAB_SPACE_}]${search_string}\)$"
+    target_regex_ip="^\\(${search_string}[${_TAB_SPACE_}]..*\\)$"
+    target_regex_commented_hostname="^\\([^#]..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\\)$"
+    target_regex_hostname="^\\([^#]..*[${_TAB_SPACE_}]${search_string}\\)$"
 
     # Regular Expression Notes
     #
@@ -800,9 +800,9 @@ disable() {
     local targets
     targets=$(
       sed -n \
-        -e "s/${target_regex_ip}/\1/p" \
-        -e "s/${target_regex_commented_hostname}/\1/p" \
-        -e "s/${target_regex_hostname}/\1/p" \
+        -e "s/${target_regex_ip}/\\1/p" \
+        -e "s/${target_regex_commented_hostname}/\\1/p" \
+        -e "s/${target_regex_hostname}/\\1/p" \
         "${HOSTS_PATH}"
     )
     _debug printf "disable() \${targets}: %s\\n" "${targets}"
@@ -816,9 +816,9 @@ disable() {
     # -i '' - in place edit. BSD sed requires extension argument, for GNU
     # it's optional. More info: http://stackoverflow.com/a/16746032
     sed -i '' \
-      -e "s/${target_regex_ip}/\#disabled: \1/g" \
-      -e "s/${target_regex_commented_hostname}/\#disabled: \1/g" \
-      -e "s/${target_regex_hostname}/\#disabled: \1/g" \
+      -e "s/${target_regex_ip}/\\#disabled: \\1/g" \
+      -e "s/${target_regex_commented_hostname}/\\#disabled: \\1/g" \
+      -e "s/${target_regex_hostname}/\\#disabled: \\1/g" \
       "${HOSTS_PATH}"
   fi
 }
@@ -875,9 +875,9 @@ enable() {
   else
     _debug printf "enable() \${search_string}: %s\\n" "${search_string}"
 
-    target_regex_ip="^\#disabled: \(${search_string}[${_TAB_SPACE_}]..*\)$"
-    target_regex_commented_hostname="^\#disabled: \(..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\)$"
-    target_regex_hostname="^\#disabled: \(..*[${_TAB_SPACE_}]${search_string}\)$"
+    target_regex_ip="^\\#disabled: \\(${search_string}[${_TAB_SPACE_}]..*\\)$"
+    target_regex_commented_hostname="^\\#disabled: \\(..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\\)$"
+    target_regex_hostname="^\\#disabled: \\(..*[${_TAB_SPACE_}]${search_string}\\)$"
 
     # Regular Expression Notes
     #
@@ -886,9 +886,9 @@ enable() {
     local targets
     targets=$(
       sed -n \
-        -e "s/${target_regex_ip}/\1/p" \
-        -e "s/${target_regex_commented_hostname}/\1/p" \
-        -e "s/${target_regex_hostname}/\1/p" \
+        -e "s/${target_regex_ip}/\\1/p" \
+        -e "s/${target_regex_commented_hostname}/\\1/p" \
+        -e "s/${target_regex_hostname}/\\1/p" \
         "${HOSTS_PATH}"
     )
     _debug printf "enable() \${targets}: %s\\n" "${targets}"
@@ -902,9 +902,9 @@ enable() {
     # -i '' - in place edit. BSD sed requires extension argument, for GNU
     # it's optional. More info: http://stackoverflow.com/a/16746032
     sed -i '' \
-      -e "s/${target_regex_ip}/\1/g" \
-      -e "s/${target_regex_commented_hostname}/\1/g" \
-      -e "s/${target_regex_hostname}/\1/g" \
+      -e "s/${target_regex_ip}/\\1/g" \
+      -e "s/${target_regex_commented_hostname}/\\1/g" \
+      -e "s/${target_regex_hostname}/\\1/g" \
       "${HOSTS_PATH}"
   fi
 }
@@ -950,7 +950,7 @@ list() {
   # Get the disabled records up front for the two cases where they are needed.
   local disabled_records
   disabled_records=$(
-    sed -n "s/^\#disabled: \(.*\)$/\1/p" "${HOSTS_PATH}"
+    sed -n "s/^\\#disabled: \\(.*\\)$/\\1/p" "${HOSTS_PATH}"
   )
 
   if [[ -n "${1}" ]]
@@ -1039,12 +1039,12 @@ remove() {
   # which apparently doesn't work properly with all versions of sed.
   #
   # IP / Hostname pair regular expressions:
-  local target_regex_ip_hostname_commented="^\(${search_ip}[${_TAB_SPACE_}]*${search_hostname}[${_TAB_SPACE_}]..*\)$"
-  local target_regex_ip_hostname="^\(${search_ip}[${_TAB_SPACE_}]*${search_hostname}\)$"
+  local target_regex_ip_hostname_commented="^\\(${search_ip}[${_TAB_SPACE_}]*${search_hostname}[${_TAB_SPACE_}]..*\\)$"
+  local target_regex_ip_hostname="^\\(${search_ip}[${_TAB_SPACE_}]*${search_hostname}\\)$"
   # Search string regular expressions:
-  local target_regex_ip="^\(${search_string}[${_TAB_SPACE_}]..*\)$"
-  local target_regex_commented_hostname="^\(..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\)$"
-  local target_regex_hostname="^\(..*[${_TAB_SPACE_}]${search_string}\)$"
+  local target_regex_ip="^\\(${search_string}[${_TAB_SPACE_}]..*\\)$"
+  local target_regex_commented_hostname="^\\(..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\\)$"
+  local target_regex_hostname="^\\(..*[${_TAB_SPACE_}]${search_string}\\)$"
 
   local target_records
 
@@ -1052,16 +1052,16 @@ remove() {
   then
     target_records=$(
       sed -n \
-        -e "s/${target_regex_ip_hostname_commented}/\1/p" \
-        -e "s/${target_regex_ip_hostname}/\1/p" \
+        -e "s/${target_regex_ip_hostname_commented}/\\1/p" \
+        -e "s/${target_regex_ip_hostname}/\\1/p" \
         "${HOSTS_PATH}"
     )
   else
     target_records=$(
       sed -n \
-        -e "s/${target_regex_ip}/\1/p" \
-        -e "s/${target_regex_commented_hostname}/\1/p" \
-        -e "s/${target_regex_hostname}/\1/p" \
+        -e "s/${target_regex_ip}/\\1/p" \
+        -e "s/${target_regex_commented_hostname}/\\1/p" \
+        -e "s/${target_regex_hostname}/\\1/p" \
         "${HOSTS_PATH}"
     )
   fi
@@ -1143,7 +1143,7 @@ show() {
     # Run `sed` before `grep` to avoid conflict that supress `sed` output.
     local disabled_records
     disabled_records=$(
-      sed -n "s/^\#\(disabled: .*${1}.*\)$/\1/p" "${HOSTS_PATH}"
+      sed -n "s/^\\#\\(disabled: .*${1}.*\\)$/\\1/p" "${HOSTS_PATH}"
     )
     local enabled_records
     enabled_records=$(
