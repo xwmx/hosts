@@ -63,18 +63,18 @@ export _TAB_SPACE_CC_="[${_TAB_SPACE_}]"
 # _debug()
 #
 # Usage:
-#   _debug printf "Debug info. Variable: %s\n" "$0"
+#   _debug printf "Debug info. Variable: %s\\n" "$0"
 #
 # A simple function for executing a specified command if the `$_USE_DEBUG`
 # variable has been set. The command is expected to print a message and
 # should typically be either `echo`, `printf`, or `cat`.
 _debug() {
   if [[ "${_USE_DEBUG:-"0"}" -eq 1 ]]
-  then
+    then
     # Prefix debug message with "bug (U+1F41B)"
     printf "🐛  "
     "${@}"
-    printf "――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――\n"
+    printf "――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――\\n"
   fi
 }
 # debug()
@@ -96,7 +96,7 @@ debug() {
 # _die()
 #
 # Usage:
-#   _die printf "Error message. Variable: %s\n" "$0"
+#   _die printf "Error message. Variable: %s\\n" "$0"
 #
 # A simple function for exiting with an error after executing the specified
 # command. The command is expected to print a message and should typically
@@ -264,16 +264,16 @@ _COMMAND_PARAMETERS=(${_COMMAND_ARGV[*]})
 unset "_COMMAND_PARAMETERS[0]"
 
 _debug printf \
-  "\${_CMD}: %s\n" \
+  "\${_CMD}: %s\\n" \
   "${_CMD}"
 _debug printf \
-  "\${_RAW_OPTIONS} (one per line):\n%s\n" \
+  "\${_RAW_OPTIONS} (one per line):\\n%s\\n" \
   "${_RAW_OPTIONS}"
 _debug printf \
-  "\${_COMMAND_ARGV[*]}: %s\n" \
+  "\${_COMMAND_ARGV[*]}: %s\\n" \
   "${_COMMAND_ARGV[*]}"
 _debug printf \
-  "\${_COMMAND_PARAMETERS[*]:-}: %s\n" \
+  "\${_COMMAND_PARAMETERS[*]:-}: %s\\n" \
   "${_COMMAND_PARAMETERS[*]:-}"
 
 ###############################################################################
@@ -285,7 +285,7 @@ _debug printf \
 # Set to the program's basename.
 _ME=$(basename "${0}")
 
-_debug printf "\${_ME}: %s\n" "${_ME}"
+_debug printf "\${_ME}: %s\\n" "${_ME}"
 
 ###############################################################################
 # Load Commands
@@ -302,8 +302,8 @@ _DEFINED_COMMANDS=()
 # Loads all of the commands sourced in the environment.
 _load_commands() {
 
-  _debug printf "_load_commands(): entering...\n"
-  _debug printf "_load_commands() declare -F:\n%s\n" "$(declare -F)"
+  _debug printf "_load_commands(): entering...\\n"
+  _debug printf "_load_commands() declare -F:\\n%s\\n" "$(declare -F)"
 
   # declare is a bash built-in shell function that, when called with the '-F'
   # option, displays all of the functions with the format
@@ -318,7 +318,7 @@ _load_commands() {
     local function_name
     function_name=$(printf "%s" "${c}" | awk '{ print $3 }')
 
-    _debug printf "_load_commands() \${function_name}: %s\n" "${function_name}"
+    _debug printf "_load_commands() \${function_name}: %s\\n" "${function_name}"
 
     # Add the function name to the $_DEFINED_COMMANDS array unless it starts
     # with an underscore or is one of the desc(), debug(), or die() functions,
@@ -334,7 +334,7 @@ _load_commands() {
   done
 
   _debug printf \
-    "commands() \${_DEFINED_COMMANDS[*]:-}:\n%s\n" \
+    "commands() \${_DEFINED_COMMANDS[*]:-}:\\n%s\\n" \
     "${_DEFINED_COMMANDS[*]:-}"
 }
 
@@ -351,8 +351,8 @@ _load_commands() {
 #
 # NOTE: must be called at end of program after all commands have been defined.
 _main() {
-  _debug printf "main(): entering...\n"
-  _debug printf "main() \${_CMD} (upon entering): %s\n" "${_CMD}"
+  _debug printf "main(): entering...\\n"
+  _debug printf "main() \${_CMD} (upon entering): %s\\n" "${_CMD}"
 
   # If $_CMD is blank, then set to `$HOSTS_DEFAULT_COMMAND`
   if [[ -z ${_CMD} ]]
@@ -416,10 +416,10 @@ _contains() {
   local test_list=(${*:2})
   for _test_element in "${test_list[@]:-}"
   do
-    _debug printf "_contains() \${_test_element}: %s\n" "${_test_element}"
+    _debug printf "_contains() \${_test_element}: %s\\n" "${_test_element}"
     if [[ "${_test_element}" == "${1}" ]]
     then
-      _debug printf "_contains() match: %s\n" "${1}"
+      _debug printf "_contains() match: %s\\n" "${1}"
       return 0
     fi
   done
@@ -495,7 +495,7 @@ _verify_write_permissions() {
     else
       _die printf \
 "You don't have permission to perform this operation. Try again with:
-sudo !!\n"
+sudo !!\\n"
     fi
   fi
 }
@@ -531,16 +531,16 @@ sudo !!\n"
 # escaping backslashes, which is more common.
 desc() {
   set +e
-  [[ -z ${1} ]] && _die printf "desc: No command name specified.\n"
+  [[ -z ${1} ]] && _die printf "desc: No command name specified.\\n"
   if [[ -n ${2:-} ]]
   then
     read -r -d '' "_desc_${1}" <<HEREDOC
 ${2}
 HEREDOC
-    _debug printf "desc() set with argument: _desc_%s\n" "${1}"
+    _debug printf "desc() set with argument: _desc_%s\\n" "${1}"
   else
     read -r -d '' "_desc_${1}"
-    _debug printf "desc() set with pipe: _desc_%s\n" "${1}"
+    _debug printf "desc() set with pipe: _desc_%s\\n" "${1}"
   fi
   set -e
 }
@@ -556,9 +556,9 @@ _print_desc() {
   local var="_desc_${1}"
   if [[ -n ${!var:-} ]]
   then
-    printf "%s\n" "${!var}"
+    printf "%s\\n" "${!var}"
   else
-    printf "No additional information for \`%s\`\n" "${1}"
+    printf "No additional information for \`%s\`\\n" "${1}"
   fi
 }
 
@@ -578,7 +578,7 @@ Description:
   To save you the trouble, the current version is ${_VERSION}
 HEREDOC
 version() {
-  printf "%s\n" "${_VERSION}"
+  printf "%s\\n" "${_VERSION}"
 }
 
 # Help ########################################################################
@@ -653,10 +653,10 @@ HEREDOC
 commands() {
   if _command_argv_includes "--raw"
   then
-    printf "%s\n" "${_DEFINED_COMMANDS[@]}"
+    printf "%s\\n" "${_DEFINED_COMMANDS[@]}"
   else
-    printf "Available commands:\n"
-    printf "  %s\n" "${_DEFINED_COMMANDS[@]}"
+    printf "Available commands:\\n"
+    printf "  %s\\n" "${_DEFINED_COMMANDS[@]}"
   fi
 }
 
@@ -682,7 +682,7 @@ commands() {
 #     - http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html
 # HEREDOC
 # example() {
-#   printf "Hello, World!\n"
+#   printf "Hello, World!\\n"
 # }
 #
 ###############################################################################
@@ -697,9 +697,9 @@ Description:
   Add a given IP address and hostname pair, along with an optional comment.
 HEREDOC
 add() {
-  _debug printf "add() \${1}: %s\n" "${1:-}"
-  _debug printf "add() \${2}: %s\n" "${2:-}"
-  _debug printf "add() \${3}: %s\n" "${3:-}"
+  _debug printf "add() \${1}: %s\\n" "${1:-}"
+  _debug printf "add() \${2}: %s\\n" "${2:-}"
+  _debug printf "add() \${3}: %s\\n" "${3:-}"
 
   _verify_write_permissions "$@"
   local ip=${1:-}
@@ -711,7 +711,7 @@ add() {
     exit 1
   elif [[ -z ${hostname} ]]
   then
-    printf "Please include a hostname\n"
+    printf "Please include a hostname\\n"
     ${_ME} help add
     exit 1
   elif grep \
@@ -719,26 +719,26 @@ add() {
     -e "^${ip}\t${hostname}\t.*$" "${HOSTS_PATH}"
   then
     _die printf \
-      "Duplicate address/host combination, %s unchanged.\n" \
+      "Duplicate address/host combination, %s unchanged.\\n" \
       "${HOSTS_PATH}"
   else
     if [[ -n ${comment} ]]
     then
       local formatted_comment
       formatted_comment=$(_join " " "${comment[@]}")
-      printf "%s\t%s\t# %s\n" \
+      printf "%s\t%s\t# %s\\n" \
         "${ip}" \
         "${hostname}" \
         "${formatted_comment}" >> "${HOSTS_PATH}"
-      printf "Added:\n%s\t%s\t# %s\n" \
+      printf "Added:\\n%s\t%s\t# %s\\n" \
         "${ip}" \
         "${hostname}" \
         "${formatted_comment}"
     else
-      printf "%s\t%s\n" \
+      printf "%s\t%s\\n" \
         "${ip}" \
         "${hostname}" >> "${HOSTS_PATH}"
-      printf "Added:\n%s\t%s\n" \
+      printf "Added:\\n%s\t%s\\n" \
         "${ip}" \
         "${hostname}"
     fi
@@ -787,7 +787,7 @@ disable() {
     ${_ME} help disable
     exit 1
   else
-    _debug printf "disable() \${search_string}: %s\n" "${search_string}"
+    _debug printf "disable() \${search_string}: %s\\n" "${search_string}"
 
     target_regex_ip="^\(${search_string}[${_TAB_SPACE_}]..*\)$"
     target_regex_commented_hostname="^\([^#]..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\)$"
@@ -805,13 +805,13 @@ disable() {
         -e "s/${target_regex_hostname}/\1/p" \
         "${HOSTS_PATH}"
     )
-    _debug printf "disable() \${targets}: %s\n" "${targets}"
+    _debug printf "disable() \${targets}: %s\\n" "${targets}"
     if [[ -z "${targets}" ]]
     then
-      _die printf "Not found: %s\n" "${search_string}"
+      _die printf "Not found: %s\\n" "${search_string}"
     fi
 
-    printf "Disabling:\n%s\n" "${targets}"
+    printf "Disabling:\\n%s\\n" "${targets}"
 
     # -i '' - in place edit. BSD sed requires extension argument, for GNU
     # it's optional. More info: http://stackoverflow.com/a/16746032
@@ -849,7 +849,7 @@ edit() {
   _verify_write_permissions "$@"
   if [[ -z "${EDITOR}" ]]
   then
-    _die printf "\$EDITOR not set.\n"
+    _die printf "\$EDITOR not set.\\n"
   else
     "${EDITOR}" "${HOSTS_PATH}"
   fi
@@ -873,7 +873,7 @@ enable() {
     ${_ME} help enable
     exit 1
   else
-    _debug printf "enable() \${search_string}: %s\n" "${search_string}"
+    _debug printf "enable() \${search_string}: %s\\n" "${search_string}"
 
     target_regex_ip="^\#disabled: \(${search_string}[${_TAB_SPACE_}]..*\)$"
     target_regex_commented_hostname="^\#disabled: \(..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\)$"
@@ -891,13 +891,13 @@ enable() {
         -e "s/${target_regex_hostname}/\1/p" \
         "${HOSTS_PATH}"
     )
-    _debug printf "enable() \${targets}: %s\n" "${targets}"
+    _debug printf "enable() \${targets}: %s\\n" "${targets}"
     if [[ -z "${targets}" ]]
     then
-      _die printf "Not found: %s\n" "${search_string}"
+      _die printf "Not found: %s\\n" "${search_string}"
     fi
 
-    printf "Enabling:\n%s\n" "${targets}"
+    printf "Enabling:\\n%s\\n" "${targets}"
 
     # -i '' - in place edit. BSD sed requires extension argument, for GNU
     # it's optional. More info: http://stackoverflow.com/a/16746032
@@ -957,7 +957,7 @@ list() {
   then
     if [[ "${1}" == "disabled" ]]
     then
-      printf "%s\n" "${disabled_records}"
+      printf "%s\\n" "${disabled_records}"
     elif [[ "${1}" == "enabled" ]]
     then
       grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
@@ -970,7 +970,7 @@ list() {
     grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
     if [[ -n "${disabled_records}" ]]
     then
-      printf "\nDisabled:\n%s\n" "${disabled_records}"
+      printf "\\nDisabled:\\n%s\\n" "${disabled_records}"
     fi
   fi
 }
@@ -999,8 +999,8 @@ remove() {
   local search_hostname=""
   local search_string=""
 
-  _debug printf "remove() \${1}: %s\n" "${1:-}"
-  _debug printf "remove() \${2}: %s\n" "${2:-}"
+  _debug printf "remove() \${1}: %s\\n" "${1:-}"
+  _debug printf "remove() \${2}: %s\\n" "${2:-}"
 
   for arg in "${_COMMAND_ARGV[@]:-}"
   do
@@ -1014,9 +1014,9 @@ remove() {
     esac
   done
 
-  _debug printf "remove() \${arguments[0]}: %s\n" "${arguments[0]:-}"
-  _debug printf "remove() \${arguments[1]}: %s\n" "${arguments[1]:-}"
-  _debug printf "remove() \${arguments[2]}: %s\n" "${arguments[2]:-}"
+  _debug printf "remove() \${arguments[0]}: %s\\n" "${arguments[0]:-}"
+  _debug printf "remove() \${arguments[1]}: %s\\n" "${arguments[1]:-}"
+  _debug printf "remove() \${arguments[2]}: %s\\n" "${arguments[2]:-}"
 
   if [[ -z "${arguments[1]:-}" ]]
   then
@@ -1027,10 +1027,10 @@ remove() {
     search_ip="${arguments[1]}"
     search_hostname="${arguments[2]}"
     is_search_pair=1
-    _debug printf "remove() \${is_search_pair}: %s\n" "${is_search_pair}"
+    _debug printf "remove() \${is_search_pair}: %s\\n" "${is_search_pair}"
   else
     search_string="${arguments[1]:-}"
-    _debug printf "remove() \${search_string}: %s\n" "${search_string}"
+    _debug printf "remove() \${search_string}: %s\\n" "${search_string}"
   fi
 
   # Regular Expression Notes
@@ -1068,13 +1068,13 @@ remove() {
 
   if [[ -z ${target_records:-} ]]
   then
-    printf "No matching records found.\n"
+    printf "No matching records found.\\n"
     exit 1
   fi
 
   if ! ((force_skip_prompt))
   then
-    printf "Removing the following records:\n%s\n" "${target_records}"
+    printf "Removing the following records:\\n%s\\n" "${target_records}"
     while true
     do
       read -r -p "Are you sure you want to proceed? [y/N] " yn
@@ -1083,7 +1083,7 @@ remove() {
           break
           ;;
         * )
-          printf "Exiting...\n"
+          printf "Exiting...\\n"
           exit 0
           ;;
       esac
@@ -1107,7 +1107,7 @@ remove() {
       -e "/${target_regex_hostname}/d" \
       "${HOSTS_PATH}"
   fi
-  printf "Removed:\n%s\n" "${target_records}"
+  printf "Removed:\\n%s\\n" "${target_records}"
 }
 
 # ---------------------------------------------------------------------- search
@@ -1152,11 +1152,11 @@ show() {
     # Output disabled records secondly for better organization.
     if [[ -n "${enabled_records}"  ]]
     then
-      printf "%s\n" "${enabled_records}"
+      printf "%s\\n" "${enabled_records}"
     fi
     if [[ -n "${disabled_records}" ]]
     then
-      printf "%s\n" "${disabled_records}"
+      printf "%s\\n" "${disabled_records}"
     fi
   else
     ${_ME} help show

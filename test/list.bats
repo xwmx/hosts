@@ -13,8 +13,8 @@ load test_helper
   }
 
   run "${_HOSTS}" list
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
 }
 
@@ -27,8 +27,8 @@ load test_helper
   }
 
   run "${_HOSTS}" list
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   _expected="\
 127.0.0.1	localhost
 255.255.255.255	broadcasthost
@@ -54,8 +54,8 @@ Disabled:
   }
 
   run "${_HOSTS}" list enabled
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
 }
 
@@ -68,8 +68,8 @@ Disabled:
   }
 
   run "${_HOSTS}" list enabled
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "127.0.0.1	localhost" ]]
   [[ "${lines[1]}" == "255.255.255.255	broadcasthost" ]]
   [[ "${lines[2]}" == "::1             localhost" ]]
@@ -88,8 +88,8 @@ Disabled:
   }
 
   run "${_HOSTS}" list disabled
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
 }
 
@@ -102,8 +102,8 @@ Disabled:
   }
 
   run "${_HOSTS}" list disabled
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "0.0.0.0	example.com" ]]
   [[ "${lines[1]}" == "127.0.0.1	example.com" ]]
   [[ "${lines[2]}" == "" ]]
@@ -119,8 +119,8 @@ Disabled:
   }
 
   run "${_HOSTS}" list example.com
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
 }
 
@@ -132,8 +132,8 @@ Disabled:
   }
 
   run "${_HOSTS}" list example.com
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "0.0.0.0	example.com" ]]
   [[ "${lines[1]}" == "127.0.0.1	example.com" ]]
   [[ "${lines[2]}" == "" ]]
@@ -148,8 +148,8 @@ Disabled:
 
 @test "\`help list\` prints help information." {
   run "${_HOSTS}" help list
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Usage:" ]]
   [[ "${lines[1]}" == "  hosts list [enabled | disabled | <search string>]" ]]
 }

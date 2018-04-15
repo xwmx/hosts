@@ -13,8 +13,8 @@ load test_helper
   }
 
   run "${_HOSTS}" enabled
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
 }
 
@@ -27,8 +27,8 @@ load test_helper
   }
 
   run "${_HOSTS}" enabled
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "127.0.0.1	localhost" ]]
   [[ "${lines[1]}" == "255.255.255.255	broadcasthost" ]]
   [[ "${lines[2]}" == "::1             localhost" ]]
@@ -45,8 +45,8 @@ load test_helper
 
 @test "\`help enabled\` prints help information." {
   run "${_HOSTS}" help enabled
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Usage:" ]]
   [[ "${lines[1]}" == "  hosts enabled" ]]
 }

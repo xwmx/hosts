@@ -6,8 +6,8 @@ load test_helper
 
 @test "\`unblock\` with no arguments exits with status 1." {
   run "${_HOSTS}" unblock
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 1 ]]
 }
 
@@ -15,15 +15,15 @@ load test_helper
   _original="$(cat "${HOSTS_PATH}")"
 
   run "${_HOSTS}" unblock
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "$(cat "${HOSTS_PATH}")" == "${_original}" ]]
 }
 
 @test "\`unblock\` with no arguments prints help information." {
   run "${_HOSTS}" unblock
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Usage:" ]]
   [[ "${lines[1]}" == "  hosts unblock <hostname>" ]]
 }
@@ -36,8 +36,8 @@ load test_helper
   }
 
   run "${_HOSTS}" unblock example.net
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 1 ]]
 }
 
@@ -47,8 +47,8 @@ load test_helper
   }
 
   run "${_HOSTS}" unblock example.net
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${output} == "No matching records found." ]]
 }
 
@@ -62,8 +62,8 @@ load test_helper
   }
 
   run "${_HOSTS}" unblock example.com
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
 }
 
@@ -76,8 +76,8 @@ load test_helper
   _original="$(cat "${HOSTS_PATH}")"
 
   run "${_HOSTS}" unblock example.com
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   _compare "${_original}" "$(cat "${HOSTS_PATH}")"
   [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "0.0.0.0	example.com" ]]
   [[ "$(sed -n '12p' "${HOSTS_PATH}")" == "127.0.0.1	example.net" ]]
@@ -93,8 +93,8 @@ load test_helper
   _original="$(cat "${HOSTS_PATH}")"
 
   run "${_HOSTS}" unblock example.com
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   _expected="\
 ##
 # Host Database
@@ -121,8 +121,8 @@ fe80::1%lo0	localhost
   }
 
   run "${_HOSTS}" unblock example.com
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   _expected="\
 Removed:
 127.0.0.1	example.com
@@ -142,8 +142,8 @@ Removed:
 
 @test "\`help unblock\` prints help information." {
   run "${_HOSTS}" help unblock
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Usage:" ]]
   [[ "${lines[1]}" == "  hosts unblock <hostname>" ]]
 }

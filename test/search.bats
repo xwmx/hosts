@@ -13,8 +13,8 @@ load test_helper
   }
 
   run "${_HOSTS}" search
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 1 ]]
 }
 
@@ -27,8 +27,8 @@ load test_helper
   }
 
   run "${_HOSTS}" search
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   _expected="\
 Usage:
   hosts search <search string>
@@ -50,8 +50,8 @@ Description:
   }
 
   run "${_HOSTS}" search enabled
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
 }
 
@@ -64,8 +64,8 @@ Description:
   }
 
   run "${_HOSTS}" search enabled
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "127.0.0.1	localhost" ]]
   [[ "${lines[1]}" == "255.255.255.255	broadcasthost" ]]
   [[ "${lines[2]}" == "::1             localhost" ]]
@@ -84,8 +84,8 @@ Description:
   }
 
   run "${_HOSTS}" search disabled
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
 }
 
@@ -98,8 +98,8 @@ Description:
   }
 
   run "${_HOSTS}" search disabled
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "0.0.0.0	example.com" ]]
   [[ "${lines[1]}" == "127.0.0.1	example.com" ]]
   [[ "${lines[2]}" == "" ]]
@@ -115,8 +115,8 @@ Description:
   }
 
   run "${_HOSTS}" search example.com
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
 }
 
@@ -128,8 +128,8 @@ Description:
   }
 
   run "${_HOSTS}" search example.com
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "0.0.0.0	example.com" ]]
   [[ "${lines[1]}" == "127.0.0.1	example.com" ]]
   [[ "${lines[2]}" == "" ]]
@@ -144,8 +144,8 @@ Description:
 
 @test "\`help search\` prints help information." {
   run "${_HOSTS}" help search
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Usage:" ]]
   [[ "${lines[1]}" == "  hosts search <search string>" ]]
 }

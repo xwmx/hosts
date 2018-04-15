@@ -33,8 +33,8 @@ load test_helper
 
 @test "\`help version\` prints help information." {
   run "${_HOSTS}" help version
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Usage:" ]]
   [[ "${lines[1]}" == "  hosts (version | --version)" ]]
 }

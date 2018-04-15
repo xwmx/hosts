@@ -6,8 +6,8 @@ load test_helper
 
 @test "\`enable\` with no arguments exits with status 1." {
   run "${_HOSTS}" enable
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 1 ]]
 }
 
@@ -15,15 +15,15 @@ load test_helper
   _original="$(cat "${HOSTS_PATH}")"
 
   run "${_HOSTS}" enable
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "$(cat "${HOSTS_PATH}")" == "${_original}" ]]
 }
 
 @test "\`enable\` with no arguments prints help information." {
   run "${_HOSTS}" enable
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Usage:" ]]
   [[ "${lines[1]}" == "  hosts enable (<ip> | <hostname> | <search string>)" ]]
 }
@@ -39,8 +39,8 @@ load test_helper
   }
 
   run "${_HOSTS}" enable 127.0.0.2
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
 }
 
@@ -55,8 +55,8 @@ load test_helper
   _original="$(cat "${HOSTS_PATH}")"
 
   run "${_HOSTS}" enable 127.0.0.2
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   _compare "${_original}" "$(cat "${HOSTS_PATH}")"
   [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "#disabled: 0.0.0.0	example.com" ]]
   [[ "$(sed -n '12p' "${HOSTS_PATH}")" == "#disabled: 0.0.0.0	example.net" ]]
@@ -74,8 +74,8 @@ load test_helper
   _original="$(cat "${HOSTS_PATH}")"
 
   run "${_HOSTS}" enable 0.0.0.0
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   _compare \
     "${_original}" \
     "$(cat "${HOSTS_PATH}")"
@@ -103,8 +103,8 @@ load test_helper
   }
 
   run "${_HOSTS}" enable 127.0.0.2
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Enabling:" ]]
   [[ "${lines[1]}" == "127.0.0.2	example.com" ]]
 }
@@ -120,8 +120,8 @@ load test_helper
   }
 
   run "${_HOSTS}" enable example.net
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
 }
 
@@ -135,8 +135,8 @@ load test_helper
   _original="$(cat "${HOSTS_PATH}")"
 
   run "${_HOSTS}" enable example.net
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   _compare "${_original}" "$(cat "${HOSTS_PATH}")"
   [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "#disabled: 0.0.0.0	example.com" ]]
   [[ "$(sed -n '12p' "${HOSTS_PATH}")" == "0.0.0.0	example.net" ]]
@@ -154,8 +154,8 @@ load test_helper
   _original="$(cat "${HOSTS_PATH}")"
 
   run "${_HOSTS}" enable example.com
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   _compare \
     "${_original}" \
     "$(cat "${HOSTS_PATH}")"
@@ -183,8 +183,8 @@ load test_helper
   }
 
   run "${_HOSTS}" enable example.net
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Enabling:" ]]
   [[ "${lines[1]}" == "0.0.0.0	example.net" ]]
 }
@@ -198,8 +198,8 @@ load test_helper
 
 @test "\`help enable\` prints help information." {
   run "${_HOSTS}" help enable
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Usage:" ]]
   [[ "${lines[1]}" == "  hosts enable (<ip> | <hostname> | <search string>)" ]]
 }

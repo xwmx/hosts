@@ -6,15 +6,15 @@ load test_helper
 
 @test "\`show\` with no arguments exits with status 1." {
   run "${_HOSTS}" show
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 1 ]]
 }
 
 @test "\`show\` with no arguments prints help information." {
   run "${_HOSTS}" show
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Usage:" ]]
   [[ "${lines[1]}" == "  hosts show (<ip> | <hostname> | <search string>)" ]]
 }
@@ -30,8 +30,8 @@ load test_helper
   }
 
   run "${_HOSTS}" show 0.0.0.0
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
 }
 
@@ -44,8 +44,8 @@ load test_helper
   }
 
   run "${_HOSTS}" show 0.0.0.0
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
 
   [[ "${lines[0]}" == "0.0.0.0	example.net" ]]
   [[ "${lines[1]}" == "disabled: 0.0.0.0	example.com" ]]
@@ -62,8 +62,8 @@ load test_helper
   }
 
   run "${_HOSTS}" show example.com
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
 }
 
@@ -76,8 +76,8 @@ load test_helper
   }
 
   run "${_HOSTS}" show example.com
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
 
   [[ "${lines[0]}" == "127.0.0.2	example.com" ]]
   [[ "${lines[1]}" == "disabled: 0.0.0.0	example.com" ]]
@@ -92,8 +92,8 @@ load test_helper
 
 @test "\`help show\` prints help information." {
   run "${_HOSTS}" help show
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Usage:" ]]
   [[ "${lines[1]}" == "  hosts show (<ip> | <hostname> | <search string>)" ]]
 }

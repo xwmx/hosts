@@ -21,8 +21,8 @@ load test_helper
 
 @test "\`help file\` prints help information." {
   run "${_HOSTS}" help file
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Usage:" ]]
   [[ "${lines[1]}" == "  hosts file" ]]
 }

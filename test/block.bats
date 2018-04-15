@@ -6,8 +6,8 @@ load test_helper
 
 @test "\`block\` with no arguments exits with status 1." {
   run "${_HOSTS}" block
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 1 ]]
 }
 
@@ -15,15 +15,15 @@ load test_helper
   _original="$(cat "${HOSTS_PATH}")"
 
   run "${_HOSTS}" block
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "$(cat "${HOSTS_PATH}")" == "${_original}" ]]
 }
 
 @test "\`block\` with no arguments prints help information." {
   run "${_HOSTS}" block
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Usage:" ]]
   [[ "${lines[1]}" == "  hosts block <hostname>" ]]
 }
@@ -32,8 +32,8 @@ load test_helper
 
 @test "\`block <hostname>\` exits with status 0." {
   run "${_HOSTS}" block example.com
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
 }
 
@@ -41,8 +41,8 @@ load test_helper
   _original="$(cat "${HOSTS_PATH}")"
 
   run "${_HOSTS}" block example.com
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   _compare "${_original}" "$(cat "${HOSTS_PATH}")"
   _compare '127.0.0.1	example.com' "$(sed -n '11p' "${HOSTS_PATH}")"
   [[ "$(cat "${HOSTS_PATH}")" != "${_original}" ]]
@@ -51,8 +51,8 @@ load test_helper
 
 @test "\`block <hostname>\` prints feedback." {
   run "${_HOSTS}" block example.com
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Added:" ]]
   [[ "${lines[1]}" == "127.0.0.1	example.com" ]]
   [[ "${lines[2]}" == "Added:" ]]
@@ -70,8 +70,8 @@ load test_helper
 
 @test "\`help block\` prints help information." {
   run "${_HOSTS}" help block
-  printf "\${status}: %s\n" "${status}"
-  printf "\${output}: '%s'\n" "${output}"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Usage:" ]]
   [[ "${lines[1]}" == "  hosts block <hostname>" ]]
 }
