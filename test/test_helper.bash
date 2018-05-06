@@ -12,16 +12,19 @@ setup() {
   # The location of the `hosts` script being tested.
   export _HOSTS="${BATS_TEST_DIRNAME}/../hosts"
 
-  export HOSTS_PATH="$(mktemp /tmp/hosts_test.XXXXXX)" || exit 1
-  cat "${BATS_TEST_DIRNAME}/fixtures/hosts" > "${HOSTS_PATH}"
+  export _HOSTS_TEMP_PATH
+  _HOSTS_TEMP_PATH="$(mktemp /tmp/hosts_test.XXXXXX)" || exit 1
+  cat "${BATS_TEST_DIRNAME}/fixtures/hosts" > "${_HOSTS_TEMP_PATH}"
+
+  export HOSTS_PATH="${_HOSTS_TEMP_PATH}"
 }
 
 teardown() {
-  if [[ -n "${HOSTS_PATH}" ]] &&
-     [[ -e "${HOSTS_PATH}" ]] &&
-     [[ "${HOSTS_PATH}" =~ ^/tmp ]]
+  if [[ -n "${_HOSTS_TEMP_PATH}" ]] &&
+     [[ -e "${_HOSTS_TEMP_PATH}" ]] &&
+     [[ "${_HOSTS_TEMP_PATH}" =~ ^/tmp/hosts_test ]]
   then
-    rm "${HOSTS_PATH}"
+    rm "${_HOSTS_TEMP_PATH}"
   fi
 }
 
