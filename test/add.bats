@@ -87,7 +87,7 @@ load test_helper
 # `hosts add <ip> <hostname> [comment]` #######################################
 
 @test "\`add <ip> <hostname> [comment]\` exits with status 0." {
-  run "${_HOSTS}" add 0.0.0.0 example.com 'Comment.'
+  run "${_HOSTS}" add 0.0.0.0 example.com 'Example multi-word comment.'
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
@@ -96,19 +96,20 @@ load test_helper
 @test "\`add <ip> <hostname> [comment]\` adds the entry to the hosts file." {
   _original="$(cat "${HOSTS_PATH}")"
 
-  run "${_HOSTS}" add 0.0.0.0 example.com 'Comment.'
+  run "${_HOSTS}" add 0.0.0.0 example.com 'Example multi-word comment.'
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   [[ "$(cat "${HOSTS_PATH}")" != "${_original}" ]]
-  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "0.0.0.0	example.com	# Comment." ]]
+  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == \
+      "0.0.0.0	example.com	# Example multi-word comment." ]]
 }
 
 @test "\`add <ip> <hostname> [comment]\` prints feedback." {
-  run "${_HOSTS}" add 0.0.0.0 example.com 'Comment.'
+  run "${_HOSTS}" add 0.0.0.0 example.com 'Example multi-word comment.'
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Added:" ]]
-  [[ "${lines[1]}" == "0.0.0.0	example.com	# Comment." ]]
+  [[ "${lines[1]}" == "0.0.0.0	example.com	# Example multi-word comment." ]]
 }
 
 # help ########################################################################
