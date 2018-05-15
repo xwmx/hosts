@@ -36,6 +36,8 @@ curl -L https://raw.github.com/alphabetum/hosts/master/hosts \
   -o ~/bin/hosts && chmod +x ~/bin/hosts
 ```
 
+A package for Arch users is also [available in the AUR](https://aur.archlinux.org/packages/hosts/).
+
 ## Usage
 
 ```text
