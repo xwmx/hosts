@@ -309,27 +309,37 @@ _load_commands() {
   # option, displays all of the functions with the format
   # `declare -f function_name`. These are then assigned as elements in the
   # $function_list array.
-  local function_list=($(declare -F))
+  local _function_list
+  _function_list=($(declare -F))
 
-  for c in "${function_list[@]}"
+  _debug printf \
+    "_load_commands() \${_function_list[@]}: %s\\n" \
+    "${_function_list[@]}"
+
+  for __name in "${_function_list[@]}"
   do
+    _debug printf \
+      "_load_commands() \${__name}: %s\\n" \
+      "${__name}"
     # Each element has the format `declare -f function_name`, so set the name
     # to only the 'function_name' part of the string.
-    local function_name
-    function_name=$(printf "%s" "${c}" | awk '{ print $3 }')
+    local _function_name
+    _function_name=$(printf "%s" "${__name}" | awk '{ print $3 }')
 
-    _debug printf "_load_commands() \${function_name}: %s\\n" "${function_name}"
+    _debug printf \
+      "_load_commands() \${_function_name}: %s\\n" \
+      "${_function_name}"
 
     # Add the function name to the $_DEFINED_COMMANDS array unless it starts
     # with an underscore or is one of the desc(), debug(), or die() functions,
     # since these are treated as having 'private' visibility.
-    if ! ( [[ "${function_name}" =~ ^_(.*)  ]] || \
-           [[ "${function_name}" == "desc"  ]] || \
-           [[ "${function_name}" == "debug" ]] || \
-           [[ "${function_name}" == "die"   ]]
+    if ! ( [[ "${_function_name}" =~ ^_(.*)  ]] || \
+           [[ "${_function_name}" == "desc"  ]] || \
+           [[ "${_function_name}" == "debug" ]] || \
+           [[ "${_function_name}" == "die"   ]]
     )
     then
-      _DEFINED_COMMANDS+=("${function_name}")
+      _DEFINED_COMMANDS+=("${_function_name}")
     fi
   done
 
