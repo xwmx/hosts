@@ -439,21 +439,19 @@ _contains() {
 # _join()
 #
 # Usage:
-#   _join "," a b c
-#   _join "${an_array[@]}"
+#   _join <separator> <array>
 #
-# Takes a separator and a list of items, joining that list of items with the
-# separator.
+# Examples:
+#   _join , a "b c" d     => a,b c,d
+#   _join / var local tmp => var/local/tmp
+#   _join , "${FOO[@]}"   => a,b,c
+#
+# More Information:
+#   http://stackoverflow.com/a/17841619
 _join() {
-  local separator
-  local target_array
-  local dirty
-  local clean
-  separator="${1}"
-  target_array=(${@:2})
-  dirty="$(printf "${separator}%s"  "${target_array[@]}")"
-  clean="${dirty:${#separator}}"
-  printf "%s" "${clean}"
+  local IFS="${1}"
+  shift
+  printf "%s\\n" "${*}"
 }
 
 # _command_argv_includes()
