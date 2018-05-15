@@ -68,11 +68,13 @@ export _TAB_SPACE_CC_="[${_TAB_SPACE_}]"
 # A simple function for executing a specified command if the `$_USE_DEBUG`
 # variable has been set. The command is expected to print a message and
 # should typically be either `echo`, `printf`, or `cat`.
+__DEBUG_COUNTER=0
 _debug() {
   if [[ "${_USE_DEBUG:-"0"}" -eq 1 ]]
-    then
+  then
+    __DEBUG_COUNTER=$((__DEBUG_COUNTER+1))
     # Prefix debug message with "bug (U+1F41B)"
-    printf "🐛  "
+    printf "🐛  %s " "${__DEBUG_COUNTER}"
     "${@}"
     printf "――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――\\n"
   fi
@@ -366,8 +368,7 @@ _main() {
   _debug printf "main(): entering...\\n"
   _debug printf "main() \${_CMD} (upon entering): %s\\n" "${_CMD}"
 
-  # If $_CMD is blank, then set to `$HOSTS_DEFAULT_COMMAND`
-  if [[ -z ${_CMD} ]]
+  if [[ -z "${_CMD}" ]]
   then
     _CMD="${HOSTS_DEFAULT_COMMAND}"
   fi
@@ -381,11 +382,7 @@ _main() {
     # Pass all comment arguments to the program except for the first ($0).
     ${_CMD} "${_COMMAND_PARAMETERS[@]:-}"
   else
-    local _parameters=()
-    _parameters+=("${_CMD}")
-    _parameters+=(${_COMMAND_PARAMETERS[@]:-})
-
-    "${HOSTS_DEFAULT_COMMAND}" "${_parameters[@]:-}"
+    _die printf "Unknown command: %s\\n" "${_CMD}"
   fi
 }
 
@@ -398,8 +395,12 @@ _main() {
 # Usage:
 #   _function_exists "possible_function_name"
 #
-# Takes a potential function name as an argument and returns whether a function
-# exists with that name.
+# Returns:
+#   0  If a function with the given name is defined in the current environment.
+#   1  If not.
+#
+# Other implementations, some with better performance:
+# http://stackoverflow.com/q/85880
 _function_exists() {
   [ "$(type -t "${1}")" == 'function' ]
 }
@@ -409,10 +410,11 @@ _function_exists() {
 # Usage:
 #   _command_exists "possible_command_name"
 #
-# Takes a potential command name as an argument and returns whether a command
-# exists with that name.
+# Returns:
+#   0  If a command with the given name is defined in the current environment.
+#   1  If not.
 #
-# For information on why `hash` is used here, see:
+# Information on why `hash` is used here:
 # http://stackoverflow.com/a/677212
 _command_exists() {
   hash "${1}" 2>/dev/null
@@ -423,14 +425,15 @@ _command_exists() {
 # Usage:
 #   _contains "$item" "${list[*]}"
 #
-# Takes an item and a list and determines whether the list contains the item.
+# Returns:
+#   0  If the item is included in the list.
+#   1  If not.
 _contains() {
   local _test_list=(${*:2})
-
-  for _test_element in "${_test_list[@]:-}"
+  for __test_element in "${_test_list[@]:-}"
   do
-    _debug printf "_contains() \${_test_element}: %s\\n" "${_test_element}"
-    if [[ "${_test_element}" == "${1}" ]]
+    _debug printf "_contains() \${__test_element}: %s\\n" "${__test_element}"
+    if [[ "${__test_element}" == "${1}" ]]
     then
       _debug printf "_contains() match: %s\\n" "${1}"
       return 0
@@ -462,8 +465,10 @@ _join() {
 # Usage:
 #   _command_argv_includes "an_argument"
 #
-# Takes a possible command argument and determines whether it is included in
-# the command argument list.
+# Returns:
+#   0  If the argument is included in `$_COMMAND_ARGV`, the program's command
+#      argument list.
+#   1  If not.
 #
 # This is a shortcut for simple cases where a command wants to check for the
 # presence of options quickly without parsing the options again.
@@ -476,7 +481,9 @@ _command_argv_includes() {
 # Usage:
 #   _blank "$an_argument"
 #
-# Takes an argument and returns true if it is blank.
+# Returns:
+#   0  If the argument is not present or null.
+#   1  If the argument is present and not null.
 _blank() {
   [[ -z "${1:-}" ]]
 }
@@ -486,9 +493,35 @@ _blank() {
 # Usage:
 #   _present "$an_argument"
 #
-# Takes an argument and returns true if it is present.
+# Returns:
+#   0  If the argument is present and not null.
+#   1  If the argument is not present or null.
 _present() {
   [[ -n "${1:-}" ]]
+}
+
+# _interactive_input()
+#
+# Usage:
+#   _interactive_input
+#
+# Returns:
+#   0  If the current input is interactive (eg, a shell).
+#   1  If the current input is stdin / piped input.
+_interactive_input() {
+  [[ -t 0 ]]
+}
+
+# _piped_input()
+#
+# Usage:
+#   _piped_input
+#
+# Returns:
+#   0  If the current input is stdin / piped input.
+#   1  If the current input is interactive (eg, a shell).
+_piped_input() {
+  ! _interactive_input
 }
 
 # _verify_write_permissions
@@ -518,59 +551,65 @@ sudo !!\\n"
 # desc()
 #
 # Usage:
-#   desc command "description"
+#   desc <name> <description>
+#   desc --get <name>
 #
-# Create a description for a specified command name. The command description
-# text can be passed as the second argument or as standard input.
+# Options:
+#   --get  Print the description for <name> if one has been set.
 #
-# To make the description text available to other functions, desc() assigns the
-# text to a variable with the format $_desc_function_name
+# Examples:
+# ```
+#   desc "list" <<HEREDOC
+# Usage:
+#   ${_ME} list
 #
-# NOTE:
-#
-# The `read` form of assignment is used for a balance of ease of
-# implementation and simplicity. There is an alternative assignment form
-# that could be used here:
-#
-# var="$(cat <<'HEREDOC'
-# some message
+# Description:
+#   List items.
 # HEREDOC
-# )
 #
-# However, this form appears to require trailing space after backslases to
-# preserve newlines, which is unexpected. Using `read` simply requires
-# escaping backslashes, which is more common.
+# desc --get "list"
+# ```
+#
+# Set or print a description for a specified command or function <name>. The
+# <description> text can be passed as the second argument or as standard input.
+#
+# To make the <description> text available to other functions, `desc()` assigns
+# the text to a variable with the format `$___desc_<name>`.
+#
+# When the `--get` option is used, the description for <name> is printed, if
+# one has been set.
 desc() {
-  set +e
-  [[ -z ${1:-} ]] && _die printf "desc: No command name specified.\\n"
-  if [[ -n ${2:-} ]]
-  then
-    read -r -d '' "_desc_${1}" <<HEREDOC
+  _debug printf "desc() \${*}: %s\\n" "$@"
+  [[ -z "${1:-}" ]] && _die printf "desc(): No command name specified.\\n"
+
+  if [[ "${1}" == "--get" ]]
+  then # get ------------------------------------------------------------------
+    [[ -z "${2:-}" ]] && _die printf "desc(): No command name specified.\\n"
+
+    local _name="${2:-}"
+    local _desc_var="___desc_${_name}"
+
+    if [[ -n "${!_desc_var:-}" ]]
+    then
+      printf "%s\\n" "${!_desc_var}"
+    else
+      printf "No additional information for \`%s\`\\n" "${_name}"
+    fi
+  else # set ------------------------------------------------------------------
+    if [[ -n "${2:-}" ]]
+    then # argument is present
+      read -r -d '' "___desc_${1}" <<HEREDOC
 ${2}
 HEREDOC
-    _debug printf "desc() set with argument: _desc_%s\\n" "${1}"
-  else
-    read -r -d '' "_desc_${1}"
-    _debug printf "desc() set with pipe: _desc_%s\\n" "${1}"
-  fi
-  set -e
-}
 
-# _print_desc()
-#
-# Usage:
-#   _print_desc <command>
-#
-# Prints the description for a given command, provided the description has been
-# set using the desc() function.
-_print_desc() {
-  local _var="_desc_${1:-}"
+      _debug printf "desc() set with argument: \${___desc_%s}\\n" "${1}"
+    else # no argument is present, so assume piped input
+      # `read` exits with non-zero status when a delimeter is not found, so
+      # avoid errors by ending statement with `|| true`.
+      read -r -d '' "___desc_${1}" || true
 
-  if [[ -n "${!_var:-}" ]]
-  then
-    printf "%s\\n" "${!_var}"
-  else
-    printf "No additional information for \`%s\`\\n" "${1}"
+      _debug printf "desc() set with pipe: \${___desc_%s}\\n" "${1}"
+    fi
   fi
 }
 
@@ -646,7 +685,7 @@ Help:
 $(commands)
 HEREDOC
   else
-    _print_desc "${1}"
+    desc --get "${1}"
   fi
 }
 
@@ -1246,5 +1285,5 @@ unblock() {
 # Run Program
 ###############################################################################
 
-# Calling the _main function after everything has been defined.
+# Call the `_main` function after everything has been defined.
 _main
