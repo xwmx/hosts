@@ -224,9 +224,11 @@ _AUTO_SUDO=0
 
 while [ ${#} -gt 0 ]
 do
-  opt="${1}"
+  __opt="${1}"
+
   shift
-  case "${opt}" in
+
+  case "${__opt}" in
     -h|--help)
       _CMD="help"
       ;;
@@ -242,11 +244,11 @@ do
     *)
       # The first non-option argument is assumed to be the command name.
       # All subsequent arguments are added to $_COMMAND_ARGV.
-      if [[ -n ${_CMD} ]]
+      if [[ -n "${_CMD:-}" ]]
       then
-        _COMMAND_ARGV+=("${opt}")
+        _COMMAND_ARGV+=("${__opt}")
       else
-        _CMD="${opt}"
+        _CMD="${__opt}"
       fi
       ;;
   esac
@@ -423,8 +425,9 @@ _command_exists() {
 #
 # Takes an item and a list and determines whether the list contains the item.
 _contains() {
-  local test_list=(${*:2})
-  for _test_element in "${test_list[@]:-}"
+  local _test_list=(${*:2})
+
+  for _test_element in "${_test_list[@]:-}"
   do
     _debug printf "_contains() \${_test_element}: %s\\n" "${_test_element}"
     if [[ "${_test_element}" == "${1}" ]]
@@ -539,7 +542,7 @@ sudo !!\\n"
 # escaping backslashes, which is more common.
 desc() {
   set +e
-  [[ -z ${1} ]] && _die printf "desc: No command name specified.\\n"
+  [[ -z ${1:-} ]] && _die printf "desc: No command name specified.\\n"
   if [[ -n ${2:-} ]]
   then
     read -r -d '' "_desc_${1}" <<HEREDOC
@@ -561,10 +564,11 @@ HEREDOC
 # Prints the description for a given command, provided the description has been
 # set using the desc() function.
 _print_desc() {
-  local var="_desc_${1}"
-  if [[ -n ${!var:-} ]]
+  local _var="_desc_${1:-}"
+
+  if [[ -n "${!_var:-}" ]]
   then
-    printf "%s\\n" "${!var}"
+    printf "%s\\n" "${!_var}"
   else
     printf "No additional information for \`%s\`\\n" "${1}"
   fi
@@ -710,45 +714,48 @@ add() {
   _debug printf "add() \${3}: %s\\n" "${3:-}"
 
   _verify_write_permissions "$@"
-  local ip=${1:-}
-  local hostname=${2:-}
-  local comment=${*:3}
-  if [[ -z ${ip} ]]
+
+  local _ip="${1:-}"
+  local _hostname="${2:-}"
+  local _comment="${*:3}"
+
+  if [[ -z "${_ip:-}" ]]
   then
-    ${_ME} help add
+    "${_ME}" help add
     exit 1
-  elif [[ -z ${hostname} ]]
+  elif [[ -z "${_hostname:-}" ]]
   then
     printf "Please include a hostname\\n"
-    ${_ME} help add
+    "${_ME}" help add
     exit 1
   elif grep \
-    -e "^${ip}\\t${hostname}$" \
-    -e "^${ip}\\t${hostname}\\t.*$" "${HOSTS_PATH}"
+    -e "^${_ip}\\t${_hostname}$" \
+    -e "^${_ip}\\t${_hostname}\\t.*$" "${HOSTS_PATH}"
   then
     _die printf \
       "Duplicate address/host combination, %s unchanged.\\n" \
       "${HOSTS_PATH}"
   else
-    if [[ -n ${comment} ]]
+    if [[ -n "${_comment:-}" ]]
     then
-      local formatted_comment
-      formatted_comment=$(_join " " "${comment[@]}")
+      local _formatted_comment
+      _formatted_comment=$(_join " " "${_comment[@]}")
+
       printf "%s\\t%s\\t# %s\\n" \
-        "${ip}" \
-        "${hostname}" \
-        "${formatted_comment}" >> "${HOSTS_PATH}"
+        "${_ip}" \
+        "${_hostname}" \
+        "${_formatted_comment}" >> "${HOSTS_PATH}"
       printf "Added:\\n%s\\t%s\\t# %s\\n" \
-        "${ip}" \
-        "${hostname}" \
-        "${formatted_comment}"
+        "${_ip}" \
+        "${_hostname}" \
+        "${_formatted_comment}"
     else
       printf "%s\\t%s\\n" \
-        "${ip}" \
-        "${hostname}" >> "${HOSTS_PATH}"
+        "${_ip}" \
+        "${_hostname}" >> "${HOSTS_PATH}"
       printf "Added:\\n%s\\t%s\\n" \
-        "${ip}" \
-        "${hostname}"
+        "${_ip}" \
+        "${_hostname}"
     fi
   fi
 }
@@ -765,16 +772,17 @@ Description:
 HEREDOC
 block() {
   _verify_write_permissions "$@"
-  if [[ -z "${1}" ]]
+
+  if [[ -z "${1:-}" ]]
   then
-    ${_ME} help block
+    "${_ME}" help block
     exit 1
   fi
 
-  ${_ME} add 127.0.0.1 "${1}"
+  "${_ME}" add 127.0.0.1 "${1}"
   # block IPv6
-  ${_ME} add "fe80::1%lo0" "${1}"
-  ${_ME} add "::1" "${1}"
+  "${_ME}" add "fe80::1%lo0" "${1}"
+  "${_ME}" add "::1" "${1}"
 }
 
 # --------------------------------------------------------------------- disable
@@ -789,44 +797,48 @@ Description:
 HEREDOC
 disable() {
   _verify_write_permissions "$@"
-  local search_string="${1}"
-  if [[ -z "${search_string}" ]]
+
+  local _search_string="${1:-}"
+
+  if [[ -z "${_search_string:-}" ]]
   then
-    ${_ME} help disable
+    "${_ME}" help disable
     exit 1
   else
-    _debug printf "disable() \${search_string}: %s\\n" "${search_string}"
+    _debug printf "disable() \${_search_string}: %s\\n" "${_search_string}"
 
-    target_regex_ip="^\\(${search_string}[${_TAB_SPACE_}]..*\\)$"
-    target_regex_commented_hostname="^\\([^#]..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\\)$"
-    target_regex_hostname="^\\([^#]..*[${_TAB_SPACE_}]${search_string}\\)$"
+    _target_regex_ip="^\\(${_search_string}[${_TAB_SPACE_}]..*\\)$"
+    _target_regex_commented_hostname="^\\([^#]..*[${_TAB_SPACE_}]${_search_string}[${_TAB_SPACE_}]..*\\)$"
+    _target_regex_hostname="^\\([^#]..*[${_TAB_SPACE_}]${_search_string}\\)$"
 
     # Regular Expression Notes
     #
     # - Note double periods in regular expression in order to emulate /.+/,
     #   which apparently doesn't work properly with all versions of sed.
-    local targets
-    targets=$(
+    local _targets
+    _targets=$(
       sed -n \
-        -e "s/${target_regex_ip}/\\1/p" \
-        -e "s/${target_regex_commented_hostname}/\\1/p" \
-        -e "s/${target_regex_hostname}/\\1/p" \
+        -e "s/${_target_regex_ip}/\\1/p" \
+        -e "s/${_target_regex_commented_hostname}/\\1/p" \
+        -e "s/${_target_regex_hostname}/\\1/p" \
         "${HOSTS_PATH}"
     )
-    _debug printf "disable() \${targets}: %s\\n" "${targets}"
-    if [[ -z "${targets}" ]]
+
+    _debug printf "disable() \${_targets}: %s\\n" "${_targets}"
+
+    if [[ -z "${_targets:-}" ]]
     then
-      _die printf "Not found: %s\\n" "${search_string}"
+      _die printf "Not found: %s\\n" "${_search_string}"
     fi
 
-    printf "Disabling:\\n%s\\n" "${targets}"
+    printf "Disabling:\\n%s\\n" "${_targets}"
 
     # -i '' - in place edit. BSD sed requires extension argument, for GNU
     # it's optional. More info: http://stackoverflow.com/a/16746032
     sed -i '' \
-      -e "s/${target_regex_ip}/\\#disabled: \\1/g" \
-      -e "s/${target_regex_commented_hostname}/\\#disabled: \\1/g" \
-      -e "s/${target_regex_hostname}/\\#disabled: \\1/g" \
+      -e "s/${_target_regex_ip}/\\#disabled: \\1/g" \
+      -e "s/${_target_regex_commented_hostname}/\\#disabled: \\1/g" \
+      -e "s/${_target_regex_hostname}/\\#disabled: \\1/g" \
       "${HOSTS_PATH}"
   fi
 }
@@ -841,7 +853,7 @@ Description:
   List all disabled records. This is an alias for \`hosts list disabled\`.
 HEREDOC
 disabled() {
-  ${_ME} list disabled
+  "${_ME}" list disabled
 }
 
 # ------------------------------------------------------------------------ edit
@@ -855,6 +867,7 @@ Description:
 HEREDOC
 edit() {
   _verify_write_permissions "$@"
+
   if [[ -z "${EDITOR}" ]]
   then
     _die printf "\$EDITOR not set.\\n"
@@ -875,44 +888,48 @@ Description:
 HEREDOC
 enable() {
   _verify_write_permissions "$@"
-  local search_string="${1}"
-  if [[ -z "${search_string}" ]]
+
+  local _search_string="${1:-}"
+
+  if [[ -z "${_search_string:-}" ]]
   then
-    ${_ME} help enable
+    "${_ME}" help enable
     exit 1
   else
-    _debug printf "enable() \${search_string}: %s\\n" "${search_string}"
+    _debug printf "enable() \${_search_string}: %s\\n" "${_search_string}"
 
-    target_regex_ip="^\\#disabled: \\(${search_string}[${_TAB_SPACE_}]..*\\)$"
-    target_regex_commented_hostname="^\\#disabled: \\(..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\\)$"
-    target_regex_hostname="^\\#disabled: \\(..*[${_TAB_SPACE_}]${search_string}\\)$"
+    _target_regex_ip="^\\#disabled: \\(${_search_string}[${_TAB_SPACE_}]..*\\)$"
+    _target_regex_commented_hostname="^\\#disabled: \\(..*[${_TAB_SPACE_}]${_search_string}[${_TAB_SPACE_}]..*\\)$"
+    _target_regex_hostname="^\\#disabled: \\(..*[${_TAB_SPACE_}]${_search_string}\\)$"
 
     # Regular Expression Notes
     #
     # - Note double periods in regular expression in order to emulate /.+/,
     #   which apparently doesn't work properly with all versions of sed.
-    local targets
-    targets=$(
+    local _targets
+    _targets=$(
       sed -n \
-        -e "s/${target_regex_ip}/\\1/p" \
-        -e "s/${target_regex_commented_hostname}/\\1/p" \
-        -e "s/${target_regex_hostname}/\\1/p" \
+        -e "s/${_target_regex_ip}/\\1/p" \
+        -e "s/${_target_regex_commented_hostname}/\\1/p" \
+        -e "s/${_target_regex_hostname}/\\1/p" \
         "${HOSTS_PATH}"
     )
-    _debug printf "enable() \${targets}: %s\\n" "${targets}"
-    if [[ -z "${targets}" ]]
+
+    _debug printf "enable() \${targets}: %s\\n" "${_targets}"
+
+    if [[ -z "${_targets:-}" ]]
     then
-      _die printf "Not found: %s\\n" "${search_string}"
+      _die printf "Not found: %s\\n" "${_search_string}"
     fi
 
-    printf "Enabling:\\n%s\\n" "${targets}"
+    printf "Enabling:\\n%s\\n" "${_targets}"
 
     # -i '' - in place edit. BSD sed requires extension argument, for GNU
     # it's optional. More info: http://stackoverflow.com/a/16746032
     sed -i '' \
-      -e "s/${target_regex_ip}/\\1/g" \
-      -e "s/${target_regex_commented_hostname}/\\1/g" \
-      -e "s/${target_regex_hostname}/\\1/g" \
+      -e "s/${_target_regex_ip}/\\1/g" \
+      -e "s/${_target_regex_commented_hostname}/\\1/g" \
+      -e "s/${_target_regex_hostname}/\\1/g" \
       "${HOSTS_PATH}"
   fi
 }
@@ -927,7 +944,7 @@ Description:
   List all enabled records. This is an alias for \`hosts list enabled\`.
 HEREDOC
 enabled() {
-  ${_ME} list enabled
+  "${_ME}" list enabled
 }
 
 # ------------------------------------------------------------------------ file
@@ -956,29 +973,30 @@ Description:
 HEREDOC
 list() {
   # Get the disabled records up front for the two cases where they are needed.
-  local disabled_records
-  disabled_records=$(
+  local _disabled_records
+  _disabled_records=$(
     sed -n "s/^\\#disabled: \\(.*\\)$/\\1/p" "${HOSTS_PATH}"
   )
 
-  if [[ -n "${1}" ]]
+  if [[ -n "${1:-}" ]]
   then
     if [[ "${1}" == "disabled" ]]
     then
-      printf "%s\\n" "${disabled_records}"
+      printf "%s\\n" "${_disabled_records}"
     elif [[ "${1}" == "enabled" ]]
     then
       grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
     else
-      ${_ME} show "${1}"
+      "${_ME}" show "${1}"
     fi
   else
     # NOTE: use separate expressions since using a | for the or results in
     # inconsistent behavior.
     grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
-    if [[ -n "${disabled_records}" ]]
+
+    if [[ -n "${_disabled_records:-}" ]]
     then
-      printf "\\nDisabled:\\n%s\\n" "${disabled_records}"
+      printf "\\nDisabled:\\n%s\\n" "${_disabled_records}"
     fi
   fi
 }
@@ -1000,45 +1018,48 @@ Description:
 HEREDOC
 remove() {
   _verify_write_permissions "$@"
-  local is_search_pair=0
-  local force_skip_prompt=0
-  local arguments=()
-  local search_ip=""
-  local search_hostname=""
-  local search_string=""
+
+  local _is_search_pair=0
+  local _force_skip_prompt=0
+  local _arguments=()
+  local _search_ip=""
+  local _search_hostname=""
+  local _search_string=""
 
   _debug printf "remove() \${1}: %s\\n" "${1:-}"
   _debug printf "remove() \${2}: %s\\n" "${2:-}"
 
-  for arg in "${_COMMAND_ARGV[@]:-}"
+  for __arg in "${_COMMAND_ARGV[@]:-}"
   do
-    case ${arg} in
+    case "${__arg}" in
       --force)
-        force_skip_prompt=1
+        _force_skip_prompt=1
         ;;
       *)
-        arguments+=(${arg})
+        _arguments+=("${__arg}")
         ;;
     esac
   done
 
-  _debug printf "remove() \${arguments[0]}: %s\\n" "${arguments[0]:-}"
-  _debug printf "remove() \${arguments[1]}: %s\\n" "${arguments[1]:-}"
-  _debug printf "remove() \${arguments[2]}: %s\\n" "${arguments[2]:-}"
+  _debug printf "remove() \${arguments[0]}: %s\\n" "${_arguments[0]:-}"
+  _debug printf "remove() \${arguments[1]}: %s\\n" "${_arguments[1]:-}"
+  _debug printf "remove() \${arguments[2]}: %s\\n" "${_arguments[2]:-}"
 
-  if [[ -z "${arguments[1]:-}" ]]
+  if [[ -z "${_arguments[1]:-}" ]]
   then
-    ${_ME} help remove
+    "${_ME}" help remove
     exit 1
-  elif [[ -n "${arguments[2]:-}" ]]
+  elif [[ -n "${_arguments[2]:-}" ]]
   then
-    search_ip="${arguments[1]}"
-    search_hostname="${arguments[2]}"
-    is_search_pair=1
-    _debug printf "remove() \${is_search_pair}: %s\\n" "${is_search_pair}"
+    _search_ip="${_arguments[1]}"
+    _search_hostname="${_arguments[2]}"
+    _is_search_pair=1
+
+    _debug printf "remove() \${_is_search_pair}: %s\\n" "${_is_search_pair}"
   else
-    search_string="${arguments[1]:-}"
-    _debug printf "remove() \${search_string}: %s\\n" "${search_string}"
+    _search_string="${_arguments[1]:-}"
+
+    _debug printf "remove() \${_search_string}: %s\\n" "${_search_string}"
   fi
 
   # Regular Expression Notes
@@ -1047,46 +1068,48 @@ remove() {
   # which apparently doesn't work properly with all versions of sed.
   #
   # IP / Hostname pair regular expressions:
-  local target_regex_ip_hostname_commented="^\\(${search_ip}[${_TAB_SPACE_}]*${search_hostname}[${_TAB_SPACE_}]..*\\)$"
-  local target_regex_ip_hostname="^\\(${search_ip}[${_TAB_SPACE_}]*${search_hostname}\\)$"
+  local _target_regex_ip_hostname_commented="^\\(${_search_ip}[${_TAB_SPACE_}]*${_search_hostname}[${_TAB_SPACE_}]..*\\)$"
+  local _target_regex_ip_hostname="^\\(${_search_ip}[${_TAB_SPACE_}]*${_search_hostname}\\)$"
   # Search string regular expressions:
-  local target_regex_ip="^\\(${search_string}[${_TAB_SPACE_}]..*\\)$"
-  local target_regex_commented_hostname="^\\(..*[${_TAB_SPACE_}]${search_string}[${_TAB_SPACE_}]..*\\)$"
-  local target_regex_hostname="^\\(..*[${_TAB_SPACE_}]${search_string}\\)$"
+  local _target_regex_ip="^\\(${_search_string}[${_TAB_SPACE_}]..*\\)$"
+  local _target_regex_commented_hostname="^\\(..*[${_TAB_SPACE_}]${_search_string}[${_TAB_SPACE_}]..*\\)$"
+  local _target_regex_hostname="^\\(..*[${_TAB_SPACE_}]${_search_string}\\)$"
 
-  local target_records
+  local _target_records
 
-  if ((is_search_pair))
+  if ((_is_search_pair))
   then
-    target_records=$(
+    _target_records=$(
       sed -n \
-        -e "s/${target_regex_ip_hostname_commented}/\\1/p" \
-        -e "s/${target_regex_ip_hostname}/\\1/p" \
+        -e "s/${_target_regex_ip_hostname_commented}/\\1/p" \
+        -e "s/${_target_regex_ip_hostname}/\\1/p" \
         "${HOSTS_PATH}"
     )
   else
-    target_records=$(
+    _target_records=$(
       sed -n \
-        -e "s/${target_regex_ip}/\\1/p" \
-        -e "s/${target_regex_commented_hostname}/\\1/p" \
-        -e "s/${target_regex_hostname}/\\1/p" \
+        -e "s/${_target_regex_ip}/\\1/p" \
+        -e "s/${_target_regex_commented_hostname}/\\1/p" \
+        -e "s/${_target_regex_hostname}/\\1/p" \
         "${HOSTS_PATH}"
     )
   fi
 
-  if [[ -z ${target_records:-} ]]
+  if [[ -z "${_target_records:-}" ]]
   then
     printf "No matching records found.\\n"
     exit 1
   fi
 
-  if ! ((force_skip_prompt))
+  if ! ((_force_skip_prompt))
   then
-    printf "Removing the following records:\\n%s\\n" "${target_records}"
+    printf "Removing the following records:\\n%s\\n" "${_target_records}"
+
     while true
     do
-      read -r -p "Are you sure you want to proceed? [y/N] " yn
-      case ${yn} in
+      read -r -p "Are you sure you want to proceed? [y/N] " _yn
+
+      case "${_yn}" in
         [Yy]* )
           break
           ;;
@@ -1102,20 +1125,21 @@ remove() {
   #
   # -i '' - in place edit. BSD sed requires extension argument, for GNU
   # it's optional. More info: http://stackoverflow.com/a/16746032
-  if ((is_search_pair))
+  if ((_is_search_pair))
   then
     sed -i '' \
-      -e "/${target_regex_ip_hostname_commented}/d" \
-      -e "/${target_regex_ip_hostname}/d" \
+      -e "/${_target_regex_ip_hostname_commented}/d" \
+      -e "/${_target_regex_ip_hostname}/d" \
       "${HOSTS_PATH}"
   else
     sed -i '' \
-      -e "/${target_regex_ip}/d" \
-      -e "/${target_regex_commented_hostname}/d" \
-      -e "/${target_regex_hostname}/d" \
+      -e "/${_target_regex_ip}/d" \
+      -e "/${_target_regex_commented_hostname}/d" \
+      -e "/${_target_regex_hostname}/d" \
       "${HOSTS_PATH}"
   fi
-  printf "Removed:\\n%s\\n" "${target_records}"
+
+  printf "Removed:\\n%s\\n" "${_target_records}"
 }
 
 # ---------------------------------------------------------------------- search
@@ -1130,9 +1154,10 @@ HEREDOC
 search() {
   if _blank "${_COMMAND_ARGV[1]:-}"
   then
-    $_ME help "search"
+    "${_ME}" help "search"
     return 1
   fi
+
   list "$@"
 }
 
@@ -1146,28 +1171,30 @@ Description:
   Print entries matching a given IP address, hostname, or search string.
 HEREDOC
 show() {
-  if [[ -n "${1}" ]]
+  if [[ -n "${1:-}" ]]
   then
     # Run `sed` before `grep` to avoid conflict that supress `sed` output.
-    local disabled_records
-    disabled_records=$(
+    local _disabled_records
+    _disabled_records=$(
       sed -n "s/^\\#\\(disabled: .*${1}.*\\)$/\\1/p" "${HOSTS_PATH}"
     )
-    local enabled_records
-    enabled_records=$(
+
+    local _enabled_records
+    _enabled_records=$(
       grep "^[^#]*${1}" "${HOSTS_PATH}"
     )
+
     # Output disabled records secondly for better organization.
-    if [[ -n "${enabled_records}"  ]]
+    if [[ -n "${_enabled_records}"  ]]
     then
-      printf "%s\\n" "${enabled_records}"
+      printf "%s\\n" "${_enabled_records}"
     fi
-    if [[ -n "${disabled_records}" ]]
+    if [[ -n "${_disabled_records}" ]]
     then
-      printf "%s\\n" "${disabled_records}"
+      printf "%s\\n" "${_disabled_records}"
     fi
   else
-    ${_ME} help show
+    "${_ME}" help show
     exit 1
   fi
 }
@@ -1183,16 +1210,17 @@ Description:
 HEREDOC
 unblock() {
   _verify_write_permissions "$@"
-  if [[ -z "${1}" ]]
+
+  if [[ -z "${1:-}" ]]
   then
-    ${_ME} help unblock
+    "${_ME}" help unblock
     exit 1
   fi
 
-  ${_ME} remove 127.0.0.1 "${1}" --force
+  "${_ME}" remove 127.0.0.1 "${1}" --force
   # unblock IPv6
-  ${_ME} remove "fe80::1%lo0" "${1}" --force
-  ${_ME} remove "::1" "${1}" --force
+  "${_ME}" remove "fe80::1%lo0" "${1}" --force
+  "${_ME}" remove "::1" "${1}" --force
 }
 
 ###############################################################################
