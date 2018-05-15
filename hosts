@@ -807,9 +807,14 @@ disable() {
   else
     _debug printf "disable() \${_search_string}: %s\\n" "${_search_string}"
 
-    _target_regex_ip="^\\(${_search_string}[${_TAB_SPACE_}]..*\\)$"
-    _target_regex_commented_hostname="^\\([^#]..*[${_TAB_SPACE_}]${_search_string}[${_TAB_SPACE_}]..*\\)$"
-    _target_regex_hostname="^\\([^#]..*[${_TAB_SPACE_}]${_search_string}\\)$"
+    local _regex_ip
+    _regex_ip="^\\(${_search_string}[${_TAB_SPACE_}]..*\\)$"
+
+    local _regex_commented_hostname
+    _regex_commented_hostname="^\\([^#]..*[${_TAB_SPACE_}]${_search_string}[${_TAB_SPACE_}]..*\\)$"
+
+    local _regex_hostname
+    _regex_hostname="^\\([^#]..*[${_TAB_SPACE_}]${_search_string}\\)$"
 
     # Regular Expression Notes
     #
@@ -818,9 +823,9 @@ disable() {
     local _targets
     _targets=$(
       sed -n \
-        -e "s/${_target_regex_ip}/\\1/p" \
-        -e "s/${_target_regex_commented_hostname}/\\1/p" \
-        -e "s/${_target_regex_hostname}/\\1/p" \
+        -e "s/${_regex_ip}/\\1/p" \
+        -e "s/${_regex_commented_hostname}/\\1/p" \
+        -e "s/${_regex_hostname}/\\1/p" \
         "${HOSTS_PATH}"
     )
 
@@ -836,9 +841,9 @@ disable() {
     # -i '' - in place edit. BSD sed requires extension argument, for GNU
     # it's optional. More info: http://stackoverflow.com/a/16746032
     sed -i '' \
-      -e "s/${_target_regex_ip}/\\#disabled: \\1/g" \
-      -e "s/${_target_regex_commented_hostname}/\\#disabled: \\1/g" \
-      -e "s/${_target_regex_hostname}/\\#disabled: \\1/g" \
+      -e "s/${_regex_ip}/\\#disabled: \\1/g" \
+      -e "s/${_regex_commented_hostname}/\\#disabled: \\1/g" \
+      -e "s/${_regex_hostname}/\\#disabled: \\1/g" \
       "${HOSTS_PATH}"
   fi
 }
@@ -898,9 +903,14 @@ enable() {
   else
     _debug printf "enable() \${_search_string}: %s\\n" "${_search_string}"
 
-    _target_regex_ip="^\\#disabled: \\(${_search_string}[${_TAB_SPACE_}]..*\\)$"
-    _target_regex_commented_hostname="^\\#disabled: \\(..*[${_TAB_SPACE_}]${_search_string}[${_TAB_SPACE_}]..*\\)$"
-    _target_regex_hostname="^\\#disabled: \\(..*[${_TAB_SPACE_}]${_search_string}\\)$"
+    local _regex_ip
+    _regex_ip="^\\#disabled: \\(${_search_string}[${_TAB_SPACE_}]..*\\)$"
+
+    local _regex_commented_hostname
+    _regex_commented_hostname="^\\#disabled: \\(..*[${_TAB_SPACE_}]${_search_string}[${_TAB_SPACE_}]..*\\)$"
+
+    local _regex_hostname
+    _regex_hostname="^\\#disabled: \\(..*[${_TAB_SPACE_}]${_search_string}\\)$"
 
     # Regular Expression Notes
     #
@@ -909,9 +919,9 @@ enable() {
     local _targets
     _targets=$(
       sed -n \
-        -e "s/${_target_regex_ip}/\\1/p" \
-        -e "s/${_target_regex_commented_hostname}/\\1/p" \
-        -e "s/${_target_regex_hostname}/\\1/p" \
+        -e "s/${_regex_ip}/\\1/p" \
+        -e "s/${_regex_commented_hostname}/\\1/p" \
+        -e "s/${_regex_hostname}/\\1/p" \
         "${HOSTS_PATH}"
     )
 
@@ -927,9 +937,9 @@ enable() {
     # -i '' - in place edit. BSD sed requires extension argument, for GNU
     # it's optional. More info: http://stackoverflow.com/a/16746032
     sed -i '' \
-      -e "s/${_target_regex_ip}/\\1/g" \
-      -e "s/${_target_regex_commented_hostname}/\\1/g" \
-      -e "s/${_target_regex_hostname}/\\1/g" \
+      -e "s/${_regex_ip}/\\1/g" \
+      -e "s/${_regex_commented_hostname}/\\1/g" \
+      -e "s/${_regex_hostname}/\\1/g" \
       "${HOSTS_PATH}"
   fi
 }
@@ -1068,12 +1078,21 @@ remove() {
   # which apparently doesn't work properly with all versions of sed.
   #
   # IP / Hostname pair regular expressions:
-  local _target_regex_ip_hostname_commented="^\\(${_search_ip}[${_TAB_SPACE_}]*${_search_hostname}[${_TAB_SPACE_}]..*\\)$"
-  local _target_regex_ip_hostname="^\\(${_search_ip}[${_TAB_SPACE_}]*${_search_hostname}\\)$"
+  local _regex_ip_hostname_commented
+  _regex_ip_hostname_commented="^\\(${_search_ip}[${_TAB_SPACE_}]*${_search_hostname}[${_TAB_SPACE_}]..*\\)$"
+
+  local _regex_ip_hostname
+  _regex_ip_hostname="^\\(${_search_ip}[${_TAB_SPACE_}]*${_search_hostname}\\)$"
+
   # Search string regular expressions:
-  local _target_regex_ip="^\\(${_search_string}[${_TAB_SPACE_}]..*\\)$"
-  local _target_regex_commented_hostname="^\\(..*[${_TAB_SPACE_}]${_search_string}[${_TAB_SPACE_}]..*\\)$"
-  local _target_regex_hostname="^\\(..*[${_TAB_SPACE_}]${_search_string}\\)$"
+  local _regex_ip
+  _regex_ip="^\\(${_search_string}[${_TAB_SPACE_}]..*\\)$"
+
+  local _regex_commented_hostname
+  _regex_commented_hostname="^\\(..*[${_TAB_SPACE_}]${_search_string}[${_TAB_SPACE_}]..*\\)$"
+
+  local _regex_hostname
+  _regex_hostname="^\\(..*[${_TAB_SPACE_}]${_search_string}\\)$"
 
   local _target_records
 
@@ -1081,16 +1100,16 @@ remove() {
   then
     _target_records=$(
       sed -n \
-        -e "s/${_target_regex_ip_hostname_commented}/\\1/p" \
-        -e "s/${_target_regex_ip_hostname}/\\1/p" \
+        -e "s/${_regex_ip_hostname_commented}/\\1/p" \
+        -e "s/${_regex_ip_hostname}/\\1/p" \
         "${HOSTS_PATH}"
     )
   else
     _target_records=$(
       sed -n \
-        -e "s/${_target_regex_ip}/\\1/p" \
-        -e "s/${_target_regex_commented_hostname}/\\1/p" \
-        -e "s/${_target_regex_hostname}/\\1/p" \
+        -e "s/${_regex_ip}/\\1/p" \
+        -e "s/${_regex_commented_hostname}/\\1/p" \
+        -e "s/${_regex_hostname}/\\1/p" \
         "${HOSTS_PATH}"
     )
   fi
@@ -1128,14 +1147,14 @@ remove() {
   if ((_is_search_pair))
   then
     sed -i '' \
-      -e "/${_target_regex_ip_hostname_commented}/d" \
-      -e "/${_target_regex_ip_hostname}/d" \
+      -e "/${_regex_ip_hostname_commented}/d" \
+      -e "/${_regex_ip_hostname}/d" \
       "${HOSTS_PATH}"
   else
     sed -i '' \
-      -e "/${_target_regex_ip}/d" \
-      -e "/${_target_regex_commented_hostname}/d" \
-      -e "/${_target_regex_hostname}/d" \
+      -e "/${_regex_ip}/d" \
+      -e "/${_regex_commented_hostname}/d" \
+      -e "/${_regex_hostname}/d" \
       "${HOSTS_PATH}"
   fi
 
