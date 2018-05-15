@@ -31,7 +31,7 @@ IFS=$'\n\t'
 #
 # Manually set this to to current version of the program. Adhere to the
 # semantic versioning specification: http://semver.org
-_VERSION="2.4.3"
+_VERSION="3.0.0"
 
 # $HOSTS_DEFAULT_COMMAND
 #
