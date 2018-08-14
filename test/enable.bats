@@ -94,7 +94,7 @@ load test_helper
   [[ "$(sed -n '13p' "${HOSTS_PATH}")" == "#disabled: 127.0.0.2	example.com" ]]
 }
 
-@test "\`disable <ip>\` prints feedback." {
+@test "\`enable <ip>\` prints feedback." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net
@@ -174,7 +174,7 @@ load test_helper
   [[ "$(sed -n '13p' "${HOSTS_PATH}")" == "127.0.0.2	example.com" ]]
 }
 
-@test "\`disable <hostname>\` prints feedback." {
+@test "\`enable <hostname>\` prints feedback." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net
