@@ -85,7 +85,7 @@ load test_helper
 
 # `hosts show <search string>` ################################################
 
-@test "\`list <search string>\` exits with status 0." {
+@test "\`show <search string>\` exits with status 0." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net
@@ -98,7 +98,7 @@ load test_helper
   [[ ${status} -eq 0 ]]
 }
 
-@test "\`list <search string>\` prints list of matching records." {
+@test "\`show <search string>\` prints list of matching records." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net
@@ -113,7 +113,7 @@ load test_helper
   [[ "${lines[2]}" == "" ]]
 }
 
-@test "\`search <search string>\` prints records with matching comments." {
+@test "\`show <search string>\` prints records with matching comments." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net "Example Comment"
@@ -124,6 +124,23 @@ load test_helper
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "0.0.0.0	example.net	# Example Comment" ]]
+  [[ "${lines[2]}" == "" ]]
+}
+
+@test "\`show <search string>\` prints disabled records with matching comments." {
+  {
+    run "${_HOSTS}" add 0.0.0.0 example.com
+    run "${_HOSTS}" add 0.0.0.0 example.net "Example Comment"
+    run "${_HOSTS}" add 127.0.0.1 example.com
+    run "${_HOSTS}" add 127.0.0.1 example.biz "Example Comment"
+    run "${_HOSTS}" disable example.biz
+  }
+
+  run "${_HOSTS}" show "Comment"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
+  [[ "${lines[0]}" == "0.0.0.0	example.net	# Example Comment" ]]
+  [[ "${lines[1]}" == "disabled: 127.0.0.1	example.biz	# Example Comment" ]]
   [[ "${lines[2]}" == "" ]]
 }
 

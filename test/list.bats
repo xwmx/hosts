@@ -139,7 +139,7 @@ Disabled:
   [[ "${lines[2]}" == "" ]]
 }
 
-@test "\`search <search string>\` prints records with matching comments." {
+@test "\`list <search string>\` prints records with matching comments." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net "Example Comment"
@@ -150,6 +150,24 @@ Disabled:
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "0.0.0.0	example.net	# Example Comment" ]]
+  [[ "${lines[2]}" == "" ]]
+}
+
+
+@test "\`list <search string>\` prints disabled records with matching comments." {
+  {
+    run "${_HOSTS}" add 0.0.0.0 example.com
+    run "${_HOSTS}" add 0.0.0.0 example.net "Example Comment"
+    run "${_HOSTS}" add 127.0.0.1 example.com
+    run "${_HOSTS}" add 127.0.0.1 example.biz "Example Comment"
+    run "${_HOSTS}" disable example.biz
+  }
+
+  run "${_HOSTS}" list "Comment"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
+  [[ "${lines[0]}" == "0.0.0.0	example.net	# Example Comment" ]]
+  [[ "${lines[1]}" == "disabled: 127.0.0.1	example.biz	# Example Comment" ]]
   [[ "${lines[2]}" == "" ]]
 }
 
