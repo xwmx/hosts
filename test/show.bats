@@ -35,7 +35,7 @@ load test_helper
   [[ ${status} -eq 0 ]]
 }
 
-@test "\`enable <ip>\` shows all matches." {
+@test "\`show <ip>\` shows all matches." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net
@@ -67,7 +67,7 @@ load test_helper
   [[ ${status} -eq 0 ]]
 }
 
-@test "\`enable <hostname>\` shows all matches." {
+@test "\`show <hostname>\` shows all matches." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net
@@ -81,6 +81,50 @@ load test_helper
 
   [[ "${lines[0]}" == "127.0.0.2	example.com" ]]
   [[ "${lines[1]}" == "disabled: 0.0.0.0	example.com" ]]
+}
+
+# `hosts show <search string>` ################################################
+
+@test "\`list <search string>\` exits with status 0." {
+  {
+    run "${_HOSTS}" add 0.0.0.0 example.com
+    run "${_HOSTS}" add 0.0.0.0 example.net
+    run "${_HOSTS}" add 127.0.0.1 example.com
+  }
+
+  run "${_HOSTS}" show example.com
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
+  [[ ${status} -eq 0 ]]
+}
+
+@test "\`list <search string>\` prints list of matching records." {
+  {
+    run "${_HOSTS}" add 0.0.0.0 example.com
+    run "${_HOSTS}" add 0.0.0.0 example.net
+    run "${_HOSTS}" add 127.0.0.1 example.com
+  }
+
+  run "${_HOSTS}" show example.com
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
+  [[ "${lines[0]}" == "0.0.0.0	example.com" ]]
+  [[ "${lines[1]}" == "127.0.0.1	example.com" ]]
+  [[ "${lines[2]}" == "" ]]
+}
+
+@test "\`search <search string>\` prints records with matching comments." {
+  {
+    run "${_HOSTS}" add 0.0.0.0 example.com
+    run "${_HOSTS}" add 0.0.0.0 example.net "Example Comment"
+    run "${_HOSTS}" add 127.0.0.1 example.com
+  }
+
+  run "${_HOSTS}" show "Comment"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
+  [[ "${lines[0]}" == "0.0.0.0	example.net	# Example Comment" ]]
+  [[ "${lines[2]}" == "" ]]
 }
 
 # help ########################################################################

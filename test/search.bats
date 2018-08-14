@@ -135,6 +135,20 @@ Description:
   [[ "${lines[2]}" == "" ]]
 }
 
+@test "\`search <search string>\` prints records with matching comments." {
+  {
+    run "${_HOSTS}" add 0.0.0.0 example.com
+    run "${_HOSTS}" add 0.0.0.0 example.net "Example Comment"
+    run "${_HOSTS}" add 127.0.0.1 example.com
+  }
+
+  run "${_HOSTS}" search "Comment"
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
+  [[ "${lines[0]}" == "0.0.0.0	example.net	# Example Comment" ]]
+  [[ "${lines[2]}" == "" ]]
+}
+
 # help ########################################################################
 
 @test "\`help search\` exits with status 0." {

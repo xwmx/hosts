@@ -1173,7 +1173,7 @@ show() {
 
     local _enabled_records
     _enabled_records=$(
-      grep "^[^#]*${1}" "${HOSTS_PATH}"
+      grep --invert-match "^#" "${HOSTS_PATH}" | grep "${1}"
     )
 
     # Output disabled records secondly for better organization.
