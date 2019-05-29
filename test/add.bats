@@ -84,6 +84,23 @@ load test_helper
   [[ "${lines[1]}" == "0.0.0.0	example.com" ]]
 }
 
+@test "\`add <ip> <hostname>\` doesn't add duplicate entry." {
+  _original="$(cat "${HOSTS_PATH}")"
+  {
+    run "${_HOSTS}" add 0.0.0.0 example.com
+  }
+  _modified="$(cat "${HOSTS_PATH}")"
+
+  run "${_HOSTS}" add 0.0.0.0 example.com
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
+  _compare "${_original}" "$(cat "${HOSTS_PATH}")"
+  _compare '0.0.0.0	example.com' "$(sed -n '11p' "${HOSTS_PATH}")"
+  [[ "$(cat "${HOSTS_PATH}")" != "${_original}" ]]
+  [[ "$(cat "${HOSTS_PATH}")" == "${_modified}" ]]
+  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "0.0.0.0	example.com" ]]
+}
+
 # `hosts add <ip> <hostname> [comment]` #######################################
 
 @test "\`add <ip> <hostname> [comment]\` exits with status 0." {
@@ -100,6 +117,43 @@ load test_helper
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   [[ "$(cat "${HOSTS_PATH}")" != "${_original}" ]]
+  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == \
+      "0.0.0.0	example.com	# Example multi-word comment." ]]
+}
+
+@test "\`add <ip> <hostname> [comment]\` doesn't add duplicate entry." {
+  _original="$(cat "${HOSTS_PATH}")"
+  {
+    run "${_HOSTS}" add 0.0.0.0 example.com
+  }
+  _modified="$(cat "${HOSTS_PATH}")"
+
+  run "${_HOSTS}" add 0.0.0.0 example.com 'Example multi-word comment.'
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
+  _compare "${_original}" "$(cat "${HOSTS_PATH}")"
+  _compare '0.0.0.0	example.com' "$(sed -n '11p' "${HOSTS_PATH}")"
+  [[ "$(cat "${HOSTS_PATH}")" != "${_original}" ]]
+  [[ "$(cat "${HOSTS_PATH}")" == "${_modified}" ]]
+  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "0.0.0.0	example.com" ]]
+  [[ "$(sed -n '11p' "${HOSTS_PATH}")" != \
+      "0.0.0.0	example.com	# Example multi-word comment." ]]
+}
+
+@test "\`add <ip> <hostname> [comment]\` doesn't add duplicate commented entry." {
+  _original="$(cat "${HOSTS_PATH}")"
+  {
+    run "${_HOSTS}" add 0.0.0.0 example.com 'Example multi-word comment.'
+  }
+  _modified="$(cat "${HOSTS_PATH}")"
+
+  run "${_HOSTS}" add 0.0.0.0 example.com 'Example multi-word comment.'
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
+  _compare "${_original}" "$(cat "${HOSTS_PATH}")"
+  _compare '0.0.0.0	example.com' "$(sed -n '11p' "${HOSTS_PATH}")"
+  [[ "$(cat "${HOSTS_PATH}")" != "${_original}" ]]
+  [[ "$(cat "${HOSTS_PATH}")" == "${_modified}" ]]
   [[ "$(sed -n '11p' "${HOSTS_PATH}")" == \
       "0.0.0.0	example.com	# Example multi-word comment." ]]
 }
