@@ -10,7 +10,7 @@ load test_helper
 @test "\`hosts version\` prints a version number." {
   run "${_HOSTS}" version
   printf "'%s'" "${output}"
-  echo "${output}" | grep -q '\d\+\.\d\+\.\d\+'
+  echo "${output}" | grep -q '[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+'
 }
 
 @test "\`hosts --version\` returns with 0 status." {
@@ -21,7 +21,7 @@ load test_helper
 @test "\`hosts --version\` prints a version number." {
   run "${_HOSTS}" --version
   printf "'%s'" "${output}"
-  echo "${output}" | grep -q '\d\+\.\d\+\.\d\+'
+  echo "${output}" | grep -q '[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+'
 }
 
 # help ########################################################################
