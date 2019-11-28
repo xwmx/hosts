@@ -19,8 +19,7 @@ HOSTS_PATH="${HOSTS_PATH:-/etc/hosts}"
 # Cross-platform char set for regex
 export _TAB_=$'\t'
 export _SPACE_=$' '
-export _TAB_SPACE_="${_TAB_}${_SPACE_}"
-export _TAB_SPACE_CC_="[${_TAB_SPACE_}]"
+export _TAB_SPACE_="[${_TAB_}${_SPACE_}]"
 
 # _die()
 #
@@ -311,30 +310,7 @@ Options:
 
 Help:
   ${_ME} help [<command>]
-
-$(commands)
 HEREDOC
-  fi
-}
-
-# Command List ################################################################
-
-desc "commands" <<HEREDOC
-Usage:
-  ${_ME} commands [--raw]
-
-Options:
-  --raw  Display the command list without formatting.
-
-Description:
-  Display the list of available commands.
-HEREDOC
-commands() {
-  if _command_argv_includes "--raw"; then
-    printf "%s\\n" "${_DEFINED_COMMANDS[@]}"
-  else
-    printf "Available commands:\\n"
-    printf "  %s\\n" "${_DEFINED_COMMANDS[@]}"
   fi
 }
 
@@ -342,17 +318,17 @@ commands() {
 
 desc "add" <<HEREDOC
 Usage:
-  ${_ME} add <ip> <hostname> [<comment>]
+  ${_ME} add <ip> <hostname> [<group>]
 
 Description:
-  Add a given IP address and hostname pair, along with an optional comment.
+  Add a given IP address and hostname pair, along with an optional group.
 HEREDOC
 add() {
   _verify_write_permissions "$@"
 
   local _ip="${1:-}"
   local _hostname="${2:-}"
-  local _comment="${*:3}"
+  local _group="${*:3}"
 
   if [[ -z "${_ip:-}" ]]; then
     "${_ME}" help add
@@ -368,18 +344,15 @@ add() {
     _die printf \
       "Duplicate address/host combination, %s unchanged.\\n" \
       "${HOSTS_PATH}"
-  elif [[ -n "${_comment:-}" ]]; then
-    local _formatted_comment
-    _formatted_comment=$(_join " " "${_comment[@]}")
-
-    printf "%s\\t%s\\t# %s\\n" \
+  elif [[ -n "${_group:-}" ]]; then
+    printf "%s\\t%s\\t# grp:%s\\n" \
       "${_ip}" \
       "${_hostname}" \
-      "${_formatted_comment}" >> "${HOSTS_PATH}"
-    printf "Added:\\n%s\\t%s\\t# %s\\n" \
+      "${_group}" >> "${HOSTS_PATH}"
+    printf "Added:\\n%s\\t%s\\t# grp:%s\\n" \
       "${_ip}" \
       "${_hostname}" \
-      "${_formatted_comment}"
+      "${_group}"
   else
     printf "%s\\t%s\\n" \
       "${_ip}" \
@@ -410,24 +383,24 @@ disable() {
     exit 1
   else
     local _regex_ip
-    _regex_ip="^\\(${_search_string}[${_TAB_SPACE_}]..*\\)$"
+    _regex_ip="^\\(${_search_string}${_TAB_SPACE_}.\+\\)$"
 
     local _regex_commented_hostname
-    _regex_commented_hostname="^\\([^#]..*[${_TAB_SPACE_}]${_search_string}[${_TAB_SPACE_}]..*\\)$"
+    _regex_commented_hostname="^\\([^#].\+${_TAB_SPACE_}${_search_string}${_TAB_SPACE_}.\+\\)$"
 
     local _regex_hostname
-    _regex_hostname="^\\([^#]..*[${_TAB_SPACE_}]${_search_string}\\)$"
+    _regex_hostname="^\\([^#].\+${_TAB_SPACE_}${_search_string}\\)$"
 
-    # Regular Expression Notes
-    #
-    # - Note double periods in regular expression in order to emulate /.+/,
-    #   which apparently doesn't work properly with all versions of sed.
+    local _regex_group
+    _regex_group="^\\([^#].\+${_TAB_SPACE_}#grp:${_search_string}\\)$"
+
     local _targets
     _targets=$(
       sed -n \
         -e "s/${_regex_ip}/\\1/p" \
         -e "s/${_regex_commented_hostname}/\\1/p" \
         -e "s/${_regex_hostname}/\\1/p" \
+        -e "s/${_regex_group}/\\1/p" \
         "${HOSTS_PATH}"
     )
 
@@ -441,6 +414,7 @@ disable() {
       -e "s/${_regex_ip}/\\#disabled: \\1/g" \
       -e "s/${_regex_commented_hostname}/\\#disabled: \\1/g" \
       -e "s/${_regex_hostname}/\\#disabled: \\1/g" \
+      -e "s/${_regex_group}/\\1/p" \
       "${HOSTS_PATH}"
   fi
 }
@@ -468,10 +442,10 @@ HEREDOC
 edit() {
   _verify_write_permissions "$@"
 
-  if [[ -z "${EDITOR}" ]]; then
+  if [[ -z "${EDITOR:-vim}" ]]; then
     _die printf "\$EDITOR not set.\\n"
   else
-    "${EDITOR}" "${HOSTS_PATH}"
+    "${EDITOR:-vim}" "${HOSTS_PATH}"
   fi
 }
 
@@ -494,18 +468,17 @@ enable() {
     exit 1
   else
     local _regex_ip
-    _regex_ip="^\\#disabled: \\(${_search_string}[${_TAB_SPACE_}]..*\\)$"
+    _regex_ip="^\\#disabled: \\(${_search_string}${_TAB_SPACE_}.\+\\)$"
 
     local _regex_commented_hostname
-    _regex_commented_hostname="^\\#disabled: \\(..*[${_TAB_SPACE_}]${_search_string}[${_TAB_SPACE_}]..*\\)$"
+    _regex_commented_hostname="^\\#disabled: \\(.\+${_TAB_SPACE_}${_search_string}${_TAB_SPACE_}.\+\\)$"
 
     local _regex_hostname
-    _regex_hostname="^\\#disabled: \\(..*[${_TAB_SPACE_}]${_search_string}\\)$"
+    _regex_hostname="^\\#disabled: \\(.\+${_TAB_SPACE_}${_search_string}\\)$"
 
-    # Regular Expression Notes
-    #
-    # - Note double periods in regular expression in order to emulate /.+/,
-    #   which apparently doesn't work properly with all versions of sed.
+    local _regex_group
+    _regex_group="^\\([^#].\+${_TAB_SPACE_}#grp:${_search_string}\\)$"
+
     local _targets
     _targets=$(
       sed -n \
@@ -639,27 +612,22 @@ remove() {
     _search_string="${_arguments[1]:-}"
   fi
 
-  # Regular Expression Notes
-  #
-  # Note double periods in regular expression in order to emulate /.+/,
-  # which apparently doesn't work properly with all versions of sed.
-  #
   # IP / Hostname pair regular expressions:
   local _regex_ip_hostname_commented
-  _regex_ip_hostname_commented="^\\(${_search_ip}[${_TAB_SPACE_}]*${_search_hostname}[${_TAB_SPACE_}]..*\\)$"
+  _regex_ip_hostname_commented="^\\(${_search_ip}${_TAB_SPACE_}*${_search_hostname}${_TAB_SPACE_}..*\\)$"
 
   local _regex_ip_hostname
-  _regex_ip_hostname="^\\(${_search_ip}[${_TAB_SPACE_}]*${_search_hostname}\\)$"
+  _regex_ip_hostname="^\\(${_search_ip}${_TAB_SPACE_}*${_search_hostname}\\)$"
 
   # Search string regular expressions:
   local _regex_ip
-  _regex_ip="^\\(${_search_string}[${_TAB_SPACE_}]..*\\)$"
+  _regex_ip="^\\(${_search_string}${_TAB_SPACE_}..*\\)$"
 
   local _regex_commented_hostname
-  _regex_commented_hostname="^\\(..*[${_TAB_SPACE_}]${_search_string}[${_TAB_SPACE_}]..*\\)$"
+  _regex_commented_hostname="^\\(..*${_TAB_SPACE_}${_search_string}${_TAB_SPACE_}..*\\)$"
 
   local _regex_hostname
-  _regex_hostname="^\\(..*[${_TAB_SPACE_}]${_search_string}\\)$"
+  _regex_hostname="^\\(..*${_TAB_SPACE_}${_search_string}\\)$"
 
   local _target_records
 
