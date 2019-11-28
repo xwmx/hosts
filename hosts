@@ -57,41 +57,6 @@ export _TAB_SPACE_="${_TAB_}${_SPACE_}"
 export _TAB_SPACE_CC_="[${_TAB_SPACE_}]"
 
 ###############################################################################
-# Debug
-###############################################################################
-
-# _debug()
-#
-# Usage:
-#   _debug printf "Debug info. Variable: %s\\n" "$0"
-#
-# A simple function for executing a specified command if the `$_USE_DEBUG`
-# variable has been set. The command is expected to print a message and
-# should typically be either `echo`, `printf`, or `cat`.
-__DEBUG_COUNTER=0
-_debug() {
-  if [[ "${_USE_DEBUG:-"0"}" -eq 1 ]]
-  then
-    __DEBUG_COUNTER=$((__DEBUG_COUNTER+1))
-    # Prefix debug message with "bug (U+1F41B)"
-    printf "🐛  %s " "${__DEBUG_COUNTER}"
-    "${@}"
-    printf "――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――\\n"
-  fi
-}
-# debug()
-#
-# Usage:
-#   debug "Debug info. Variable: $0"
-#
-# Print the specified message if the `$_USE_DEBUG` variable has been set.
-#
-# This is a shortcut for the _debug() function that simply echos the message.
-debug() {
-  _debug echo "${@}"
-}
-
-###############################################################################
 # Die
 ###############################################################################
 
@@ -152,10 +117,9 @@ _RAW_OPTIONS="${*:-}"
 # that have been filtered out in the program option parsing loop. This array
 # is initialized with $0, which is the program's name.
 _COMMAND_ARGV=("${0}")
-# Initialize $_CMD and `$_USE_DEBUG`, which can continue to be blank depending
+# Initialize $_CMD, which can continue to be blank depending
 # on what the program needs.
 _CMD=""
-_USE_DEBUG=0
 _AUTO_SUDO=1
 
 while [[ ${#} -gt 0 ]]
@@ -170,9 +134,6 @@ do
       ;;
     --version)
       _CMD="version"
-      ;;
-    --debug)
-      _USE_DEBUG=1
       ;;
     --no-sudo)
       _AUTO_SUDO=1
@@ -201,18 +162,6 @@ done
 _COMMAND_PARAMETERS=(${_COMMAND_ARGV[*]})
 unset "_COMMAND_PARAMETERS[0]"
 
-_debug printf \
-  "\${_CMD}: %s\\n" \
-  "${_CMD}"
-_debug printf \
-  "\${_RAW_OPTIONS} (one per line):\\n%s\\n" \
-  "${_RAW_OPTIONS}"
-_debug printf \
-  "\${_COMMAND_ARGV[*]}: %s\\n" \
-  "${_COMMAND_ARGV[*]}"
-_debug printf \
-  "\${_COMMAND_PARAMETERS[*]:-}: %s\\n" \
-  "${_COMMAND_PARAMETERS[*]:-}"
 
 ###############################################################################
 # Environment
@@ -222,8 +171,6 @@ _debug printf \
 #
 # Set to the program's basename.
 _ME=$(basename "${0}")
-
-_debug printf "\${_ME}: %s\\n" "${_ME}"
 
 ###############################################################################
 # Load Commands
@@ -239,10 +186,6 @@ _DEFINED_COMMANDS=()
 #
 # Loads all of the commands sourced in the environment.
 _load_commands() {
-
-  _debug printf "_load_commands(): entering...\\n"
-  _debug printf "_load_commands() declare -F:\\n%s\\n" "$(declare -F)"
-
   # declare is a bash built-in shell function that, when called with the '-F'
   # option, displays all of the functions with the format
   # `declare -f function_name`. These are then assigned as elements in the
@@ -250,40 +193,24 @@ _load_commands() {
   local _function_list
   _function_list=($(declare -F))
 
-  _debug printf \
-    "_load_commands() \${_function_list[@]}: %s\\n" \
-    "${_function_list[@]}"
-
   for __name in "${_function_list[@]}"
   do
-    _debug printf \
-      "_load_commands() \${__name}: %s\\n" \
-      "${__name}"
     # Each element has the format `declare -f function_name`, so set the name
     # to only the 'function_name' part of the string.
     local _function_name
     _function_name=$(printf "%s" "${__name}" | awk '{ print $3 }')
 
-    _debug printf \
-      "_load_commands() \${_function_name}: %s\\n" \
-      "${_function_name}"
-
     # Add the function name to the $_DEFINED_COMMANDS array unless it starts
-    # with an underscore or is one of the desc(), debug(), or die() functions,
+    # with an underscore or is one of the desc(), or die() functions,
     # since these are treated as having 'private' visibility.
     if ! { [[ "${_function_name}" =~ ^_(.*)  ]] || \
            [[ "${_function_name}" == "desc"  ]] || \
-           [[ "${_function_name}" == "debug" ]] || \
            [[ "${_function_name}" == "die"   ]]
     }
     then
       _DEFINED_COMMANDS+=("${_function_name}")
     fi
   done
-
-  _debug printf \
-    "commands() \${_DEFINED_COMMANDS[*]:-}:\\n%s\\n" \
-    "${_DEFINED_COMMANDS[*]:-}"
 }
 
 ###############################################################################
@@ -299,9 +226,6 @@ _load_commands() {
 #
 # NOTE: must be called at end of program after all commands have been defined.
 _main() {
-  _debug printf "main(): entering...\\n"
-  _debug printf "main() \${_CMD} (upon entering): %s\\n" "${_CMD}"
-
   if [[ -z "${_CMD}" ]]
   then
     _CMD="${HOSTS_DEFAULT_COMMAND}"
@@ -366,10 +290,8 @@ _contains() {
   local _test_list=(${*:2})
   for __test_element in "${_test_list[@]:-}"
   do
-    _debug printf "_contains() \${__test_element}: %s\\n" "${__test_element}"
     if [[ "${__test_element}" == "${1}" ]]
     then
-      _debug printf "_contains() match: %s\\n" "${1}"
       return 0
     fi
   done
@@ -513,7 +435,6 @@ sudo !!\\n"
 # When the `--get` option is used, the description for <name> is printed, if
 # one has been set.
 desc() {
-  _debug printf "desc() \${*}: %s\\n" "$@"
   [[ -z "${1:-}" ]] && _die printf "desc(): No command name specified.\\n"
 
   if [[ "${1}" == "--get" ]]
@@ -536,13 +457,10 @@ desc() {
 ${2}
 HEREDOC
 
-      _debug printf "desc() set with argument: \${___desc_%s}\\n" "${1}"
     else # no argument is present, so assume piped input
       # `read` exits with non-zero status when a delimeter is not found, so
       # avoid errors by ending statement with `|| true`.
       read -r -d '' "___desc_${1}" || true
-
-      _debug printf "desc() set with pipe: \${___desc_%s}\\n" "${1}"
     fi
   fi
 }
@@ -682,10 +600,6 @@ Description:
   Add a given IP address and hostname pair, along with an optional comment.
 HEREDOC
 add() {
-  _debug printf "add() \${1}: %s\\n" "${1:-}"
-  _debug printf "add() \${2}: %s\\n" "${2:-}"
-  _debug printf "add() \${3}: %s\\n" "${3:-}"
-
   _verify_write_permissions "$@"
 
   local _ip="${1:-}"
@@ -778,8 +692,6 @@ disable() {
     "${_ME}" help disable
     exit 1
   else
-    _debug printf "disable() \${_search_string}: %s\\n" "${_search_string}"
-
     local _regex_ip
     _regex_ip="^\\(${_search_string}[${_TAB_SPACE_}]..*\\)$"
 
@@ -801,8 +713,6 @@ disable() {
         -e "s/${_regex_hostname}/\\1/p" \
         "${HOSTS_PATH}"
     )
-
-    _debug printf "disable() \${_targets}: %s\\n" "${_targets}"
 
     if [[ -z "${_targets:-}" ]]
     then
@@ -872,8 +782,6 @@ enable() {
     "${_ME}" help enable
     exit 1
   else
-    _debug printf "enable() \${_search_string}: %s\\n" "${_search_string}"
-
     local _regex_ip
     _regex_ip="^\\#disabled: \\(${_search_string}[${_TAB_SPACE_}]..*\\)$"
 
@@ -895,8 +803,6 @@ enable() {
         -e "s/${_regex_hostname}/\\1/p" \
         "${HOSTS_PATH}"
     )
-
-    _debug printf "enable() \${targets}: %s\\n" "${_targets}"
 
     if [[ -z "${_targets:-}" ]]
     then
@@ -1005,9 +911,6 @@ remove() {
   local _search_hostname=""
   local _search_string=""
 
-  _debug printf "remove() \${1}: %s\\n" "${1:-}"
-  _debug printf "remove() \${2}: %s\\n" "${2:-}"
-
   for __arg in "${_COMMAND_ARGV[@]:-}"
   do
     case "${__arg}" in
@@ -1020,10 +923,6 @@ remove() {
     esac
   done
 
-  _debug printf "remove() \${arguments[0]}: %s\\n" "${_arguments[0]:-}"
-  _debug printf "remove() \${arguments[1]}: %s\\n" "${_arguments[1]:-}"
-  _debug printf "remove() \${arguments[2]}: %s\\n" "${_arguments[2]:-}"
-
   if [[ -z "${_arguments[1]:-}" ]]
   then
     "${_ME}" help remove
@@ -1033,12 +932,8 @@ remove() {
     _search_ip="${_arguments[1]}"
     _search_hostname="${_arguments[2]}"
     _is_search_pair=1
-
-    _debug printf "remove() \${_is_search_pair}: %s\\n" "${_is_search_pair}"
   else
     _search_string="${_arguments[1]:-}"
-
-    _debug printf "remove() \${_search_string}: %s\\n" "${_search_string}"
   fi
 
   # Regular Expression Notes
