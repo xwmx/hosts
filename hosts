@@ -126,22 +126,6 @@ _main() {
     fi
 }
 
-# _function_exists()
-#
-# Usage:
-#   _function_exists "possible_function_name"
-_function_exists() {
-    [ "$(type -t "${1}")" == 'function' ]
-}
-
-# _command_exists()
-#
-# Usage:
-#   _command_exists "possible_command_name"
-_command_exists() {
-    hash "${1}" 2>/dev/null
-}
-
 # _contains()
 #
 # Usage:
@@ -170,46 +154,6 @@ _join() {
     local IFS="${1}"
     shift
     printf "%s\\n" "${*}"
-}
-
-# _command_argv_includes()
-#
-# Usage:
-#   _command_argv_includes "an_argument"
-_command_argv_includes() {
-    _contains "${1}" "${_COMMAND_ARGV[*]}"
-}
-
-# _blank()
-#
-# Usage:
-#   _blank "$an_argument"
-_blank() {
-    [[ -z "${1:-}" ]]
-}
-
-# _present()
-#
-# Usage:
-#   _present "$an_argument"
-_present() {
-    [[ -n "${1:-}" ]]
-}
-
-# _interactive_input()
-#
-# Usage:
-#   _interactive_input
-_interactive_input() {
-    [[ -t 0 ]]
-}
-
-# _piped_input()
-#
-# Usage:
-#   _piped_input
-_piped_input() {
-    ! _interactive_input
 }
 
 # _verify_write_permissions
@@ -696,7 +640,7 @@ Description:
   Search entries for <search string>.
 HEREDOC
 search() {
-    if _blank "${_COMMAND_ARGV[1]:-}"; then
+    if [[ -z "${_COMMAND_ARGV[1]:-}" ]]; then
         "${_ME}" help "search"
         return 1
     fi
