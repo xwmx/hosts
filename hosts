@@ -156,7 +156,7 @@ _COMMAND_ARGV=("${0}")
 # on what the program needs.
 _CMD=""
 _USE_DEBUG=0
-_AUTO_SUDO=0
+_AUTO_SUDO=1
 
 while [[ ${#} -gt 0 ]]
 do
@@ -174,7 +174,7 @@ do
     --debug)
       _USE_DEBUG=1
       ;;
-    --auto-sudo|--sudo)
+    --no-sudo)
       _AUTO_SUDO=1
       ;;
     *)
@@ -606,12 +606,12 @@ Usage:
   ${_ME} show (<ip> | <hostname> | <search string>)
   ${_ME} remove (<ip> | <hostname> | <search string>) [--force]
   ${_ME} unblock <hostname>
-  ${_ME} --auto-sudo
+  ${_ME} --no-sudo
   ${_ME} -h | --help
   ${_ME} --version
 
 Options:
-  --auto-sudo  Run write commands with \`sudo\` automatically.
+  --no-sudo    Do not run commands with \`sudo\` automatically.
   -h --help    Display this help information.
   --version    Display version information.
 
@@ -811,9 +811,7 @@ disable() {
 
     printf "Disabling:\\n%s\\n" "${_targets}"
 
-    # -i '' - in place edit. BSD sed requires extension argument, for GNU
-    # it's optional. More info: http://stackoverflow.com/a/16746032
-    sed -i '' \
+    sed -i \
       -e "s/${_regex_ip}/\\#disabled: \\1/g" \
       -e "s/${_regex_commented_hostname}/\\#disabled: \\1/g" \
       -e "s/${_regex_hostname}/\\#disabled: \\1/g" \
@@ -907,9 +905,7 @@ enable() {
 
     printf "Enabling:\\n%s\\n" "${_targets}"
 
-    # -i '' - in place edit. BSD sed requires extension argument, for GNU
-    # it's optional. More info: http://stackoverflow.com/a/16746032
-    sed -i '' \
+    sed -i \
       -e "s/${_regex_ip}/\\1/g" \
       -e "s/${_regex_commented_hostname}/\\1/g" \
       -e "s/${_regex_hostname}/\\1/g" \
@@ -1115,16 +1111,14 @@ remove() {
 
   # Regular Expression Notes
   #
-  # -i '' - in place edit. BSD sed requires extension argument, for GNU
-  # it's optional. More info: http://stackoverflow.com/a/16746032
   if ((_is_search_pair))
   then
-    sed -i '' \
+    sed -i \
       -e "/${_regex_ip_hostname_commented}/d" \
       -e "/${_regex_ip_hostname}/d" \
       "${HOSTS_PATH}"
   else
-    sed -i '' \
+    sed -i \
       -e "/${_regex_ip}/d" \
       -e "/${_regex_commented_hostname}/d" \
       -e "/${_regex_hostname}/d" \
