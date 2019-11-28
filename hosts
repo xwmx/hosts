@@ -290,16 +290,6 @@ help() {
     desc --get "${1}"
   else
     cat <<HEREDOC
-    __               __
-   / /_  ____  _____/ /______
-  / __ \\/ __ \\/ ___/ __/ ___/
- / / / / /_/ (__  ) /_(__  )
-/_/ /_/\\____/____/\\__/____/
-
-A program for managing host file entries.
-
-Version: ${_VERSION}
-
 Usage:
   ${_ME} [<search string>]
   ${_ME} add <ip> <hostname> [<comment>]
@@ -313,9 +303,6 @@ Usage:
   ${_ME} search <search string>
   ${_ME} show (<ip> | <hostname> | <search string>)
   ${_ME} remove (<ip> | <hostname> | <search string>) [--force]
-  ${_ME} --no-sudo
-  ${_ME} -h | --help
-  ${_ME} --version
 
 Options:
   --no-sudo    Do not run commands with \`sudo\` automatically.
@@ -386,20 +373,20 @@ add() {
     _formatted_comment=$(_join " " "${_comment[@]}")
 
     printf "%s\\t%s\\t# %s\\n" \
-    "${_ip}" \
-    "${_hostname}" \
-    "${_formatted_comment}" >> "${HOSTS_PATH}"
+      "${_ip}" \
+      "${_hostname}" \
+      "${_formatted_comment}" >> "${HOSTS_PATH}"
     printf "Added:\\n%s\\t%s\\t# %s\\n" \
-    "${_ip}" \
-    "${_hostname}" \
-    "${_formatted_comment}"
+      "${_ip}" \
+      "${_hostname}" \
+      "${_formatted_comment}"
   else
     printf "%s\\t%s\\n" \
-    "${_ip}" \
-    "${_hostname}" >> "${HOSTS_PATH}"
+      "${_ip}" \
+      "${_hostname}" >> "${HOSTS_PATH}"
     printf "Added:\\n%s\\t%s\\n" \
-    "${_ip}" \
-    "${_hostname}"
+      "${_ip}" \
+      "${_hostname}"
   fi
 }
 
@@ -459,7 +446,6 @@ disable() {
 }
 
 # -------------------------------------------------------------------- disabled
-
 desc "disabled" <<HEREDOC
 Usage:
   ${_ME} disabled
@@ -472,7 +458,6 @@ disabled() {
 }
 
 # ------------------------------------------------------------------------ edit
-
 desc "edit" <<HEREDOC
 Usage:
   ${_ME} edit
@@ -491,7 +476,6 @@ edit() {
 }
 
 # ---------------------------------------------------------------------- enable
-
 desc "enable" <<HEREDOC
 Usage:
   ${_ME} enable (<ip> | <hostname> | <search string>)
