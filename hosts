@@ -383,7 +383,7 @@ Usage:
   ${_ME} group-edit <group> (+ | -) <hostname 1> <hostname 2> ... <hostname n>
   ${_ME} group-rm <group>
   ${_ME} group-set <group> <ip>
-  £{_ME} group-unset <group>
+  ${_ME} group-unset <group>
 
 Options:
   --no-sudo    Do not run commands with \`sudo\` automatically.
