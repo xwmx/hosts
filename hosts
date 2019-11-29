@@ -7,13 +7,14 @@ set -o pipefail
 IFS=$'\n\t'
 
 # Current version (semver)
-_VERSION="3.1.0"
+_VERSION="1.0.0"
 
 # Command to run by default
 HOSTS_DEFAULT_COMMAND="${HOSTS_DEFAULT_COMMAND:-list}"
 
 # Path to the host file
-HOSTS_PATH="${HOSTS_PATH:-/etc/hosts}"
+#HOSTS_PATH="${HOSTS_PATH:-/etc/hosts}"
+HOSTS_PATH=./test_file
 
 # Cross-platform char set for regex
 export _TAB_=$'\t'
@@ -26,7 +27,7 @@ export _TAB_SPACE_="[${_TAB_}${_SPACE_}]"
 #   _die printf "Error message. Variable: %s\\n" "$0"
 #
 # Run a command and dies
-_die() {
+function _die() {
     # Prefix die message with "cross mark (U+274C)", often displayed as a red x.
     printf "❌  "
     "${@}" 1>&2
@@ -67,12 +68,40 @@ while [[ ${#} -gt 0 ]]; do
     esac
 done
 
+function _search_in_file() {
+    local arguments=("$@")
+
+    if [ ${#arguments[@]} -ne 2 ]; then
+        _die echo "_search_in_file requires 2 parameters"
+    fi
+
+    local pattern=${arguments[0]}
+    local file=${arguments[1]}
+
+    sed -n -e "s/\\($pattern\\)/\\1/p" "$file"
+}
+
+function _replace_in_file() {
+     local arguments=("$@")
+
+    if [ ${#arguments[@]} -ne 3 ]; then
+        _die echo "_search_in_file requires 3 paramesters"
+    fi
+
+    local pattern=${arguments[0]}
+    local replacement_pattern=${arguments[1]}
+    local file=${arguments[2]}
+
+    sed -i -e "s/$pattern/${replacement_pattern}/" "$file"
+}
+
 # _COMMAND_ARGV minus the first parameter
 _COMMAND_PARAMETERS=(${_COMMAND_ARGV[*]})
 unset "_COMMAND_PARAMETERS[0]"
 
 # Program base name
-_ME=$(basename "${0}")
+_ME="./hosts"
+#_ME=$(basename "${0}")
 
 # Load Commands
 _DEFINED_COMMANDS=()
@@ -83,9 +112,9 @@ _DEFINED_COMMANDS=()
 #   _load_commands
 #
 # Loads all of the commands sourced in the environment.
-_load_commands() {
+function _load_commands() {
     local _function_list
-    _function_list=($(declare -F))
+    mapfile -t _function_list < <(declare -F)
 
     for __name in "${_function_list[@]}"; do
         # Each element has the format `declare -f function_name`, so set the name
@@ -94,22 +123,19 @@ _load_commands() {
         _function_name=$(printf "%s" "${__name}" | awk '{ print $3 }')
 
         # Do not include internal functions
-        if ! {
-            [[ "${_function_name}" =~ ^_(.*) ]] ||
-                [[ "${_function_name}" == "desc" ]]
-        }; then
+        if [[ ! "${_function_name}" =~ ^_(.*) ]]; then
             _DEFINED_COMMANDS+=("${_function_name}")
         fi
     done
 }
 
 # _main()
-#
+#${#Fruits[@]}
 # Usage:
 #   _main
 #
 # The primary function for starting the program.
-_main() {
+function _main() {
     if [[ -z "${_CMD}" ]]; then
         _CMD="${HOSTS_DEFAULT_COMMAND}"
     fi
@@ -130,8 +156,9 @@ _main() {
 #
 # Usage:
 #   _contains "$item" "${list[*]}"
-_contains() {
+function _contains() {
     local _test_list=(${*:2})
+
     for __test_element in "${_test_list[@]:-}"; do
         if [[ "${__test_element}" == "${1}" ]]; then
             return 0
@@ -141,23 +168,8 @@ _contains() {
     return 1
 }
 
-# _join()
-#
-# Usage:
-#   _join <separator> <array>
-#
-# Examples:
-#   _join , a "b c" d     => a,b c,d
-#   _join / var local tmp => var/local/tmp
-#   _join , "${FOO[@]}"   => a,b,c
-_join() {
-    local IFS="${1}"
-    shift
-    printf "%s\\n" "${*}"
-}
-
 # _verify_write_permissions
-_verify_write_permissions() {
+function _verify_write_permissions() {
     if ! test -w "${HOSTS_PATH}"; then
         if ((_AUTO_SUDO)); then
             sudo "${_ME}" "${_CMD}" "${_COMMAND_PARAMETERS[@]:-}"
@@ -168,6 +180,146 @@ _verify_write_permissions() {
     fi
 }
 
+function _is_valid_ip() {
+    if [[ "$1" =~ ^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$ ]]; then
+        return 0
+    elif [[ "$1" =~ ^((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?$ ]]; then
+        return 0
+    fi
+
+    return 1
+}
+
+function _is_valid_domain() {
+    if [[ "$1" = *[[:space:]]* ]]; then
+        return 1
+    fi
+
+    return 0
+}
+
+function _is_valid_group() {
+    if [[ "$1" = *[[:space:]]* ]]; then
+        return 1
+    fi
+
+    return 0
+}
+function _get_group() {
+    local group_name="${1:-}"
+
+    if [[ -z "${group_name}" ]]; then 
+        _die printf "Group name parameter is required\n"
+    elif ! _is_valid_group "${group_name}"; then
+        _die printf "Group name parameter is not valid\n"
+    fi
+
+    local group_string
+    
+    mapfile -t group_string < <(sed -n "s/\\#group:${group_name}[[:space:]]\+\\(.*\\)$/\\1/p" "${HOSTS_PATH}")
+
+    if [[ ${#group_string[@]} -gt 1 ]]; then
+        _die printf "Group is duplicated in file%s\n" "${HOSTS_PATH}"
+    elif [[ ${#group_string[@]} -eq 0 ]]; then
+        echo ""
+    else
+        echo "${group_string[0]}"
+    fi
+}
+
+function _set_group() {
+    local group_name="${1:-}"
+
+    if [[ -z "${group_name}" ]]; then 
+        _die printf "Group name parameter is required\n"
+    elif ! _is_valid_group "${group_name}"; then
+        _die printf "Group name parameter is not valid\n"
+    fi
+
+    local existing_group
+    local group="#group:${group_name}"
+
+    for domain in "${@:2}"; do
+        group="${group} ${domain}"
+    done
+    
+    mapfile -t existing_group < <(sed -n "s/\\#group:${group_name}[[:space:]]\+\\(.*\\)$/\\1/p" "${HOSTS_PATH}")
+
+    if [[ ${#existing_group[@]} -gt 1 ]]; then
+        _die printf "Group is duplicated in file%s\n" "${HOSTS_PATH}"
+    elif [[ ${#existing_group[@]} -eq 0 ]]; then
+        sed -i "1 s/^/${group}\n/" "${HOSTS_PATH}"
+    else
+        _replace_in_file "^#group:${group_name}[[:space:]]\+.*$" "${group}" "${HOSTS_PATH}"
+    fi
+}
+
+function _delete_from_file() {
+    local pattern="${1:-}"
+    local file="${2:-}"
+
+    if [[ -z "${pattern}" ]]; then
+        _die printf "Pattern is required\n"
+    elif ! test -w "${file}"; then
+        _die printf "%s is not writeable\n" "${file}"
+    fi
+
+    sed -i -e "/${pattern}/d" "${file}"
+}
+
+function _file_contains() {
+    local pattern="${1:-}"
+    local file="${2:-}"
+
+    if [[ -z "${pattern}" ]]; then
+        _die printf "Pattern is required\n"
+    elif ! test -r "${file}"; then
+        _die printf "%s is not readable\n" "${file}"
+    fi
+
+    if ! grep -e "${pattern}" "${file}"; then
+        return 1
+    else
+        return 0
+    fi
+}
+
+function _is_host_set() {
+    local hostname="${1:-}"
+
+    if ! _file_contains "^[^[:space:]#]\+[[:space:]]\+${hostname}\([[:space:]]\+\|$\)" "${HOSTS_PATH}"; then
+        return 1
+    else
+        return 0
+    fi
+}
+
+function _delete_host_entry() {
+    local hostname="${1:-}"
+
+    _delete_from_file "^[^[:space:]#]\+[[:space:]]\+${hostname}\([[:space:]]\+\|$\)" "${HOSTS_PATH}"
+}
+
+function _set_host_entry() {
+    local _ip="${1:-}"
+    local _hostname="${2:-}"
+
+    if [[ -z "${_ip:-}" ]]; then
+        _die printf "IP parameter is missing.\n"
+    elif [[ -z "${_hostname:-}" ]]; then
+        _die printf "Hostname parameter is missing.\n"
+    elif ! _is_valid_ip "${_ip}"; then
+        _die printf "Not a valid ip address: %s\n" "${_ip}"
+    elif ! _is_valid_domain "${_hostname}"; then
+        _die printf "Not a valid hostname: %s\n" "${_hostname}"
+    elif grep -q -e "^[^[:space:]#]\+[[:space:]]\+${_hostname}\([[:space:]]\+.*\)\?$" "${HOSTS_PATH}"; then
+        _replace_in_file "^[^[:space:]#]\+[[:space:]]\+${_hostname}\([[:space:]]\+.*\)\?$" "${_ip}\t${_hostname}" "${HOSTS_PATH}"
+    else
+        printf "%s\t%s\n" "${_ip}" "${_hostname}" >> "${HOSTS_PATH}"
+    fi
+}
+
+declare -A __desc
 # desc()
 #
 # Usage:
@@ -176,14 +328,14 @@ _verify_write_permissions() {
 #
 # Options:
 #   --get  Print the description for <name> if one has been set.
-desc() {
-    [[ -z "${1:-}" ]] && _die printf "desc(): No command name specified.\\n"
+function _desc() {
+    [[ -z "${1:-}" ]] && _die printf "_desc(): No command name specified.\\n"
 
     if [[ "${1}" == "--get" ]]; then
-        [[ -z "${2:-}" ]] && _die printf "desc(): No command name specified.\\n"
+        [[ -z "${2:-}" ]] && _die printf "_desc(): No command name specified.\\n"
 
         local _name="${2:-}"
-        local _desc_var="___desc_${_name}"
+        local _desc_var="__desc[${_name}]"
 
         if [[ -n "${!_desc_var:-}" ]]; then
             printf "%s\\n" "${!_desc_var}"
@@ -192,19 +344,19 @@ desc() {
         fi
     else
         if [[ -n "${2:-}" ]]; then # argument is present
-            read -r -d '' "___desc_${1}" <<HEREDOC
+            read -r -d '' "__desc[${1}]" <<HEREDOC
 ${2}
 HEREDOC
 
         else # no argument is present, so assume piped input
-            read -r -d '' "___desc_${1}" || true
+            read -r -d '' "__desc[${1}]" || true
         fi
     fi
 }
 
 # Version #####################################################################
 
-desc "version" <<HEREDOC
+_desc "version" <<HEREDOC
 Usage:
   ${_ME} (version | --version)
 
@@ -219,31 +371,26 @@ version() {
 
 # Help ########################################################################
 
-desc "help" <<HEREDOC
+_desc "help" <<HEREDOC
 Usage:
   ${_ME} help [<command>]
 
 Description:
   Display help information for ${_ME} or a specified command.
 HEREDOC
-help() {
+
+function help() {
     if [[ -n "${1:-}" ]]; then
-        desc --get "${1}"
+        _desc --get "${1}"
     else
         cat <<HEREDOC
 Usage:
-  ${_ME} [<search string>]
-  ${_ME} add <ip> <hostname> [<comment>]
-  ${_ME} disable (<ip> | <hostname> | <search string>)
-  ${_ME} disabled
-  ${_ME} edit
-  ${_ME} enable (<ip> | <hostname> | <search string>)
-  ${_ME} enabled
-  ${_ME} file
-  ${_ME} list [enabled | disabled | <search string>]
-  ${_ME} search <search string>
-  ${_ME} show (<ip> | <hostname> | <search string>)
-  ${_ME} remove (<ip> | <hostname> | <search string>) [--force]
+  ${_ME} host-set <ip> <hostname>
+  ${_ME} host-rm <hostname>
+  ${_ME} group-edit <group> (+ | -) <hostname 1> <hostname 2> ... <hostname n>
+  ${_ME} group-rm <group>
+  ${_ME} group-set <group> <ip>
+  £{_ME} group-unset <group>
 
 Options:
   --no-sudo    Do not run commands with \`sudo\` automatically.
@@ -258,430 +405,209 @@ HEREDOC
 
 # ------------------------------------------------------------------------- add
 
-desc "add" <<HEREDOC
+_desc "host-set" <<HEREDOC
 Usage:
-  ${_ME} add <ip> <hostname> [<group>]
+  ${_ME} host-set <ip> <hostname>
 
 Description:
-  Add a given IP address and hostname pair, along with an optional group.
+  Set an hostfile entry
 HEREDOC
-add() {
+
+function host-set() {
     _verify_write_permissions "$@"
 
     local _ip="${1:-}"
     local _hostname="${2:-}"
-    local _group="${*:3}"
 
-    if [[ -z "${_ip:-}" ]]; then
-        "${_ME}" help add
-        exit 1
-    elif [[ -z "${_hostname:-}" ]]; then
-        printf "Please include a hostname\\n"
-        "${_ME}" help add
-        exit 1
-    elif grep \
-        -e "^${_ip}\\t${_hostname}$" \
-        -e "^${_ip}\\t${_hostname}\\t.*$" "${HOSTS_PATH}"; then
-        _die printf \
-            "Duplicate address/host combination, %s unchanged.\\n" \
-            "${HOSTS_PATH}"
-    elif [[ -n "${_group:-}" ]]; then
-        printf "%s\\t%s\\t# grp:%s\\n" \
-            "${_ip}" \
-            "${_hostname}" \
-            "${_group}" >>"${HOSTS_PATH}"
-        printf "Added:\\n%s\\t%s\\t# grp:%s\\n" \
-            "${_ip}" \
-            "${_hostname}" \
-            "${_group}"
-    else
-        printf "%s\\t%s\\n" \
-            "${_ip}" \
-            "${_hostname}" >>"${HOSTS_PATH}"
-        printf "Added:\\n%s\\t%s\\n" \
-            "${_ip}" \
-            "${_hostname}"
-    fi
+    _set_host_entry "${_ip}" "${_hostname}"
+
+    printf "Set entry %s to %s\n" "${_hostname}" "${_ip}"
 }
 
-# --------------------------------------------------------------------- disable
-
-desc "disable" <<HEREDOC
+_desc "host-rm" <<HEREDOC
 Usage:
-  ${_ME} disable (<ip> | <hostname> | <search string>)
+  ${_ME} host-rm <hostname>
 
 Description:
-  Disable one or more records based on a given ip address, hostname, or
-  search string.
+  Remove an entry
 HEREDOC
-disable() {
+
+function host-rm() {
     _verify_write_permissions "$@"
 
-    local _search_string="${1:-}"
+    local _hostname="${1:-}"
 
-    if [[ -z "${_search_string:-}" ]]; then
-        "${_ME}" help disable
-        exit 1
-    else
-        local _regex_ip
-        _regex_ip="^\\(${_search_string}${_TAB_SPACE_}.\+\\)$"
-
-        local _regex_commented_hostname
-        _regex_commented_hostname="^\\([^#].\+${_TAB_SPACE_}${_search_string}${_TAB_SPACE_}.\+\\)$"
-
-        local _regex_hostname
-        _regex_hostname="^\\([^#].\+${_TAB_SPACE_}${_search_string}\\)$"
-
-        local _regex_group
-        _regex_group="^\\([^#].\+${_TAB_SPACE_}#grp:${_search_string}\\)$"
-
-        local _targets
-        _targets=$(
-            sed -n \
-                -e "s/${_regex_ip}/\\1/p" \
-                -e "s/${_regex_commented_hostname}/\\1/p" \
-                -e "s/${_regex_hostname}/\\1/p" \
-                -e "s/${_regex_group}/\\1/p" \
-                "${HOSTS_PATH}"
-        )
-
-        if [[ -z "${_targets:-}" ]]; then
-            _die printf "Not found: %s\\n" "${_search_string}"
-        fi
-
-        printf "Disabling:\\n%s\\n" "${_targets}"
-
-        sed -i \
-            -e "s/${_regex_ip}/\\#disabled: \\1/g" \
-            -e "s/${_regex_commented_hostname}/\\#disabled: \\1/g" \
-            -e "s/${_regex_hostname}/\\#disabled: \\1/g" \
-            -e "s/${_regex_group}/\\1/p" \
-            "${HOSTS_PATH}"
+    if [[ -z "${_hostname:-}" ]]; then
+        _die printf "Hostname parameter is missing.\n"
+    elif ! _is_valid_domain "${_hostname}"; then
+        _die printf "Not a valid hostname: %s\n" "${_hostname}"
+    elif ! _is_host_set "${_hostname}"; then
+        _die printf "Hostname not found.\n"
     fi
+
+    _delete_host_entry "${_hostname}"
+    printf "Removed entry %s\n" "${_hostname}"
 }
 
-# -------------------------------------------------------------------- disabled
-desc "disabled" <<HEREDOC
+_desc "group-edit" <<HEREDOC
 Usage:
-  ${_ME} disabled
+  ${_ME} group-edit <group> (+ | -) <hostname 1> <hostname 2> ... <hostname n>
 
 Description:
-  List all disabled records. This is an alias for \`hosts list disabled\`.
+  Add or edit a group. Use the + or - modifier to add or remove entries to an existing group
 HEREDOC
-disabled() {
-    "${_ME}" list disabled
-}
 
-# ------------------------------------------------------------------------ edit
-desc "edit" <<HEREDOC
-Usage:
-  ${_ME} edit
-
-Description:
-  Open the ${HOSTS_PATH} file in your \$EDITOR.
-HEREDOC
-edit() {
+function group-edit() {
     _verify_write_permissions "$@"
 
-    if [[ -z "${EDITOR:-vim}" ]]; then
-        _die printf "\$EDITOR not set.\\n"
-    else
-        "${EDITOR:-vim}" "${HOSTS_PATH}"
+    local group_name="${1:-}"
+    local operation="${2:-}"
+
+    if [[ -z "${group_name}" ]]; then
+        _die printf "Group name is required\n"
+    elif ! _is_valid_group "${group_name}"; then
+        _die printf "Group name parameter is not valid\n"
+    elif [[ -z "${operation}" ]]; then
+        _die printf "A second parameter is required (+, - or hostname)\n"
     fi
+
+    local current_group
+    local new_group
+    IFS=" "
+    read -r -a current_group <<< "$(_get_group "${group_name}")"
+    
+    if [[ ${operation} = "-" ]]; then
+        for domain in "${current_group[@]}"; do
+            if ! _contains "${domain}" "${@:3}"; then
+                new_group+=("${domain}")
+            fi
+        done
+    elif [[ "${operation}" = "+" ]]; then
+        for domain in "${@:3}"; do
+            if ! _contains "${domain}" "${current_group[*]}"; then
+                current_group+=("${domain}")
+            fi
+        done
+
+        new_group=(${current_group[*]})
+    else
+        new_group=(${@:2})
+    fi
+
+    _set_group "${group_name}" "${new_group[*]}"
+
+    IFS=$'\n'
+    printf "Group %s content:\n\n%s\n" "${group_name}" "${new_group[*]}"
 }
 
-# ---------------------------------------------------------------------- enable
-desc "enable" <<HEREDOC
+_desc "group-rm" <<HEREDOC
 Usage:
-  ${_ME} enable (<ip> | <hostname> | <search string>)
+  ${_ME} group-rm <group>
 
 Description:
-  Enable one or more disabled records based on a given ip address, hostname,
-  or search string.
+  Remove a group
 HEREDOC
-enable() {
+
+function group-rm() {
     _verify_write_permissions "$@"
 
-    local _search_string="${1:-}"
+    local group_name="${1:-}"
 
-    if [[ -z "${_search_string:-}" ]]; then
-        "${_ME}" help enable
-        exit 1
-    else
-        local _regex_ip
-        _regex_ip="^\\#disabled: \\(${_search_string}${_TAB_SPACE_}.\+\\)$"
-
-        local _regex_commented_hostname
-        _regex_commented_hostname="^\\#disabled: \\(.\+${_TAB_SPACE_}${_search_string}${_TAB_SPACE_}.\+\\)$"
-
-        local _regex_hostname
-        _regex_hostname="^\\#disabled: \\(.\+${_TAB_SPACE_}${_search_string}\\)$"
-
-        local _regex_group
-        _regex_group="^\\([^#].\+${_TAB_SPACE_}#grp:${_search_string}\\)$"
-
-        local _targets
-        _targets=$(
-            sed -n \
-                -e "s/${_regex_ip}/\\1/p" \
-                -e "s/${_regex_commented_hostname}/\\1/p" \
-                -e "s/${_regex_hostname}/\\1/p" \
-                "${HOSTS_PATH}"
-        )
-
-        if [[ -z "${_targets:-}" ]]; then
-            _die printf "Not found: %s\\n" "${_search_string}"
-        fi
-
-        printf "Enabling:\\n%s\\n" "${_targets}"
-
-        sed -i \
-            -e "s/${_regex_ip}/\\1/g" \
-            -e "s/${_regex_commented_hostname}/\\1/g" \
-            -e "s/${_regex_hostname}/\\1/g" \
-            "${HOSTS_PATH}"
+    if [[ -z "${group_name}" ]]; then
+        _die printf "Group name is required\n"
+    elif ! _is_valid_group "${group_name}"; then
+        _die printf "Group name parameter is not valid\n"
     fi
-}
 
-# --------------------------------------------------------------------- enabled
+    local current_group
+    IFS=" "
+    read -r -a current_group <<< "$(_get_group "${group_name}")"
 
-desc "enabled" <<HEREDOC
-Usage:
-  ${_ME} enabled
-
-Description:
-  List all enabled records. This is an alias for \`hosts list enabled\`.
-HEREDOC
-enabled() {
-    "${_ME}" list enabled
-}
-
-# ------------------------------------------------------------------------ file
-
-desc "file" <<HEREDOC
-Usage:
-  ${_ME} file
-
-Description:
-  Print the entire contents of the ${HOSTS_PATH} file.
-HEREDOC
-file() {
-    cat "${HOSTS_PATH}"
-}
-
-# ------------------------------------------------------------------------ list
-
-desc "list" <<HEREDOC
-Usage:
-  ${_ME} list [enabled | disabled | <search string>]
-
-Description:
-  List the existing IP / hostname pairs, optionally limited to a specified
-  state. When provided with a seach string, all matching enabled records will
-  be printed.
-HEREDOC
-list() {
-    # Get the disabled records up front for the two cases where they are needed.
-    local _disabled_records
-    _disabled_records=$(
-        sed -n "s/^\\#disabled: \\(.*\\)$/\\1/p" "${HOSTS_PATH}"
-    )
-
-    if [[ -n "${1:-}" ]]; then
-        if [[ "${1}" == "disabled" ]]; then
-            printf "%s\\n" "${_disabled_records}"
-        elif [[ "${1}" == "enabled" ]]; then
-            grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
-        else
-            "${_ME}" show "${1}"
-        fi
-    else
-        # NOTE: use separate expressions since using a | for the or results in
-        # inconsistent behavior.
-        grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
-
-        if [[ -n "${_disabled_records:-}" ]]; then
-            printf "\\nDisabled:\\n%s\\n" "${_disabled_records}"
-        fi
+    if [[ ${#current_group[@]} -eq 0 ]]; then
+        _die printf "Group %s not found\n" "${group_name}"
     fi
-}
 
-# ---------------------------------------------------------------------- remove
-
-desc "remove" <<HEREDOC
-Usage:
-  ${_ME} remove (<ip> | <hostname> | <search string>) [--force]
-  ${_ME} remove <ip> <hostname>
-
-Options:
-  --force  Skip the confirmation prompt.
-
-Description:
-  Remove one or more records based on a given IP address, hostname, or search
-  string. If an IP and hostname are both provided, only records matching the
-  IP and hostname pair will be removed.
-HEREDOC
-remove() {
-    _verify_write_permissions "$@"
-
-    local _is_search_pair=0
-    local _force_skip_prompt=0
-    local _arguments=()
-    local _search_ip=""
-    local _search_hostname=""
-    local _search_string=""
-
-    for __arg in "${_COMMAND_ARGV[@]:-}"; do
-        case "${__arg}" in
-        --force)
-            _force_skip_prompt=1
-            ;;
-        *)
-            _arguments+=("${__arg}")
-            ;;
-        esac
+    for domain in "${current_group[@]}"; do
+        _delete_host_entry "${domain}"
     done
 
-    if [[ -z "${_arguments[1]:-}" ]]; then
-        "${_ME}" help remove
-        exit 1
-    elif [[ -n "${_arguments[2]:-}" ]]; then
-        _search_ip="${_arguments[1]}"
-        _search_hostname="${_arguments[2]}"
-        _is_search_pair=1
-    else
-        _search_string="${_arguments[1]:-}"
-    fi
+    _delete_from_file "^#group:${group_name}[[:space:]]\+.*$" "${HOSTS_PATH}"
 
-    # IP / Hostname pair regular expressions:
-    local _regex_ip_hostname_commented
-    _regex_ip_hostname_commented="^\\(${_search_ip}${_TAB_SPACE_}*${_search_hostname}${_TAB_SPACE_}..*\\)$"
-
-    local _regex_ip_hostname
-    _regex_ip_hostname="^\\(${_search_ip}${_TAB_SPACE_}*${_search_hostname}\\)$"
-
-    # Search string regular expressions:
-    local _regex_ip
-    _regex_ip="^\\(${_search_string}${_TAB_SPACE_}..*\\)$"
-
-    local _regex_commented_hostname
-    _regex_commented_hostname="^\\(..*${_TAB_SPACE_}${_search_string}${_TAB_SPACE_}..*\\)$"
-
-    local _regex_hostname
-    _regex_hostname="^\\(..*${_TAB_SPACE_}${_search_string}\\)$"
-
-    local _target_records
-
-    if ((_is_search_pair)); then
-        _target_records=$(
-            sed -n \
-                -e "s/${_regex_ip_hostname_commented}/\\1/p" \
-                -e "s/${_regex_ip_hostname}/\\1/p" \
-                "${HOSTS_PATH}"
-        )
-    else
-        _target_records=$(
-            sed -n \
-                -e "s/${_regex_ip}/\\1/p" \
-                -e "s/${_regex_commented_hostname}/\\1/p" \
-                -e "s/${_regex_hostname}/\\1/p" \
-                "${HOSTS_PATH}"
-        )
-    fi
-
-    if [[ -z "${_target_records:-}" ]]; then
-        printf "No matching records found.\\n"
-        exit 1
-    fi
-
-    if ! ((_force_skip_prompt)); then
-        printf "Removing the following records:\\n%s\\n" "${_target_records}"
-
-        while true; do
-            read -r -p "Are you sure you want to proceed? [y/N] " _yn
-
-            case "${_yn}" in
-            [Yy]*)
-                break
-                ;;
-            *)
-                printf "Exiting...\\n"
-                exit 0
-                ;;
-            esac
-        done
-    fi
-
-    # Regular Expression Notes
-    #
-    if ((_is_search_pair)); then
-        sed -i \
-            -e "/${_regex_ip_hostname_commented}/d" \
-            -e "/${_regex_ip_hostname}/d" \
-            "${HOSTS_PATH}"
-    else
-        sed -i \
-            -e "/${_regex_ip}/d" \
-            -e "/${_regex_commented_hostname}/d" \
-            -e "/${_regex_hostname}/d" \
-            "${HOSTS_PATH}"
-    fi
-
-    printf "Removed:\\n%s\\n" "${_target_records}"
+    printf "Group %s deleted" "${group_name}\n"
 }
 
-# ---------------------------------------------------------------------- search
 
-desc "search" <<HEREDOC
+_desc "group-set" <<HEREDOC
 Usage:
-  $_ME search <search string>
+  ${_ME} group-set <group> <ip>
 
 Description:
-  Search entries for <search string>.
+  Set a group to an ip address
 HEREDOC
-search() {
-    if [[ -z "${_COMMAND_ARGV[1]:-}" ]]; then
-        "${_ME}" help "search"
-        return 1
+
+function group-set() {
+    _verify_write_permissions "$@"
+
+    local group_name="${1:-}"
+    local ip="${2:-}"
+
+    if [[ -z "${group_name}" ]]; then
+        _die printf "Group name is required\n"
+    elif ! _is_valid_group "${group_name}"; then
+        _die printf "Group name parameter is not valid\n"
+    elif [[ -z "${ip}" ]]; then
+        _die printf "IP parameter is required\n"
+    elif ! _is_valid_ip "${ip}"; then
+        _die printf "IP address is not valid\n"
     fi
 
-    list "$@"
+    local current_group
+    IFS=" "
+    read -r -a current_group <<< "$(_get_group "${group_name}")"
+
+    if [[ ${#current_group[@]} -eq 0 ]]; then
+        _die printf "Group %s not found\n" "${group_name}"
+    fi
+
+    for domain in "${current_group[@]}"; do
+        _set_host_entry "${ip}" "${domain}"
+
+        printf "%s set to %s\n" "${domain}" "${ip}"
+    done
 }
 
-# ------------------------------------------------------------------------ show
-
-desc "show" <<HEREDOC
+_desc "group-unset" <<HEREDOC
 Usage:
-  ${_ME} show (<ip> | <hostname> | <search string>)
+  ${_ME} group-unset <group>
 
 Description:
-  Print entries matching a given IP address, hostname, or search string.
+  Unset a group
 HEREDOC
-show() {
-    if [[ -n "${1:-}" ]]; then
-        # Run `sed` before `grep` to avoid conflict that supress `sed` output.
-        local _disabled_records
-        _disabled_records=$(
-            sed -n "s/^\\#\\(disabled: .*${1}.*\\)$/\\1/p" "${HOSTS_PATH}"
-        )
 
-        local _enabled_records
-        _enabled_records=$(
-            grep --invert-match "^#" "${HOSTS_PATH}" | grep "${1}"
-        )
+function group-unset() {
+    _verify_write_permissions "$@"
 
-        # Output disabled records secondly for better organization.
-        if [[ -n "${_enabled_records}" ]]; then
-            printf "%s\\n" "${_enabled_records}"
-        fi
+    local group_name="${1:-}"
 
-        if [[ -n "${_disabled_records}" ]]; then
-            printf "%s\\n" "${_disabled_records}"
-        fi
-    else
-        "${_ME}" help show
-        exit 1
+    if [[ -z "${group_name}" ]]; then
+        _die printf "Group name is required\n"
+    elif ! _is_valid_group "${group_name}"; then
+        _die printf "Group name parameter is not valid\n"
     fi
+
+    local current_group
+    IFS=" "
+    read -r -a current_group <<< "$(_get_group "${group_name}")"
+
+    if [[ ${#current_group[@]} -eq 0 ]]; then
+        _die printf "Group %s not found\n" "${group_name}"
+    fi
+
+    for domain in "${current_group[@]}"; do
+        _delete_host_entry "${domain}"
+
+        printf "Entry %s removed\n" "${domain}"
+    done
 }
 
 # Run Program
