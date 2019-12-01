@@ -10,7 +10,7 @@ IFS=$'\n\t'
 _VERSION="1.0.0"
 
 # Command to run by default
-HOSTS_DEFAULT_COMMAND="${HOSTS_DEFAULT_COMMAND:-host-set}"
+HOSTS_DEFAULT_COMMAND="${HOSTS_DEFAULT_COMMAND:-set}"
 
 # Path to the host file
 HOSTS_PATH="${HOSTS_PATH:-/etc/hosts}"
@@ -18,13 +18,11 @@ HOSTS_PATH="${HOSTS_PATH:-/etc/hosts}"
 # _die()
 #
 # Usage:
-#   _die printf "Error message. Variable: %s\\n" "$0"
+#   _die "Error message"
 #
-# Run a command and dies
+# Print a message and dies
 function _die() {
-    # Prefix die message with "cross mark (U+274C)", often displayed as a red x.
-    printf "❌  "
-    "${@}" 1>&2
+    echo "$1" 1>&2
     exit 1
 }
 
@@ -48,7 +46,7 @@ while [[ ${#} -gt 0 ]]; do
         _CMD="version"
         ;;
     --no-sudo)
-        _AUTO_SUDO=1
+        _AUTO_SUDO=0
         ;;
     *)
         # The first non-option argument is assumed to be the command name.
@@ -66,7 +64,7 @@ function _search_in_file() {
     local arguments=("$@")
 
     if [ ${#arguments[@]} -ne 2 ]; then
-        _die echo "_search_in_file requires 2 parameters"
+        _die "_search_in_file requires 2 parameters"
     fi
 
     local pattern=${arguments[0]}
@@ -79,7 +77,7 @@ function _replace_in_file() {
      local arguments=("$@")
 
     if [ ${#arguments[@]} -ne 3 ]; then
-        _die echo "_search_in_file requires 3 paramesters"
+        _die "_search_in_file requires 3 paramesters"
     fi
 
     local pattern=${arguments[0]}
@@ -110,38 +108,27 @@ function _load_commands() {
     mapfile -t _function_list < <(declare -F)
 
     for __name in "${_function_list[@]}"; do
-        # Each element has the format `declare -f function_name`, so set the name
-        # to only the 'function_name' part of the string.
         local _function_name
         _function_name=$(printf "%s" "${__name}" | awk '{ print $3 }')
 
-        # Do not include internal functions
-        if [[ ! "${_function_name}" =~ ^_(.*) ]]; then
-            _DEFINED_COMMANDS+=("${_function_name}")
+        if [[ "${_function_name}" =~ ^cmd_(.*) ]]; then
+            _DEFINED_COMMANDS+=("${_function_name#"cmd_"}")
         fi
     done
 }
 
-# _main()
-#${#Fruits[@]}
-# Usage:
-#   _main
-#
-# The primary function for starting the program.
+# Entrypoint
 function _main() {
     if [[ -z "${_CMD}" ]]; then
         _CMD="${HOSTS_DEFAULT_COMMAND}"
     fi
 
-    # Load all of the commands.
     _load_commands
 
-    # If the command is defined, run it, otherwise return an error.
     if _contains "${_CMD}" "${_DEFINED_COMMANDS[*]:-}"; then
-        # Pass all comment arguments to the program except for the first ($0).
-        ${_CMD} "${_COMMAND_PARAMETERS[@]:-}"
+        cmd_${_CMD} "${_COMMAND_PARAMETERS[@]:-}"
     else
-        _die printf "Unknown command: %s\\n" "${_CMD}"
+        _die "Unknown command: ${_CMD}"
     fi
 }
 
@@ -168,7 +155,7 @@ function _verify_write_permissions() {
             sudo "${_ME}" "${_CMD}" "${_COMMAND_PARAMETERS[@]:-}"
             exit $?
         else
-            _die printf "You don't have permission to perform this operation. Try again with: sudo !!\\n"
+            _die "You don't have permission to perform this operation."
         fi
     fi
 }
@@ -198,13 +185,14 @@ function _is_valid_group() {
 
     return 0
 }
+
 function _get_group() {
     local group_name="${1:-}"
 
     if [[ -z "${group_name}" ]]; then 
-        _die printf "Group name parameter is required\n"
+        _die "Group name parameter is required"
     elif ! _is_valid_group "${group_name}"; then
-        _die printf "Group name parameter is not valid\n"
+        _die "Group name parameter is not valid"
     fi
 
     local group_string
@@ -212,7 +200,7 @@ function _get_group() {
     mapfile -t group_string < <(sed -n "s/\\#group:${group_name}[[:space:]]\+\\(.*\\)$/\\1/p" "${HOSTS_PATH}")
 
     if [[ ${#group_string[@]} -gt 1 ]]; then
-        _die printf "Group is duplicated in file%s\n" "${HOSTS_PATH}"
+        _die "Group is duplicated in file ${HOSTS_PATH}"
     elif [[ ${#group_string[@]} -eq 0 ]]; then
         echo ""
     else
@@ -224,9 +212,9 @@ function _set_group() {
     local group_name="${1:-}"
 
     if [[ -z "${group_name}" ]]; then 
-        _die printf "Group name parameter is required\n"
+        _die "Group name parameter is required"
     elif ! _is_valid_group "${group_name}"; then
-        _die printf "Group name parameter is not valid\n"
+        _die "Group name parameter is not valid"
     fi
 
     local existing_group
@@ -239,7 +227,7 @@ function _set_group() {
     mapfile -t existing_group < <(sed -n "s/\\#group:${group_name}[[:space:]]\+\\(.*\\)$/\\1/p" "${HOSTS_PATH}")
 
     if [[ ${#existing_group[@]} -gt 1 ]]; then
-        _die printf "Group is duplicated in file%s\n" "${HOSTS_PATH}"
+        _die "Group is duplicated in file ${HOSTS_PATH}"
     elif [[ ${#existing_group[@]} -eq 0 ]]; then
         sed -i "1 s/^/${group}\n/" "${HOSTS_PATH}"
     else
@@ -252,9 +240,9 @@ function _delete_from_file() {
     local file="${2:-}"
 
     if [[ -z "${pattern}" ]]; then
-        _die printf "Pattern is required\n"
+        _die "Pattern is required"
     elif ! test -w "${file}"; then
-        _die printf "%s is not writeable\n" "${file}"
+        _die "${file} is not writeable"
     fi
 
     sed -i -e "/${pattern}/d" "${file}"
@@ -265,9 +253,9 @@ function _file_contains() {
     local file="${2:-}"
 
     if [[ -z "${pattern}" ]]; then
-        _die printf "Pattern is required\n"
+        _die "Pattern is required"
     elif ! test -r "${file}"; then
-        _die printf "%s is not readable\n" "${file}"
+        _die "${file} is not readable"
     fi
 
     if ! grep -e "${pattern}" "${file}"; then
@@ -298,13 +286,13 @@ function _set_host_entry() {
     local _hostname="${2:-}"
 
     if [[ -z "${_ip:-}" ]]; then
-        _die printf "IP parameter is missing.\n"
+        _die "IP parameter is missing."
     elif [[ -z "${_hostname:-}" ]]; then
-        _die printf "Hostname parameter is missing.\n"
+        _die "Hostname parameter is missing."
     elif ! _is_valid_ip "${_ip}"; then
-        _die printf "Not a valid ip address: %s\n" "${_ip}"
+        _die "${_ip} is not a valid ip address."
     elif ! _is_valid_domain "${_hostname}"; then
-        _die printf "Not a valid hostname: %s\n" "${_hostname}"
+        _die "${_hostname} is not a valid hostname."
     elif grep -q -e "^[^[:space:]#]\+[[:space:]]\+${_hostname}\([[:space:]]\+.*\)\?$" "${HOSTS_PATH}"; then
         _replace_in_file "^[^[:space:]#]\+[[:space:]]\+${_hostname}\([[:space:]]\+.*\)\?$" "${_ip}\t${_hostname}" "${HOSTS_PATH}"
     else
@@ -322,10 +310,10 @@ declare -A __desc
 # Options:
 #   --get  Print the description for <name> if one has been set.
 function _desc() {
-    [[ -z "${1:-}" ]] && _die printf "_desc(): No command name specified.\\n"
+    [[ -z "${1:-}" ]] && _die "_desc(): No command name specified."
 
     if [[ "${1}" == "--get" ]]; then
-        [[ -z "${2:-}" ]] && _die printf "_desc(): No command name specified.\\n"
+        [[ -z "${2:-}" ]] && _die "_desc(): No command name specified."
 
         local _name="${2:-}"
         local _desc_var="__desc[${_name}]"
@@ -358,7 +346,7 @@ Description:
 
   To save you the trouble, the current version is ${_VERSION}
 HEREDOC
-version() {
+function cmd_version() {
     printf "%s\\n" "${_VERSION}"
 }
 
@@ -372,18 +360,21 @@ Description:
   Display help information for ${_ME} or a specified command.
 HEREDOC
 
-function help() {
+function cmd_help() {
     if [[ -n "${1:-}" ]]; then
         _desc --get "${1}"
     else
         cat <<HEREDOC
 Usage:
-  ${_ME} host-set <ip> <hostname>
-  ${_ME} host-rm <hostname>
-  ${_ME} group-edit <group> (+ | -) <hostname 1> <hostname 2> ... <hostname n>
-  ${_ME} group-rm <group>
-  ${_ME} group-set <group> <ip>
-  ${_ME} group-unset <group>
+  ${_ME} set <hostname> <ip address>
+  ${_ME} rm <hostname>
+  ${_ME} group <group> set <hostname 1> <hostname 2> ... <hostname n>
+  ${_ME} group <group> + <hostname 1> <hostname 2> ... <hostname n>
+  ${_ME} group <group> - <hostname 1> <hostname 2> ... <hostname n>
+  ${_ME} group <group> rm
+  ${_ME} group <group> <ip address>
+  ${_ME} group <group> reset
+  ${_ME} group <group>
 
 Options:
   --no-sudo    Do not run commands with \`sudo\` automatically.
@@ -398,118 +389,177 @@ HEREDOC
 
 # ------------------------------------------------------------------------- add
 
-_desc "host-set" <<HEREDOC
+_desc "set" <<HEREDOC
 Usage:
-  ${_ME} host-set <ip> <hostname>
+  ${_ME} set <hostname> <ip address>
 
 Description:
   Set an hostfile entry
 HEREDOC
 
-function host-set() {
+function cmd_set() {
     _verify_write_permissions "$@"
 
-    local _ip="${1:-}"
-    local _hostname="${2:-}"
+    local _hostname="${1:-}"
+    local _ip="${2:-}"
 
     _set_host_entry "${_ip}" "${_hostname}"
 
     printf "Set entry %s to %s\n" "${_hostname}" "${_ip}"
 }
 
-_desc "host-rm" <<HEREDOC
+_desc "rm" <<HEREDOC
 Usage:
-  ${_ME} host-rm <hostname>
+  ${_ME} rm <hostname>
 
 Description:
   Remove an entry
 HEREDOC
 
-function host-rm() {
+function cmd_rm() {
     _verify_write_permissions "$@"
 
     local _hostname="${1:-}"
 
     if [[ -z "${_hostname:-}" ]]; then
-        _die printf "Hostname parameter is missing.\n"
+        _die "Hostname parameter is missing."
     elif ! _is_valid_domain "${_hostname}"; then
-        _die printf "Not a valid hostname: %s\n" "${_hostname}"
+        _die "${_hostname} is not a valid hostname."
     elif ! _is_host_set "${_hostname}"; then
-        _die printf "Hostname not found.\n"
+        _die "Hostname not found."
     fi
 
     _delete_host_entry "${_hostname}"
     printf "Removed entry %s\n" "${_hostname}"
 }
 
-_desc "group-edit" <<HEREDOC
+_desc "group" <<HEREDOC
 Usage:
-  ${_ME} group-edit <group> (+ | -) <hostname 1> <hostname 2> ... <hostname n>
+  ${_ME} group <group> set <hostname 1> <hostname 2> ... <hostname n>
+  ${_ME} group <group> + <hostname 1> <hostname 2> ... <hostname n>
+  ${_ME} group <group> - <hostname 1> <hostname 2> ... <hostname n>
+  ${_ME} group <group> rm
+  ${_ME} group <group> <ip address>
+  ${_ME} group <group> reset
+  ${_ME} group <group>
 
 Description:
-  Add or edit a group. Use the + or - modifier to add or remove entries to an existing group
+  no parameter: show the content of a group
+  set: create a new group or change an existing one
+  +: add entries to an existing group
+  -: remove entries from an existing group
+  rm: delete an group
+  <ip address>: set all the entries of an existing group to the ip address
+  reset: remove all entries matching the group content
 HEREDOC
 
-function group-edit() {
+function cmd_group() {
+	local group_name="${1:-}"
+	local action="${2:-}"
+
+	if [[ -z "${group_name}" ]]; then
+        _die "Group name is required."
+    elif ! _is_valid_group "${group_name}"; then
+        _die "${group_name} is not a valid group name."
+    elif [[ -z "${action}" ]]; then
+		_group_get "${group_name}"
+		return 0
+    fi
+
     _verify_write_permissions "$@"
 
-    local group_name="${1:-}"
-    local operation="${2:-}"
+	case "$2" in
+		+)
+			_group_add "${group_name}" ${@:3}
+			;;
+		-)
+			_group_rm "${group_name}" ${@:3}
+			;;
+		set)
+			_group_set "${group_name}" ${@:3}
+			;;
+		rm)
+			_group_del "${group_name}"
+			;;
+		reset)
+			_group_reset "${group_name}"
+			;;
+		*)
+			_group_set_ip "${group_name}" "${action}"
+			;;
+    esac
+	
+}
 
-    if [[ -z "${group_name}" ]]; then
-        _die printf "Group name is required\n"
-    elif ! _is_valid_group "${group_name}"; then
-        _die printf "Group name parameter is not valid\n"
-    elif [[ -z "${operation}" ]]; then
-        _die printf "A second parameter is required (+, - or hostname)\n"
-    fi
+function _group_get() {
+	local group_name="${1:-}"
+	local group
 
-    local current_group
-    local new_group
     IFS=" "
-    read -r -a current_group <<< "$(_get_group "${group_name}")"
-    
-    if [[ ${operation} = "-" ]]; then
-        for domain in "${current_group[@]}"; do
-            if ! _contains "${domain}" "${@:3}"; then
-                new_group+=("${domain}")
-            fi
-        done
-    elif [[ "${operation}" = "+" ]]; then
-        for domain in "${@:3}"; do
-            if ! _contains "${domain}" "${current_group[*]}"; then
-                current_group+=("${domain}")
-            fi
-        done
+    read -r -a group <<< "$(_get_group "${group_name}")"
 
-        new_group=(${current_group[*]})
-    else
-        new_group=(${@:2})
-    fi
+	if [[ ${#group[@]} -eq 0 ]]; then
+		_die "${group_name} doesn't exists or is empty"
+	fi
+
+	for domain in "${group[@]}"; do
+		printf "%s\n" ${domain}
+	done
+}
+
+function _group_add() {
+    local group_name="${1:-}"
+	local group
+
+    IFS=" "
+    read -r -a group <<< "$(_get_group "${group_name}")"
+
+	for domain in "${@:2}"; do
+		if ! _contains "${domain}" "${group[*]}"; then
+			group+=("${domain}")
+		fi
+	done
+
+    _set_group "${group_name}" "${group[*]}"
+
+	printf "Group %s modified.\n" "${group_name}"
+}
+
+function _group_rm() {
+    local group_name="${1:-}"
+	local group
+	local new_group
+
+    IFS=" "
+    read -r -a group <<< "$(_get_group "${group_name}")"
+
+	for domain in "${group[@]}"; do
+		if ! _contains "${domain}" "${@:2}"; then
+			new_group+=("${domain}")
+		fi
+	done
 
     _set_group "${group_name}" "${new_group[*]}"
 
-    IFS=$'\n'
-    printf "Group %s content:\n\n%s\n" "${group_name}" "${new_group[*]}"
+	printf "Group %s modified.\n" "${group_name}"
 }
 
-_desc "group-rm" <<HEREDOC
-Usage:
-  ${_ME} group-rm <group>
+function _group_set() {
+    local group_name="${1:-}"
+    _set_group "${group_name}" "${@:2}"
 
-Description:
-  Remove a group
-HEREDOC
+	printf "Group %s created.\n" "${group_name}"
+}
 
-function group-rm() {
+function _group_del() {
     _verify_write_permissions "$@"
 
     local group_name="${1:-}"
 
     if [[ -z "${group_name}" ]]; then
-        _die printf "Group name is required\n"
+        _die "Group name is required."
     elif ! _is_valid_group "${group_name}"; then
-        _die printf "Group name parameter is not valid\n"
+        _die "Group name parameter is not valid."
     fi
 
     local current_group
@@ -517,7 +567,7 @@ function group-rm() {
     read -r -a current_group <<< "$(_get_group "${group_name}")"
 
     if [[ ${#current_group[@]} -eq 0 ]]; then
-        _die printf "Group %s not found\n" "${group_name}"
+        _die "Group ${group_name} not found."
     fi
 
     for domain in "${current_group[@]}"; do
@@ -526,32 +576,24 @@ function group-rm() {
 
     _delete_from_file "^#group:${group_name}[[:space:]]\+.*$" "${HOSTS_PATH}"
 
-    printf "Group %s deleted" "${group_name}\n"
+    printf "Group %s deleted.\n" "${group_name}"
 }
 
 
-_desc "group-set" <<HEREDOC
-Usage:
-  ${_ME} group-set <group> <ip>
-
-Description:
-  Set a group to an ip address
-HEREDOC
-
-function group-set() {
+function _group_set_ip() {
     _verify_write_permissions "$@"
 
     local group_name="${1:-}"
     local ip="${2:-}"
 
     if [[ -z "${group_name}" ]]; then
-        _die printf "Group name is required\n"
+        _die "Group name is required."
     elif ! _is_valid_group "${group_name}"; then
-        _die printf "Group name parameter is not valid\n"
+        _die "Group name parameter is not valid."
     elif [[ -z "${ip}" ]]; then
-        _die printf "IP parameter is required\n"
+        _die "IP parameter is required."
     elif ! _is_valid_ip "${ip}"; then
-        _die printf "IP address is not valid\n"
+        _die "${ip} is not a valid IP address."
     fi
 
     local current_group
@@ -559,7 +601,7 @@ function group-set() {
     read -r -a current_group <<< "$(_get_group "${group_name}")"
 
     if [[ ${#current_group[@]} -eq 0 ]]; then
-        _die printf "Group %s not found\n" "${group_name}"
+        _die "Group ${group_name} not found."
     fi
 
     for domain in "${current_group[@]}"; do
@@ -569,23 +611,15 @@ function group-set() {
     done
 }
 
-_desc "group-unset" <<HEREDOC
-Usage:
-  ${_ME} group-unset <group>
-
-Description:
-  Unset a group
-HEREDOC
-
-function group-unset() {
+function _group_reset() {
     _verify_write_permissions "$@"
 
     local group_name="${1:-}"
 
     if [[ -z "${group_name}" ]]; then
-        _die printf "Group name is required\n"
+        _die "Group name is required."
     elif ! _is_valid_group "${group_name}"; then
-        _die printf "Group name parameter is not valid\n"
+        _die "Group name parameter is not valid."
     fi
 
     local current_group
@@ -593,7 +627,7 @@ function group-unset() {
     read -r -a current_group <<< "$(_get_group "${group_name}")"
 
     if [[ ${#current_group[@]} -eq 0 ]]; then
-        _die printf "Group %s not found\n" "${group_name}"
+        _die "Group ${group_name} not found."
     fi
 
     for domain in "${current_group[@]}"; do
