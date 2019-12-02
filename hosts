@@ -10,7 +10,7 @@ IFS=$'\n\t'
 _VERSION="1.0.0"
 
 # Command to run by default
-HOSTS_DEFAULT_COMMAND="${HOSTS_DEFAULT_COMMAND:-set}"
+HOSTS_DEFAULT_COMMAND="${HOSTS_DEFAULT_COMMAND:-get}"
 
 # Path to the host file
 HOSTS_PATH="${HOSTS_PATH:-/etc/hosts}"
@@ -300,6 +300,18 @@ function _set_host_entry() {
     fi
 }
 
+function _get_host_entry() {
+    local hostname="${1:-}"
+
+    if [[ -z "${hostname:-}" ]]; then
+        _die "Hostname parameter is missing."
+    elif ! _is_valid_domain "${hostname}"; then
+        _die "${hostname} is not a valid hostname."
+    fi
+
+    sed -n -e "s/^\([^[:space:]#]\+\)[[:space:]]\+${hostname}\([[:space:]]\+\|$\)/\\1/p" "${HOSTS_PATH}"
+}
+
 declare -A __desc
 # desc()
 #
@@ -388,6 +400,12 @@ HEREDOC
 }
 
 # ------------------------------------------------------------------------- add
+
+function cmd_get() {
+     local _hostname="${1:-}"
+
+     _get_host_entry "${_hostname}"
+}
 
 _desc "set" <<HEREDOC
 Usage:
@@ -503,7 +521,13 @@ function _group_get() {
 	fi
 
 	for domain in "${group[@]}"; do
-		printf "%s\n" ${domain}
+        local address
+        address=$(_get_host_entry "${domain}")
+        if [[ -z "${address:-}" ]]; then
+		    printf "%s\n" "${domain}"
+        else
+            printf "%s\t%s\n" "${domain}" "${address}"
+        fi
 	done
 }
 
