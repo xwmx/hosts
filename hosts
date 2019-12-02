@@ -74,7 +74,7 @@ function _search_in_file() {
 }
 
 function _replace_in_file() {
-     local arguments=("$@")
+    local arguments=("$@")
 
     if [ ${#arguments[@]} -ne 3 ]; then
         _die "_search_in_file requires 3 paramesters"
@@ -171,7 +171,7 @@ function _is_valid_ip() {
 }
 
 function _is_valid_domain() {
-    if [[ "$1" = *[[:space:]]* ]]; then
+    if [[ "$1" == *[[:space:]]* ]]; then
         return 1
     fi
 
@@ -179,7 +179,7 @@ function _is_valid_domain() {
 }
 
 function _is_valid_group() {
-    if [[ "$1" = *[[:space:]]* ]]; then
+    if [[ "$1" == *[[:space:]]* ]]; then
         return 1
     fi
 
@@ -189,14 +189,14 @@ function _is_valid_group() {
 function _get_group() {
     local group_name="${1:-}"
 
-    if [[ -z "${group_name}" ]]; then 
+    if [[ -z "${group_name}" ]]; then
         _die "Group name parameter is required"
     elif ! _is_valid_group "${group_name}"; then
         _die "Group name parameter is not valid"
     fi
 
     local group_string
-    
+
     mapfile -t group_string < <(sed -n "s/\\#group:${group_name}[[:space:]]\+\\(.*\\)$/\\1/p" "${HOSTS_PATH}")
 
     if [[ ${#group_string[@]} -gt 1 ]]; then
@@ -211,7 +211,7 @@ function _get_group() {
 function _set_group() {
     local group_name="${1:-}"
 
-    if [[ -z "${group_name}" ]]; then 
+    if [[ -z "${group_name}" ]]; then
         _die "Group name parameter is required"
     elif ! _is_valid_group "${group_name}"; then
         _die "Group name parameter is not valid"
@@ -223,7 +223,7 @@ function _set_group() {
     for domain in "${@:2}"; do
         group="${group} ${domain}"
     done
-    
+
     mapfile -t existing_group < <(sed -n "s/\\#group:${group_name}[[:space:]]\+\\(.*\\)$/\\1/p" "${HOSTS_PATH}")
 
     if [[ ${#existing_group[@]} -gt 1 ]]; then
@@ -296,7 +296,7 @@ function _set_host_entry() {
     elif grep -q -e "^[^[:space:]#]\+[[:space:]]\+${_hostname}\([[:space:]]\+.*\)\?$" "${HOSTS_PATH}"; then
         _replace_in_file "^[^[:space:]#]\+[[:space:]]\+${_hostname}\([[:space:]]\+.*\)\?$" "${_ip}\t${_hostname}" "${HOSTS_PATH}"
     else
-        printf "%s\t%s\n" "${_ip}" "${_hostname}" >> "${HOSTS_PATH}"
+        printf "%s\t%s\n" "${_ip}" "${_hostname}" >>"${HOSTS_PATH}"
     fi
 }
 
@@ -402,9 +402,9 @@ HEREDOC
 # ------------------------------------------------------------------------- add
 
 function cmd_get() {
-     local _hostname="${1:-}"
+    local _hostname="${1:-}"
 
-     _get_host_entry "${_hostname}"
+    _get_host_entry "${_hostname}"
 }
 
 _desc "set" <<HEREDOC
@@ -472,107 +472,107 @@ Description:
 HEREDOC
 
 function cmd_group() {
-	local group_name="${1:-}"
-	local action="${2:-}"
+    local group_name="${1:-}"
+    local action="${2:-}"
 
-	if [[ -z "${group_name}" ]]; then
+    if [[ -z "${group_name}" ]]; then
         _die "Group name is required."
     elif ! _is_valid_group "${group_name}"; then
         _die "${group_name} is not a valid group name."
     elif [[ -z "${action}" ]]; then
-		_group_get "${group_name}"
-		return 0
+        _group_get "${group_name}"
+        return 0
     fi
 
     _verify_write_permissions "$@"
 
-	case "$2" in
-		+)
-			_group_add "${group_name}" ${@:3}
-			;;
-		-)
-			_group_rm "${group_name}" ${@:3}
-			;;
-		set)
-			_group_set "${group_name}" ${@:3}
-			;;
-		rm)
-			_group_del "${group_name}"
-			;;
-		reset)
-			_group_reset "${group_name}"
-			;;
-		*)
-			_group_set_ip "${group_name}" "${action}"
-			;;
+    case "$2" in
+    +)
+        _group_add "${group_name}" ${@:3}
+        ;;
+    -)
+        _group_rm "${group_name}" ${@:3}
+        ;;
+    set)
+        _group_set "${group_name}" ${@:3}
+        ;;
+    rm)
+        _group_del "${group_name}"
+        ;;
+    reset)
+        _group_reset "${group_name}"
+        ;;
+    *)
+        _group_set_ip "${group_name}" "${action}"
+        ;;
     esac
-	
+
 }
 
 function _group_get() {
-	local group_name="${1:-}"
-	local group
+    local group_name="${1:-}"
+    local group
 
     IFS=" "
-    read -r -a group <<< "$(_get_group "${group_name}")"
+    read -r -a group <<<"$(_get_group "${group_name}")"
 
-	if [[ ${#group[@]} -eq 0 ]]; then
-		_die "${group_name} doesn't exists or is empty"
-	fi
+    if [[ ${#group[@]} -eq 0 ]]; then
+        _die "${group_name} doesn't exists or is empty"
+    fi
 
-	for domain in "${group[@]}"; do
+    for domain in "${group[@]}"; do
         local address
         address=$(_get_host_entry "${domain}")
         if [[ -z "${address:-}" ]]; then
-		    printf "%s\n" "${domain}"
+            printf "%s\n" "${domain}"
         else
             printf "%s\t%s\n" "${domain}" "${address}"
         fi
-	done
+    done
 }
 
 function _group_add() {
     local group_name="${1:-}"
-	local group
+    local group
 
     IFS=" "
-    read -r -a group <<< "$(_get_group "${group_name}")"
+    read -r -a group <<<"$(_get_group "${group_name}")"
 
-	for domain in "${@:2}"; do
-		if ! _contains "${domain}" "${group[*]}"; then
-			group+=("${domain}")
-		fi
-	done
+    for domain in "${@:2}"; do
+        if ! _contains "${domain}" "${group[*]}"; then
+            group+=("${domain}")
+        fi
+    done
 
     _set_group "${group_name}" "${group[*]}"
 
-	printf "Group %s modified.\n" "${group_name}"
+    printf "Group %s modified.\n" "${group_name}"
 }
 
 function _group_rm() {
     local group_name="${1:-}"
-	local group
-	local new_group
+    local group
+    local new_group
 
     IFS=" "
-    read -r -a group <<< "$(_get_group "${group_name}")"
+    read -r -a group <<<"$(_get_group "${group_name}")"
 
-	for domain in "${group[@]}"; do
-		if ! _contains "${domain}" "${@:2}"; then
-			new_group+=("${domain}")
-		fi
-	done
+    for domain in "${group[@]}"; do
+        if ! _contains "${domain}" "${@:2}"; then
+            new_group+=("${domain}")
+        fi
+    done
 
     _set_group "${group_name}" "${new_group[*]}"
 
-	printf "Group %s modified.\n" "${group_name}"
+    printf "Group %s modified.\n" "${group_name}"
 }
 
 function _group_set() {
     local group_name="${1:-}"
     _set_group "${group_name}" "${@:2}"
 
-	printf "Group %s created.\n" "${group_name}"
+    printf "Group %s created.\n" "${group_name}"
 }
 
 function _group_del() {
@@ -588,7 +588,7 @@ function _group_del() {
 
     local current_group
     IFS=" "
-    read -r -a current_group <<< "$(_get_group "${group_name}")"
+    read -r -a current_group <<<"$(_get_group "${group_name}")"
 
     if [[ ${#current_group[@]} -eq 0 ]]; then
         _die "Group ${group_name} not found."
@@ -602,7 +602,6 @@ function _group_del() {
 
     printf "Group %s deleted.\n" "${group_name}"
 }
-
 
 function _group_set_ip() {
     _verify_write_permissions "$@"
@@ -622,7 +621,7 @@ function _group_set_ip() {
 
     local current_group
     IFS=" "
-    read -r -a current_group <<< "$(_get_group "${group_name}")"
+    read -r -a current_group <<<"$(_get_group "${group_name}")"
 
     if [[ ${#current_group[@]} -eq 0 ]]; then
         _die "Group ${group_name} not found."
@@ -648,7 +647,7 @@ function _group_reset() {
 
     local current_group
     IFS=" "
-    read -r -a current_group <<< "$(_get_group "${group_name}")"
+    read -r -a current_group <<<"$(_get_group "${group_name}")"
 
     if [[ ${#current_group[@]} -eq 0 ]]; then
         _die "Group ${group_name} not found."
