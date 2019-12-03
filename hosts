@@ -1,61 +1,19 @@
 #!/usr/bin/env bash
 
-set -o nounset
-set -o errexit
-set -o pipefail
-IFS=$'\n\t'
-
 # Current version (semver)
 _VERSION="1.0.0"
-
-# Command to run by default
-HOSTS_DEFAULT_COMMAND="${HOSTS_DEFAULT_COMMAND:-get}"
 
 # Path to the host file
 HOSTS_PATH="${HOSTS_PATH:-/etc/hosts}"
 
-# _die()
-#
-# Usage:
-#   _die "Error message"
-#
-# Print a message and dies
 function _die() {
     echo "$1" 1>&2
     exit 1
 }
 
 # Contains the arguments that are not
-_COMMAND_ARGV=("${0}")
-_CMD=""
-_AUTO_SUDO=1
-
-while [[ ${#} -gt 0 ]]; do
-    __opt="${1}"
-
-    shift
-
-    case "${__opt}" in
-    -h | --help)
-        _CMD="help"
-        ;;
-    --version)
-        _CMD="version"
-        ;;
-    --no-sudo)
-        _AUTO_SUDO=0
-        ;;
-    *)
-        # The first non-option argument is assumed to be the command name.
-        # All subsequent arguments are added to $_COMMAND_ARGV.
-        if [[ -n "${_CMD:-}" ]]; then
-            _COMMAND_ARGV+=("${__opt}")
-        else
-            _CMD="${__opt}"
-        fi
-        ;;
-    esac
-done
+_COMMAND_ARGV=("${@:2}")
+_CMD="${1:-help}"
 
 function _search_in_file() {
     local arguments=("$@")
@@ -84,49 +42,12 @@ function _replace_in_file() {
     sed -i -e "s/$pattern/${replacement_pattern}/" "$file"
 }
 
-# _COMMAND_ARGV minus the first parameter
-_COMMAND_PARAMETERS=(${_COMMAND_ARGV[*]})
-unset "_COMMAND_PARAMETERS[0]"
-
 # Program base name
 _ME=$(basename "${0}")
 
-# Load Commands
-_DEFINED_COMMANDS=()
-
-# _load_commands()
-#
-# Usage:
-#   _load_commands
-#
-# Loads all of the commands sourced in the environment.
-function _load_commands() {
-    local _function_list
-    mapfile -t _function_list < <(declare -F)
-
-    for __name in "${_function_list[@]}"; do
-        local _function_name
-        _function_name=$(printf "%s" "${__name}" | awk '{ print $3 }')
-
-        if [[ "${_function_name}" =~ ^cmd_(.*) ]]; then
-            _DEFINED_COMMANDS+=("${_function_name#"cmd_"}")
-        fi
-    done
-}
-
 # Entrypoint
 function _main() {
-    if [[ -z "${_CMD}" ]]; then
-        _CMD="${HOSTS_DEFAULT_COMMAND}"
-    fi
-
-    _load_commands
-
-    if _contains "${_CMD}" "${_DEFINED_COMMANDS[*]:-}"; then
-        "cmd_${_CMD}" "${_COMMAND_PARAMETERS[@]:-}"
-    else
-        _die "Unknown command: ${_CMD}"
-    fi
+    _run_command "${1}" "${@:2}"
 }
 
 # _contains()
@@ -145,15 +66,10 @@ function _contains() {
     return 1
 }
 
-# _verify_write_permissions
 function _verify_write_permissions() {
     if ! test -w "${HOSTS_PATH}"; then
-        if ((_AUTO_SUDO)); then
-            sudo "${_ME}" "${_CMD}" "${_COMMAND_PARAMETERS[@]:-}"
-            exit $?
-        else
-            _die "You don't have permission to perform this operation."
-        fi
+        sudo "${_ME}" "${_CMD}" "${_COMMAND_ARGV[@]:-}"
+        exit $?
     fi
 }
 
@@ -309,66 +225,47 @@ function _get_host_entry() {
     sed -n -e "s/^\([^[:space:]#]\+\)[[:space:]]\+${hostname}\([[:space:]]\+\|$\)/\\1/p" "${HOSTS_PATH}"
 }
 
-declare -A __desc
-# desc()
-#
-# Usage:
-#   desc <name> <description>
-#   desc --get <name>
-#
-# Options:
-#   --get  Print the description for <name> if one has been set.
-function _desc() {
-    [[ -z "${1:-}" ]] && _die "_desc(): No command name specified."
+declare -A _doc
+declare -A _commands
 
-    if [[ "${1}" == "--get" ]]; then
-        [[ -z "${2:-}" ]] && _die "_desc(): No command name specified."
+function _register_command() {
+    local command_name="${1:-}"
+    local command_function="${2:-}"
+    local command_doc="${3:-}"
 
-        local _name="${2:-}"
-        local _desc_var=__desc["${_name}"]
+    _doc["${command_name}"]="${command_doc}"
+    _commands["${command_name}"]="${command_function}"
+}
 
-        if [[ -n "${!_desc_var:-}" ]]; then
-            printf "%s\\n" "${!_desc_var}"
-        else
-            printf "No additional information for \`%s\`\\n" "${_name}"
-        fi
-    elif [[ -n "${2:-}" ]]; then
-        __desc["${1}"]="${2}"
-    else
-        read -r -d '' "__desc[${1}]" || true
-    fi
+function _run_command() {
+    local command_name="${1:-}"
+
+    "${_commands["${command_name}"]:-cmd_help}" "${@:2}"
+}
+
+function _show_help() {
+    local command_name="${1:-}"
+
+    echo _doc["${command_name}"]
 }
 
 # Version #####################################################################
-
-_desc "version" <<HEREDOC
+_register_command "version" "cmd_version" "
 Usage:
   ${_ME} (version | --version)
 
 Description:
   Display the current program version.
 
-  To save you the trouble, the current version is ${_VERSION}
-HEREDOC
+  To save you the trouble, the current version is ${_VERSION}"
+
 function cmd_version() {
     printf "%s\\n" "${_VERSION}"
 }
 
 # Help ########################################################################
 
-_desc "help" <<HEREDOC
-Usage:
-  ${_ME} help [<command>]
-
-Description:
-  Display help information for ${_ME} or a specified command.
-HEREDOC
-
-function cmd_help() {
-    if [[ -n "${1:-}" ]]; then
-        _desc --get "${1}"
-    else
-        cat <<HEREDOC
+_register_command "help" "cmd_help" "
 Usage:
   ${_ME} set <hostname> <ip address>
   ${_ME} rm <hostname>
@@ -387,11 +284,25 @@ Options:
 
 Help:
   ${_ME} help [<command>]
-HEREDOC
+"
+
+function cmd_help() {
+    if [[ -n "${1:-}" ]]; then
+        echo "${_doc["${1}"]}"
+    else
+        echo "${_doc["help"]}"
     fi
 }
 
 # ------------------------------------------------------------------------- add
+
+_register_command "get" "cmd_get" "
+Usage:
+  ${_ME} get <hostname>
+
+Description:
+  Get the ip address associated with a hostname
+"
 
 function cmd_get() {
     local _hostname="${1:-}"
@@ -399,13 +310,13 @@ function cmd_get() {
     _get_host_entry "${_hostname}"
 }
 
-_desc "set" <<HEREDOC
+_register_command "set" "cmd_set" "
 Usage:
   ${_ME} set <hostname> <ip address>
 
 Description:
   Set an hostfile entry
-HEREDOC
+"
 
 function cmd_set() {
     _verify_write_permissions "$@"
@@ -418,13 +329,13 @@ function cmd_set() {
     printf "Set entry %s to %s\n" "${_hostname}" "${_ip}"
 }
 
-_desc "rm" <<HEREDOC
+_register_command "rm" "cmd_rm" "
 Usage:
   ${_ME} rm <hostname>
 
 Description:
   Remove an entry
-HEREDOC
+"
 
 function cmd_rm() {
     _verify_write_permissions "$@"
@@ -443,7 +354,7 @@ function cmd_rm() {
     printf "Removed entry %s\n" "${_hostname}"
 }
 
-_desc "group" <<HEREDOC
+_register_command "group" "cmd_group" "
 Usage:
   ${_ME} group <group> set <hostname 1> <hostname 2> ... <hostname n>
   ${_ME} group <group> + <hostname 1> <hostname 2> ... <hostname n>
@@ -461,7 +372,7 @@ Description:
   rm: delete an group
   <ip address>: set all the entries of an existing group to the ip address
   reset: remove all entries matching the group content
-HEREDOC
+"
 
 function cmd_group() {
     local group_name="${1:-}"
@@ -653,4 +564,4 @@ function _group_reset() {
 }
 
 # Run Program
-_main
+_main "${_CMD}" "${_COMMAND_ARGV[@]}"
