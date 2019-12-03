@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# Strict Mode
 set -o nounset
 set -o errexit
 set -o pipefail
@@ -25,8 +24,6 @@ function _die() {
     echo "$1" 1>&2
     exit 1
 }
-
-# Options
 
 # Contains the arguments that are not
 _COMMAND_ARGV=("${0}")
@@ -126,7 +123,7 @@ function _main() {
     _load_commands
 
     if _contains "${_CMD}" "${_DEFINED_COMMANDS[*]:-}"; then
-        cmd_${_CMD} "${_COMMAND_PARAMETERS[@]:-}"
+        "cmd_${_CMD}" "${_COMMAND_PARAMETERS[@]:-}"
     else
         _die "Unknown command: ${_CMD}"
     fi
@@ -328,22 +325,17 @@ function _desc() {
         [[ -z "${2:-}" ]] && _die "_desc(): No command name specified."
 
         local _name="${2:-}"
-        local _desc_var="__desc[${_name}]"
+        local _desc_var=__desc["${_name}"]
 
         if [[ -n "${!_desc_var:-}" ]]; then
             printf "%s\\n" "${!_desc_var}"
         else
             printf "No additional information for \`%s\`\\n" "${_name}"
         fi
+    elif [[ -n "${2:-}" ]]; then
+        __desc["${1}"]="${2}"
     else
-        if [[ -n "${2:-}" ]]; then # argument is present
-            read -r -d '' "__desc[${1}]" <<HEREDOC
-${2}
-HEREDOC
-
-        else # no argument is present, so assume piped input
-            read -r -d '' "__desc[${1}]" || true
-        fi
+        read -r -d '' "__desc[${1}]" || true
     fi
 }
 
@@ -488,13 +480,13 @@ function cmd_group() {
 
     case "$2" in
     +)
-        _group_add "${group_name}" ${@:3}
+        _group_add "${group_name}" "${@:3}"
         ;;
     -)
-        _group_rm "${group_name}" ${@:3}
+        _group_rm "${group_name}" "${@:3}"
         ;;
     set)
-        _group_set "${group_name}" ${@:3}
+        _group_set "${group_name}" "${@:3}"
         ;;
     rm)
         _group_del "${group_name}"
