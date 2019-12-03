@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 
-# Current version (semver)
 _VERSION="1.0.0"
-
-# Path to the host file
 HOSTS_PATH="${HOSTS_PATH:-/etc/hosts}"
+_COMMAND_ARGV=("${@:2}")
+_CMD="${1:-help}"
+_ME=$(basename "${0}")
 
 function _die() {
     echo "$1" 1>&2
     exit 1
 }
 
-# Contains the arguments that are not
-_COMMAND_ARGV=("${@:2}")
-_CMD="${1:-help}"
+function _main() {
+    _run_command "${1}" "${@:2}"
+}
 
 function _search_in_file() {
     local arguments=("$@")
@@ -42,18 +42,6 @@ function _replace_in_file() {
     sed -i -e "s/$pattern/${replacement_pattern}/" "$file"
 }
 
-# Program base name
-_ME=$(basename "${0}")
-
-# Entrypoint
-function _main() {
-    _run_command "${1}" "${@:2}"
-}
-
-# _contains()
-#
-# Usage:
-#   _contains "$item" "${list[*]}"
 function _contains() {
     local _test_list=(${*:2})
 
@@ -249,7 +237,6 @@ function _show_help() {
     echo _doc["${command_name}"]
 }
 
-# Version #####################################################################
 _register_command "version" "cmd_version" "
 Usage:
   ${_ME} (version | --version)
@@ -263,8 +250,6 @@ function cmd_version() {
     printf "%s\\n" "${_VERSION}"
 }
 
-# Help ########################################################################
-
 _register_command "help" "cmd_help" "
 Usage:
   ${_ME} set <hostname> <ip address>
@@ -276,11 +261,7 @@ Usage:
   ${_ME} group <group> <ip address>
   ${_ME} group <group> reset
   ${_ME} group <group>
-
-Options:
-  --no-sudo    Do not run commands with \`sudo\` automatically.
-  -h --help    Display this help information.
-  --version    Display version information.
+  ${_ME} version
 
 Help:
   ${_ME} help [<command>]
@@ -293,8 +274,6 @@ function cmd_help() {
         echo "${_doc["help"]}"
     fi
 }
-
-# ------------------------------------------------------------------------- add
 
 _register_command "get" "cmd_get" "
 Usage:
@@ -409,7 +388,6 @@ function cmd_group() {
         _group_set_ip "${group_name}" "${action}"
         ;;
     esac
-
 }
 
 function _group_get() {
