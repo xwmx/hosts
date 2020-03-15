@@ -1172,7 +1172,7 @@ HEREDOC
 show() {
   if [[ -n "${1:-}" ]]
   then
-    # Run `sed` before `grep` to avoid conflict that supress `sed` output.
+    # Run `sed` before `grep` to avoid conflict that supresses `sed` output.
     local _disabled_records
     _disabled_records=$(
       sed -n "s/^\\#\\(disabled: .*${1}.*\\)$/\\1/p" "${HOSTS_PATH}"
