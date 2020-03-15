@@ -611,7 +611,7 @@ Version: ${_VERSION}
 Usage:
   ${_ME} [<search string>]
   ${_ME} add <ip> <hostname> [<comment>]
-  ${_ME} block <hostname>
+  ${_ME} block <hostname>...
   ${_ME} disable (<ip> | <hostname> | <search string>)
   ${_ME} disabled
   ${_ME} edit
@@ -622,7 +622,7 @@ Usage:
   ${_ME} search <search string>
   ${_ME} show (<ip> | <hostname> | <search string>)
   ${_ME} remove (<ip> | <hostname> | <search string>) [--force]
-  ${_ME} unblock <hostname>
+  ${_ME} unblock <hostname>...
   ${_ME} --auto-sudo
   ${_ME} -h | --help
   ${_ME} --version
@@ -754,10 +754,10 @@ add() {
 
 desc "block" <<HEREDOC
 Usage:
-  $_ME block <hostname>
+  $_ME block <hostname>...
 
 Description:
-  Block a given hostname by adding new entries assigning it to \`127.0.0.1\`
+  Block one or more hostnames by adding new entries assigned to \`127.0.0.1\`
   for IPv4 and both \`fe80::1%lo0\` and \`::1\` for IPv6.
 HEREDOC
 block() {
@@ -769,10 +769,13 @@ block() {
     exit 1
   fi
 
-  "${_ME}" add 127.0.0.1 "${1}"
-  # block IPv6
-  "${_ME}" add "fe80::1%lo0" "${1}"
-  "${_ME}" add "::1" "${1}"
+  for __hostname in "${@}"
+  do
+    "${_ME}" add 127.0.0.1 "${__hostname}"
+    # block IPv6
+    "${_ME}" add "fe80::1%lo0" "${__hostname}"
+    "${_ME}" add "::1" "${__hostname}"
+  done
 }
 
 # --------------------------------------------------------------------- disable
@@ -1204,10 +1207,10 @@ show() {
 
 desc "unblock" <<HEREDOC
 Usage:
-  $_ME unblock <hostname>
+  $_ME unblock <hostname>...
 
 Description:
-  Unblock a given hostname by removing its entries from the hosts file.
+  Unblock one or more hostnames by removing the entries from the hosts file.
 HEREDOC
 unblock() {
   _verify_write_permissions "$@"
@@ -1218,10 +1221,13 @@ unblock() {
     exit 1
   fi
 
-  "${_ME}" remove 127.0.0.1 "${1}" --force
-  # unblock IPv6
-  "${_ME}" remove "fe80::1%lo0" "${1}" --force
-  "${_ME}" remove "::1" "${1}" --force
+  for __hostname in "${@}"
+  do
+    "${_ME}" remove 127.0.0.1 "${__hostname}" --force
+    # unblock IPv6
+    "${_ME}" remove "fe80::1%lo0" "${__hostname}" --force
+    "${_ME}" remove "::1" "${__hostname}" --force
+  done
 }
 
 ###############################################################################

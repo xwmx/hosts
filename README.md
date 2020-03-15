@@ -46,7 +46,7 @@ A package for Arch users is also [available in the AUR](https://aur.archlinux.or
 Usage:
   hosts [<search string>]
   hosts add <ip> <hostname> [<comment>]
-  hosts block <hostname>
+  hosts block <hostname>...
   hosts disable (<ip> | <hostname> | <search string>)
   hosts disabled
   hosts edit
@@ -57,7 +57,7 @@ Usage:
   hosts search <search string>
   hosts show (<ip> | <hostname> | <search string>)
   hosts remove (<ip> | <hostname> | <search string>) [--force]
-  hosts unblock <hostname>
+  hosts unblock <hostname>...
   hosts --auto-sudo
   hosts -h | --help
   hosts --version
@@ -113,11 +113,11 @@ Description:
 
 ```text
 Usage:
-  hosts block <hostname>
+  hosts block <hostname>...
 
 Description:
-  Block a given hostname by adding new entries assigning it to `127.0.0.1`
-  for IPv4 and both `fe80::1%lo0` and `::1` for IPv6.
+  Block one or more hostnames by adding new entries assigned to \`127.0.0.1\`
+  for IPv4 and both \`fe80::1%lo0\` and \`::1\` for IPv6.
 ```
 
 #### Blocklists
@@ -262,10 +262,10 @@ Description:
 
 ```text
 Usage:
-  hosts unblock <hostname>
+  hosts unblock <hostname>...
 
 Description:
-  Unblock a given hostname by removing its entries from the hosts file.
+  Unblock one or more hostnames by removing the entries from the hosts file.
 ```
 
 ### `hosts version`
