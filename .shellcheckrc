@@ -4,9 +4,10 @@
 # https://github.com/koalaman/shellcheck
 ###############################################################################
 
-# Disable SC2207
+# Disable SC2206 and SC2207
 #
 # IFS and `noglob` are set.
 #
+# https://github.com/koalaman/shellcheck/wiki/SC2206
 # https://github.com/koalaman/shellcheck/wiki/SC2207
-disable=SC2207
+disable=SC2206,SC2207
