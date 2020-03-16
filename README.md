@@ -30,7 +30,7 @@ brew tap alphabetum/taps && brew install alphabetum/taps/hosts
 
 ### bpkg
 
-To install with [bpkg](http://www.bpkg.io/):
+To install with [bpkg](https://github.com/bpkg/bpkg):
 
 ```bash
 bpkg install alphabetum/hosts
