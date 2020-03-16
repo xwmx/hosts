@@ -1,6 +1,6 @@
 {
   "name": "hosts.sh",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "A command line tool for managing hosts file entries.",
   "global": true,
   "install": "make install",
@@ -22,5 +22,6 @@
   "bugs": {
     "url": "https://github.com/alphabetum/hosts/issues"
   },
-  "homepage": "https://github.com/alphabetum/hosts#readme"
+  "homepage": "https://github.com/alphabetum/hosts#readme",
+  "dependencies": {}
 }
