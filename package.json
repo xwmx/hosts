@@ -1,5 +1,5 @@
 {
-  "name": "hosts",
+  "name": "hosts.sh",
   "version": "3.2.0",
   "description": "A command line tool for managing hosts file entries.",
   "global": true,
