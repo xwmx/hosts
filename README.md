@@ -118,7 +118,7 @@ Usage:
   hosts backups create
   hosts backups compare <name>
   hosts backups delete  <name>
-  hosts backups restore <name> --skip-backup
+  hosts backups restore <name> [--skip-backup]
   hosts backups show    <name>
 
 Subcommands:

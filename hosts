@@ -757,7 +757,7 @@ Usage:
   ${_ME} backups create
   ${_ME} backups compare <name>
   ${_ME} backups delete  <name>
-  ${_ME} backups restore <name> --skip-backup
+  ${_ME} backups restore <name> [--skip-backup]
   ${_ME} backups show    <name>
 
 Subcommands:
