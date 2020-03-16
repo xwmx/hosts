@@ -12,6 +12,14 @@
 
 ## Installation
 
+### npm
+
+To install with [npm](https://www.npmjs.com/):
+
+```bash
+npm install --global hosts.sh
+```
+
 ### Homebrew
 
 To install with [Homebrew](http://brew.sh/):
