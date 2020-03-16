@@ -23,5 +23,13 @@
     "url": "https://github.com/alphabetum/hosts/issues"
   },
   "homepage": "https://github.com/alphabetum/hosts#readme",
+  "keywords": [
+    "hosts",
+    "shell",
+    "command line",
+    "terminal",
+    "hostname",
+    "bash"
+  ],
   "dependencies": {}
 }
