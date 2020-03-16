@@ -57,18 +57,20 @@ export _SPACE_=$' '
 export _TAB_SPACE_="${_TAB_}${_SPACE_}"
 export _TAB_SPACE_CC_="[${_TAB_SPACE_}]"
 
-# $SED_I_ARG
+# $SED_COMMAND
 #
 # `sed -i` takes an extension on macOS, but that extension can cause errors in
 # GNU `sed`.
+#
+# NOTE: To use this command, call it with `"${SED_COMMAND[@]}"`
 #
 # https://stackoverflow.com/q/43171648
 # http://stackoverflow.com/a/16746032
 if sed --help >/dev/null 2>&1
 then # GNU
-  export SED_I_ARG="-i"
+  export SED_COMMAND=(sed -i)
 else # macOS
-  export SED_I_ARG="-i ''"
+  export SED_COMMAND=(sed -i '')
 fi
 
 ###############################################################################
@@ -826,7 +828,7 @@ disable() {
 
     printf "Disabling:\\n%s\\n" "${_targets}"
 
-    sed "${SED_I_ARG}" \
+    "${SED_COMMAND[@]}" \
       -e "s/${_regex_ip}/\\#disabled: \\1/g" \
       -e "s/${_regex_commented_hostname}/\\#disabled: \\1/g" \
       -e "s/${_regex_hostname}/\\#disabled: \\1/g" \
@@ -920,7 +922,7 @@ enable() {
 
     printf "Enabling:\\n%s\\n" "${_targets}"
 
-    sed "${SED_I_ARG}" \
+    "${SED_COMMAND[@]}" \
       -e "s/${_regex_ip}/\\1/g" \
       -e "s/${_regex_commented_hostname}/\\1/g" \
       -e "s/${_regex_hostname}/\\1/g" \
@@ -1126,12 +1128,12 @@ remove() {
 
   if ((_is_search_pair))
   then
-    sed "${SED_I_ARG}" \
+    "${SED_COMMAND[@]}" \
       -e "/${_regex_ip_hostname_commented}/d" \
       -e "/${_regex_ip_hostname}/d" \
       "${HOSTS_PATH}"
   else
-    sed "${SED_I_ARG}" \
+    "${SED_COMMAND[@]}" \
       -e "/${_regex_ip}/d" \
       -e "/${_regex_commented_hostname}/d" \
       -e "/${_regex_hostname}/d" \
