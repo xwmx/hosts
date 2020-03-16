@@ -22,7 +22,7 @@ brew tap alphabetum/taps && brew install alphabetum/taps/hosts
 
 ### npm
 
-To install with [npm](https://www.npmjs.com/):
+To install with [npm](https://www.npmjs.com/package/hosts.sh):
 
 ```bash
 npm install --global hosts.sh
