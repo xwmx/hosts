@@ -46,6 +46,7 @@ A package for Arch users is also [available in the AUR](https://aur.archlinux.or
 Usage:
   hosts [<search string>]
   hosts add <ip> <hostname> [<comment>]
+  hosts backups [create | [compare | delete | restore | show] <filename>]
   hosts block <hostname>...
   hosts disable (<ip> | <hostname> | <search string>)
   hosts disabled
@@ -107,6 +108,31 @@ Usage:
 
 Description:
   Add a given IP address and hostname pair, along with an optional comment.
+```
+
+### `hosts backups`
+
+```text
+Usage:
+  hosts backups
+  hosts backups create
+  hosts backups compare <name>
+  hosts backups delete  <name>
+  hosts backups restore <name> --skip-backup
+  hosts backups show    <name>
+
+Subcommands:
+  backups           List available backups.
+  backups create    Create a new backup of the hosts file.
+  backups compare   Compare a backup file with the current hosts file.
+                    The diff tool configured for git will be used if
+                    one is set.
+  backups delete    Delete the specified backup.
+  backups restore   Replace the contents of the hosts file with a
+                    specified backup. The hosts file is automatically
+                    backed up before being overwritten unless the
+                    '--skip-backup' flag is specified.
+  backups show      Show the contents of the specified backup file.
 ```
 
 ### `hosts block`

@@ -611,6 +611,7 @@ Version: ${_VERSION}
 Usage:
   ${_ME} [<search string>]
   ${_ME} add <ip> <hostname> [<comment>]
+  ${_ME} backups [create | [compare | delete | restore | show] <filename>]
   ${_ME} block <hostname>...
   ${_ME} disable (<ip> | <hostname> | <search string>)
   ${_ME} disabled
@@ -634,8 +635,6 @@ Options:
 
 Help:
   ${_ME} help [<command>]
-
-$(commands)
 HEREDOC
   fi
 }
@@ -748,6 +747,148 @@ add() {
         "${_hostname}"
     fi
   fi
+}
+
+# --------------------------------------------------------------------- backups
+
+desc "backups" <<HEREDOC
+Usage:
+  ${_ME} backups
+  ${_ME} backups create
+  ${_ME} backups compare <name>
+  ${_ME} backups delete  <name>
+  ${_ME} backups restore <name> --skip-backup
+  ${_ME} backups show    <name>
+
+Subcommands:
+  backups           List available backups.
+  backups create    Create a new backup of the hosts file.
+  backups compare   Compare a backup file with the current hosts file.
+                    The diff tool configured for git will be used if
+                    one is set.
+  backups delete    Delete the specified backup.
+  backups restore   Replace the contents of the hosts file with a
+                    specified backup. The hosts file is automatically
+                    backed up before being overwritten unless the
+                    '--skip-backup' flag is specified.
+  backups show      Show the contents of the specified backup file.
+HEREDOC
+backups() {
+  local _subcommand="${1:-}"
+  shift
+
+  local _hosts_dirname
+  _hosts_dirname="$(dirname "${HOSTS_PATH}")"
+
+  case "${_subcommand}" in
+    create)
+      _verify_write_permissions "$@"
+
+      local _timestamp
+      _timestamp="$(date +"%Y%m%d%H%M%S")"
+
+      cp "${HOSTS_PATH}" "${HOSTS_PATH}--backup-${_timestamp}" && \
+        printf "Backed up to %s--backup-%s\n" "${HOSTS_PATH}" "${_timestamp}"
+      ;;
+    compare)
+      if [[ -z "${1:-}" ]]
+      then
+        "$_ME" help backups
+        exit 1
+      elif [[ ! -e "${_hosts_dirname}/${1}" ]]
+      then
+        printf "Backup not found: %s\n" "${1:-}"
+        exit 1
+      fi
+
+      local _difftool="diff"
+      if command -v git &>/dev/null
+      then
+        _difftool="$(git config --get merge.tool)"
+      fi
+
+      "${_difftool}" "${HOSTS_PATH}" "${_hosts_dirname}/${1}"
+      ;;
+    delete)
+      if [[ -z "${1:-}" ]]
+      then
+        "$_ME" help backups
+        exit 1
+      fi
+
+      _verify_write_permissions "$@"
+
+      if [[ "${HOSTS_PATH}" != "${_hosts_dirname}/${1:-}" ]] &&
+         [[ -e "${_hosts_dirname}/${1:-}" ]]
+      then
+        rm "${_hosts_dirname}/${1:-}" &&
+          printf "Backup deleted: %s\n" "${_hosts_dirname}/${1:-}"
+      else
+        printf "Backup not found: %s\n" "${1:-}"
+        exit 1
+      fi
+      ;;
+    restore)
+      if [[ -z "${1:-}" ]]
+      then
+        "$_ME" help backups
+        exit 1
+      elif [[ ! -e "${_hosts_dirname}/${1}" ]]
+      then
+        printf "Backup not found: %s\n" "${1:-}"
+        exit 1
+      fi
+
+      _verify_write_permissions "$@"
+
+      if [[ "${2:-}" != "--skip-backup" ]]
+      then
+        "${_ME}" backups create
+      fi
+
+      cat "${_hosts_dirname}/${1}" > "${HOSTS_PATH}" &&
+        printf "Restored from backup: %s\n" "${1}"
+      ;;
+    show)
+      if [[ -z "${1:-}" ]]
+      then
+        "$_ME" help backups
+        exit 1
+      elif [[ ! -e "${_hosts_dirname}/${1}" ]]
+      then
+        printf "Backup not found: %s\n" "${1:-}"
+        exit 1
+      fi
+
+      less "${_hosts_dirname}/${1:-}"
+      ;;
+    *)
+      local _filenames=()
+
+      set +f
+      for __filename in $(cd "${_hosts_dirname}" && ls -1 hosts* 2> /dev/null)
+      do
+        if [[ "${__filename:-}" != "hosts" ]] && \
+           [[ ! "${__filename:-}" =~ ^hosts_test..{6}$ ]]
+        then
+          _filenames+=("${__filename:-}")
+        fi
+      done
+      set -f
+
+      if ((${#_filenames[@]}))
+      then
+        for __filename in "${_filenames[@]:-}"
+        do
+          printf "%s\n" "${__filename}"
+        done
+      else
+        printf \
+          "No backups found. Create a new backup:\n %s backups create\n" \
+          "${_ME}"
+      fi
+      ;;
+  esac
 }
 
 # ----------------------------------------------------------------------- block
