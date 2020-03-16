@@ -6,7 +6,7 @@
 
 # Hosts
 
-`hosts` is a command line program for managing [hosts file](https://en.m.wikipedia.org/wiki/Hosts_\(file\)) entries.
+`hosts` is a command line program for managing [hosts file](https://en.wikipedia.org/wiki/Hosts_\(file\)) entries.
 
 `hosts` works with existing hosts files and entries, making it easier to add, remove, comment, and search hosts file entries using simple, memorable commands.
 
