@@ -755,10 +755,10 @@ desc "backups" <<HEREDOC
 Usage:
   ${_ME} backups
   ${_ME} backups create
-  ${_ME} backups compare <name>
-  ${_ME} backups delete  <name>
-  ${_ME} backups restore <name> [--skip-backup]
-  ${_ME} backups show    <name>
+  ${_ME} backups compare <filename>
+  ${_ME} backups delete  <filename>
+  ${_ME} backups restore <filename> [--skip-backup]
+  ${_ME} backups show    <filename>
 
 Subcommands:
   backups           List available backups.

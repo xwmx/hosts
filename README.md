@@ -116,10 +116,10 @@ Description:
 Usage:
   hosts backups
   hosts backups create
-  hosts backups compare <name>
-  hosts backups delete  <name>
-  hosts backups restore <name> [--skip-backup]
-  hosts backups show    <name>
+  hosts backups compare <filename>
+  hosts backups delete  <filename>
+  hosts backups restore <filename> [--skip-backup]
+  hosts backups show    <filename>
 
 Subcommands:
   backups           List available backups.
