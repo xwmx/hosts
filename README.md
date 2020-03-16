@@ -142,8 +142,8 @@ Usage:
   hosts block <hostname>...
 
 Description:
-  Block one or more hostnames by adding new entries assigned to \`127.0.0.1\`
-  for IPv4 and both \`fe80::1%lo0\` and \`::1\` for IPv6.
+  Block one or more hostnames by adding new entries assigned to `127.0.0.1`
+  for IPv4 and both `fe80::1%lo0` and `::1` for IPv6.
 ```
 
 #### Blocklists
