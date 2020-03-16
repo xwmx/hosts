@@ -12,20 +12,20 @@
 
 ## Installation
 
-### npm
-
-To install with [npm](https://www.npmjs.com/):
-
-```bash
-npm install --global hosts.sh
-```
-
 ### Homebrew
 
 To install with [Homebrew](http://brew.sh/):
 
 ```bash
 brew tap alphabetum/taps && brew install alphabetum/taps/hosts
+```
+
+### npm
+
+To install with [npm](https://www.npmjs.com/):
+
+```bash
+npm install --global hosts.sh
 ```
 
 ### bpkg
