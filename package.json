@@ -29,7 +29,8 @@
     "command-line",
     "terminal",
     "hostname",
-    "bash"
+    "bash",
+    "cli"
   ],
   "dependencies": {}
 }
