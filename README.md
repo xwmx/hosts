@@ -17,7 +17,7 @@
 To install with [Homebrew](http://brew.sh/):
 
 ```bash
-brew tap alphabetum/taps && brew install alphabetum/taps/hosts
+brew tap xwmx/taps && brew install xwmx/taps/hosts
 ```
 
 ### npm
@@ -33,7 +33,7 @@ npm install --global hosts.sh
 To install with [bpkg](https://github.com/bpkg/bpkg):
 
 ```bash
-bpkg install alphabetum/hosts
+bpkg install xwmx/hosts
 ```
 
 ### Manual
@@ -42,7 +42,7 @@ To install manually, simply add the `hosts` script to your `$PATH`. If
 you already have a `~/bin` directory, you can use the following command:
 
 ```bash
-curl -L https://raw.github.com/alphabetum/hosts/master/hosts \
+curl -L https://raw.github.com/xwmx/hosts/master/hosts \
   -o ~/bin/hosts && chmod +x ~/bin/hosts
 ```
 

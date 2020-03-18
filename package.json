@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alphabetum/hosts.git"
+    "url": "git+https://github.com/xwmx/hosts.git"
   },
   "author": "William Melody",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/alphabetum/hosts/issues"
+    "url": "https://github.com/xwmx/hosts/issues"
   },
-  "homepage": "https://github.com/alphabetum/hosts#readme",
+  "homepage": "https://github.com/xwmx/hosts#readme",
   "keywords": [
     "hosts",
     "shell",
