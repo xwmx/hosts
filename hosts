@@ -635,6 +635,9 @@ Options:
 
 Help:
   ${_ME} help [<command>]
+
+More Information:
+  https://github.com/xwmx/hosts
 HEREDOC
   fi
 }
