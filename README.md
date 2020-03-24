@@ -17,7 +17,7 @@
 To install with [Homebrew](http://brew.sh/):
 
 ```bash
-brew tap xwmx/taps && brew install xwmx/taps/hosts
+brew install xwmx/taps/hosts
 ```
 
 ### npm
