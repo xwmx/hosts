@@ -18,6 +18,10 @@ setup() {
   cat "${BATS_TEST_DIRNAME}/fixtures/hosts" > "${_HOSTS_TEMP_PATH}"
 
   export HOSTS_PATH="${_HOSTS_TEMP_PATH}"
+
+  # Use empty `hosts` script in environment to avoid depending on `hosts`
+  # being available in `$PATH`.
+  export PATH="${BATS_TEST_DIRNAME}/fixtures/bin:${PATH}"
 }
 
 teardown() {

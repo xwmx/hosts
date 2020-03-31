@@ -485,7 +485,10 @@ _verify_write_permissions() {
   then
     if ((_AUTO_SUDO))
     then
-      sudo "${_ME}" "${_CMD}" "${_COMMAND_PARAMETERS[@]:-}"
+      local _my_path
+      _my_path="$(cd "$(dirname "$0")"; pwd)/${_ME}"
+
+      sudo "${_my_path}" "${_CMD}" "${_COMMAND_PARAMETERS[@]:-}"
       exit $?
     else
       _die printf \
@@ -713,12 +716,12 @@ add() {
 
   if [[ -z "${_ip:-}" ]]
   then
-    "${_ME}" help add
+    help add
     exit 1
   elif [[ -z "${_hostname:-}" ]]
   then
     printf "Please include a hostname\\n"
-    "${_ME}" help add
+    help add
     exit 1
   elif grep \
     -e "^${_ip}\\t${_hostname}$" \
@@ -794,28 +797,52 @@ backups() {
         printf "Backed up to %s--backup-%s\n" "${HOSTS_PATH}" "${_timestamp}"
       ;;
     compare)
-      if [[ -z "${1:-}" ]]
+      local _filename
+      local _use_diff=0
+
+      for __arg in "${@:-}"
+      do
+        case "${__arg}" in
+          --diff)
+            _use_diff=1
+            ;;
+          *)
+            if [[ -z "${_filename:-}" ]]
+            then
+              _filename="${__arg}"
+            fi
+            ;;
+        esac
+      done
+
+      if [[ -z "${_filename:-}" ]]
       then
-        "$_ME" help backups
+        help backups
         exit 1
-      elif [[ ! -e "${_hosts_dirname}/${1}" ]]
+      elif [[ ! -e "${_hosts_dirname}/${_filename}" ]]
       then
-        printf "Backup not found: %s\n" "${1:-}"
+        printf "Backup not found: %s\n" "${_filename:-}"
         exit 1
       fi
 
       local _difftool="diff"
-      if command -v git &>/dev/null
+
+      if ! ((_use_diff))
       then
-        _difftool="$(git config --get merge.tool)"
+        if command -v git &>/dev/null
+        then
+          local _git_merge_tool
+          _git_merge_tool="$(git config --get merge.tool)"
+          [[ -n "${_git_merge_tool}" ]] && _difftool="${_git_merge_tool}"
+        fi
       fi
 
-      "${_difftool}" "${HOSTS_PATH}" "${_hosts_dirname}/${1}"
+      "${_difftool}" "${HOSTS_PATH}" "${_hosts_dirname}/${_filename}"
       ;;
     delete)
       if [[ -z "${1:-}" ]]
       then
-        "$_ME" help backups
+        help backups
         exit 1
       fi
 
@@ -834,7 +861,7 @@ backups() {
     restore)
       if [[ -z "${1:-}" ]]
       then
-        "$_ME" help backups
+        help backups
         exit 1
       elif [[ ! -e "${_hosts_dirname}/${1}" ]]
       then
@@ -846,7 +873,7 @@ backups() {
 
       if [[ "${2:-}" != "--skip-backup" ]]
       then
-        "${_ME}" backups create
+        backups create
       fi
 
       cat "${_hosts_dirname}/${1}" > "${HOSTS_PATH}" &&
@@ -855,7 +882,7 @@ backups() {
     show)
       if [[ -z "${1:-}" ]]
       then
-        "$_ME" help backups
+        help backups
         exit 1
       elif [[ ! -e "${_hosts_dirname}/${1}" ]]
       then
@@ -909,16 +936,16 @@ block() {
 
   if [[ -z "${1:-}" ]]
   then
-    "${_ME}" help block
+    help block
     exit 1
   fi
 
   for __hostname in "${@}"
   do
-    "${_ME}" add 127.0.0.1 "${__hostname}"
+    add 127.0.0.1 "${__hostname}"
     # block IPv6
-    "${_ME}" add "fe80::1%lo0" "${__hostname}"
-    "${_ME}" add "::1" "${__hostname}"
+    add "fe80::1%lo0" "${__hostname}"
+    add "::1" "${__hostname}"
   done
 }
 
@@ -939,7 +966,7 @@ disable() {
 
   if [[ -z "${_search_string:-}" ]]
   then
-    "${_ME}" help disable
+    help disable
     exit 1
   else
     _debug printf "disable() \${_search_string}: %s\\n" "${_search_string}"
@@ -993,7 +1020,7 @@ Description:
   List all disabled records. This is an alias for \`hosts list disabled\`.
 HEREDOC
 disabled() {
-  "${_ME}" list disabled
+  list disabled
 }
 
 # ------------------------------------------------------------------------ edit
@@ -1033,7 +1060,7 @@ enable() {
 
   if [[ -z "${_search_string:-}" ]]
   then
-    "${_ME}" help enable
+    help enable
     exit 1
   else
     _debug printf "enable() \${_search_string}: %s\\n" "${_search_string}"
@@ -1087,7 +1114,7 @@ Description:
   List all enabled records. This is an alias for \`hosts list enabled\`.
 HEREDOC
 enabled() {
-  "${_ME}" list enabled
+  list enabled
 }
 
 # ------------------------------------------------------------------------ file
@@ -1130,7 +1157,7 @@ list() {
     then
       grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
     else
-      "${_ME}" show "${1}"
+      show "${1}"
     fi
   else
     # NOTE: use separate expressions since using a | for the or results in
@@ -1172,7 +1199,7 @@ remove() {
   _debug printf "remove() \${1}: %s\\n" "${1:-}"
   _debug printf "remove() \${2}: %s\\n" "${2:-}"
 
-  for __arg in "${_COMMAND_ARGV[@]:-}"
+  for __arg in "${@:-}"
   do
     case "${__arg}" in
       --force)
@@ -1184,23 +1211,22 @@ remove() {
     esac
   done
 
-  _debug printf "remove() \${arguments[0]}: %s\\n" "${_arguments[0]:-}"
-  _debug printf "remove() \${arguments[1]}: %s\\n" "${_arguments[1]:-}"
-  _debug printf "remove() \${arguments[2]}: %s\\n" "${_arguments[2]:-}"
+  _debug printf "remove() \${arguments[1]}: %s\\n" "${_arguments[0]:-}"
+  _debug printf "remove() \${arguments[2]}: %s\\n" "${_arguments[1]:-}"
 
-  if [[ -z "${_arguments[1]:-}" ]]
+  if [[ -z "${_arguments[0]:-}" ]]
   then
-    "${_ME}" help remove
+    help remove
     exit 1
-  elif [[ -n "${_arguments[2]:-}" ]]
+  elif [[ -n "${_arguments[1]:-}" ]]
   then
-    _search_ip="${_arguments[1]}"
-    _search_hostname="${_arguments[2]}"
+    _search_ip="${_arguments[0]}"
+    _search_hostname="${_arguments[1]}"
     _is_search_pair=1
 
     _debug printf "remove() \${_is_search_pair}: %s\\n" "${_is_search_pair}"
   else
-    _search_string="${_arguments[1]:-}"
+    _search_string="${_arguments[0]:-}"
 
     _debug printf "remove() \${_search_string}: %s\\n" "${_search_string}"
   fi
@@ -1302,7 +1328,7 @@ HEREDOC
 search() {
   if _blank "${_COMMAND_ARGV[1]:-}"
   then
-    "${_ME}" help "search"
+    help "search"
     return 1
   fi
 
@@ -1342,7 +1368,7 @@ show() {
       printf "%s\\n" "${_disabled_records}"
     fi
   else
-    "${_ME}" help show
+    help show
     exit 1
   fi
 }
@@ -1361,16 +1387,16 @@ unblock() {
 
   if [[ -z "${1:-}" ]]
   then
-    "${_ME}" help unblock
+    help unblock
     exit 1
   fi
 
   for __hostname in "${@}"
   do
-    "${_ME}" remove 127.0.0.1 "${__hostname}" --force
+    remove 127.0.0.1 "${__hostname}" --force
     # unblock IPv6
-    "${_ME}" remove "fe80::1%lo0" "${__hostname}" --force
-    "${_ME}" remove "::1" "${__hostname}" --force
+    remove "fe80::1%lo0" "${__hostname}" --force
+    remove "::1" "${__hostname}" --force
   done
 }
 

@@ -75,18 +75,34 @@ No backups found. Create a new backup:
 
 # `hosts backups compare` #####################################################
 
-@test "\`backups compare\` with valid backup exits with status 0 and prints." {
+@test "\`backups compare\` with valid backup exits with status 1 and prints." {
   {
     run "${_HOSTS}" backups create
     _backup_path="$(echo "${output}" | sed -e 's/.*\(\/tmp.*\)/\1/')"
     _backup_basename="$(basename "${_backup_path}")"
+    run "${_HOSTS}" add 0.0.0.0 example.com
   }
 
-  run "${_HOSTS}" backups show "${_backup_basename}"
+  run "${_HOSTS}" backups compare "${_backup_basename}" --diff
   printf "\${output}: '%s'\\n" "${output}"
-  printf "\${lines[6]}: '%s'\\n" "${lines[6]}"
-  [[ ${status} -eq 0 ]]
-  [[ "${lines[6]}" == '127.0.0.1	localhost' ]]
+  printf "\${lines[1]}: '%s'\\n" "${lines[1]}"
+  [[ ${status} -eq 1 ]]
+  [[ "${lines[1]}" == '< 0.0.0.0	example.com' ]]
+}
+
+@test "\`backups compare\` with missing backup exits with status 1" {
+  {
+    run "${_HOSTS}" backups create
+    _backup_path="$(echo "${output}" | sed -e 's/.*\(\/tmp.*\)/\1/')"
+    _backup_basename="$(basename "${_backup_path}")"
+    run "${_HOSTS}" add 0.0.0.0 example.com
+  }
+
+  run "${_HOSTS}" backups compare --diff
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
+  [[ ${status} -eq 1 ]]
+  [[ "${lines[0]}" =~ 'Usage' ]]
 }
 
 @test "\`backups compare\` with invalid backup exits with status 1" {
@@ -94,9 +110,10 @@ No backups found. Create a new backup:
     run "${_HOSTS}" backups create
     _backup_path="$(echo "${output}" | sed -e 's/.*\(\/tmp.*\)/\1/')"
     _backup_basename="$(basename "${_backup_path}")"
+    run "${_HOSTS}" add 0.0.0.0 example.com
   }
 
-  run "${_HOSTS}" backups compare "invalid-backup-name"
+  run "${_HOSTS}" backups compare "invalid-backup-name" --diff
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 1 ]]
