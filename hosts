@@ -475,6 +475,68 @@ _piped_input() {
   ! _interactive_input
 }
 
+# _print_entries()
+#
+# Usage:
+#   _print_entries <entries>
+_print_entries() {
+  local _input="${1:-}"
+  [[ -n "${_input}" ]] || return 0
+
+  local _newline=$'\n'
+
+  if [[ -n "${2:-}" ]]
+  then
+    _input+="${_newline}${2:-}"
+  fi
+
+  local _disabled=0
+  local _max_length=0
+
+  while IFS=$'\t ' read -r -a _parts
+  do
+    if [[ "${_parts[0]}" =~ disabled ]]
+    then
+      _parts=("${_parts[@]:1}")
+    fi
+
+    if [[ "${_max_length}" -lt "${#_parts[0]}" ]]
+    then
+      _max_length="${#_parts[0]}"
+    fi
+  done <<< "${_input}"
+
+  _max_divided="$((${_max_length} / 8))"
+
+  while IFS=$'\t ' read -r -a _parts
+  do
+    if [[ "${_parts[0]}" =~ disabled ]]
+    then
+      _parts=("${_parts[@]:1}")
+      printf "disabled:\n"
+    fi
+
+    _current_divided=$((${#_parts[0]} / 8))
+    _tab_count=$((${_max_divided} - ${_current_divided} + 1))
+    _tabs="$(printf "%*s" ${_tab_count} | tr " " '\t')"
+
+    if [[ -n "${_parts[2]:-}" ]]
+    then
+      printf "%s%s  %s\t%s\\n" \
+        "${_parts[0]}" \
+        "${_tabs}" \
+        "${_parts[1]}" \
+        "$(printf "%s" "${_parts[*]:2}" | tr '\r\n' ' ')"
+    else
+      printf "%s%s  %s\\n" \
+        "${_parts[0]}" \
+        "${_tabs}" \
+        "${_parts[1]}"
+    fi
+
+  done <<< "${_input}"
+}
+
 # _verify_write_permissions
 #
 # Print a helpful error message when the specified operation can't be
@@ -1152,21 +1214,26 @@ list() {
   then
     if [[ "${1}" == "disabled" ]]
     then
-      printf "%s\\n" "${_disabled_records}"
+      _print_entries "${_disabled_records}"
     elif [[ "${1}" == "enabled" ]]
     then
-      grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
+      _print_entries "$(grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}")"
     else
       show "${1}"
     fi
   else
     # NOTE: use separate expressions since using a | for the or results in
     # inconsistent behavior.
-    grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
+    local _enabled_records
+    _enabled_records="$(grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}")"
+    _print_entries "${_enabled_records:-}"
 
     if [[ -n "${_disabled_records:-}" ]]
     then
-      printf "\\nDisabled:\\n%s\\n" "${_disabled_records}"
+      [[ -n "${_enabled_records:-}" ]] && printf "\\n"
+      printf "Disabled:\\n"
+      printf "%s\\n" "---------"
+      _print_entries "${_disabled_records}"
     fi
   fi
 }
@@ -1349,23 +1416,24 @@ show() {
   then
     # Run `sed` before `grep` to avoid conflict that supresses `sed` output.
     local _disabled_records
-    _disabled_records=$(
-      sed -n "s/^\\#\\(disabled: .*${1}.*\\)$/\\1/p" "${HOSTS_PATH}"
-    )
+    _disabled_records="$(
+      sed -n "s/^\\#disabled: \\(.*${1}.*\\)$/\\1/p" "${HOSTS_PATH}"
+    )"
 
     local _enabled_records
-    _enabled_records=$(
-      grep --invert-match "^#" "${HOSTS_PATH}" | grep "${1}"
-    )
+    _enabled_records="$(
+      grep --invert-match "^#" "${HOSTS_PATH}" | grep "${1}" || true
+    )"
 
-    # Output disabled records secondly for better organization.
-    if [[ -n "${_enabled_records}"  ]]
-    then
-      printf "%s\\n" "${_enabled_records}"
-    fi
+    _print_entries "${_enabled_records}"
+
+
     if [[ -n "${_disabled_records}" ]]
     then
-      printf "%s\\n" "${_disabled_records}"
+      [[ -n "${_enabled_records}" ]] && printf "\\n"
+      printf "Disabled:\\n"
+      printf "%s\\n" "---------"
+      _print_entries "${_disabled_records}"
     fi
   else
     help show

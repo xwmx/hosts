@@ -30,15 +30,16 @@ load test_helper
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   _expected="\
-127.0.0.1	localhost
-255.255.255.255	broadcasthost
-::1             localhost
-fe80::1%lo0	localhost
-127.0.0.2	example.com
+127.0.0.1	  localhost
+255.255.255.255	  broadcasthost
+::1		  localhost
+fe80::1%lo0	  localhost
+127.0.0.2	  example.com
 
 Disabled:
-0.0.0.0	example.com
-0.0.0.0	example.net"
+---------
+0.0.0.0	  example.com
+0.0.0.0	  example.net"
   _compare "'${_expected}'" "'${output}'"
   [[ "${output}" == "${_expected}" ]]
 }
@@ -70,11 +71,11 @@ Disabled:
   run "${_HOSTS}" list enabled
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
-  [[ "${lines[0]}" == "127.0.0.1	localhost" ]]
-  [[ "${lines[1]}" == "255.255.255.255	broadcasthost" ]]
-  [[ "${lines[2]}" == "::1             localhost" ]]
-  [[ "${lines[3]}" == "fe80::1%lo0	localhost" ]]
-  [[ "${lines[4]}" == "127.0.0.2	example.com" ]]
+  [[ "${lines[0]}" =~ 127\.0\.0\.1[[:space:]]+localhost ]]
+  [[ "${lines[1]}" =~ 255\.255\.255\.255[[:space:]]+broadcasthost ]]
+  [[ "${lines[2]}" =~ \:\:1[[:space:]]+localhost ]]
+  [[ "${lines[3]}" =~ fe80\:\:1\%lo0[[:space:]]+localhost ]]
+  [[ "${lines[4]}" =~ 127\.0\.0\.2[[:space:]]+example.com ]]
 }
 
 # `hosts list disabled` #######################################################
@@ -104,8 +105,8 @@ Disabled:
   run "${_HOSTS}" list disabled
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
-  [[ "${lines[0]}" == "0.0.0.0	example.com" ]]
-  [[ "${lines[1]}" == "127.0.0.1	example.com" ]]
+  [[ "${lines[0]}" =~ 0\.0\.0\.0[[:space:]]+example\.com ]]
+  [[ "${lines[1]}" =~ 127\.0\.0\.1[[:space:]]+example\.com ]]
   [[ "${lines[2]}" == "" ]]
 }
 
@@ -134,8 +135,8 @@ Disabled:
   run "${_HOSTS}" list example.com
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
-  [[ "${lines[0]}" == "0.0.0.0	example.com" ]]
-  [[ "${lines[1]}" == "127.0.0.1	example.com" ]]
+  [[ "${lines[0]}" =~ 0\.0\.0\.0[[:space:]]+example\.com ]]
+  [[ "${lines[1]}" =~ 127\.0\.0\.1[[:space:]]+example\.com ]]
   [[ "${lines[2]}" == "" ]]
 }
 
@@ -149,7 +150,7 @@ Disabled:
   run "${_HOSTS}" list "Comment"
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
-  [[ "${lines[0]}" == "0.0.0.0	example.net	# Example Comment" ]]
+  [[ "${lines[0]}" =~ 0\.0\.0\.0[[:space:]]+example\.net[[:space:]]+\#\ Example\ Comment ]]
   [[ "${lines[2]}" == "" ]]
 }
 
@@ -166,9 +167,9 @@ Disabled:
   run "${_HOSTS}" list "Comment"
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
-  [[ "${lines[0]}" == "0.0.0.0	example.net	# Example Comment" ]]
-  [[ "${lines[1]}" == "disabled: 127.0.0.1	example.biz	# Example Comment" ]]
-  [[ "${lines[2]}" == "" ]]
+  [[ "${lines[0]}" =~ 0\.0\.0\.0[[:space:]]+example\.net[[:space:]]+\#\ Example\ Comment ]]
+  [[ "${lines[3]}" =~ 127\.0\.0\.1[[:space:]]+example\.biz[[:space:]]+\#\ Example\ Comment ]]
+  [[ "${lines[4]}" == "" ]]
 }
 
 # help ########################################################################

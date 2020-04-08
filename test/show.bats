@@ -21,7 +21,7 @@ load test_helper
 
 # `hosts show <ip>` #########################################################
 
-@test "\`show <ip>\` exits with status 0." {
+@test "\`show <ip>\` exits with status 0 and shows all matches." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net
@@ -33,27 +33,14 @@ load test_helper
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
-}
 
-@test "\`show <ip>\` shows all matches." {
-  {
-    run "${_HOSTS}" add 0.0.0.0 example.com
-    run "${_HOSTS}" add 0.0.0.0 example.net
-    run "${_HOSTS}" add 127.0.0.2 example.com
-    run "${_HOSTS}" disable example.com
-  }
-
-  run "${_HOSTS}" show 0.0.0.0
-  printf "\${status}: %s\\n" "${status}"
-  printf "\${output}: '%s'\\n" "${output}"
-
-  [[ "${lines[0]}" == "0.0.0.0	example.net" ]]
-  [[ "${lines[1]}" == "disabled: 0.0.0.0	example.com" ]]
+  [[ "${lines[0]}" =~ 0\.0\.0\.0[[:space:]]+example.net ]]
+  [[ "${lines[3]}" =~ 0\.0\.0\.0[[:space:]]+example.com ]]
 }
 
 # `hosts show <hostname>` #####################################################
 
-@test "\`show <hostname>\` exits with status 0." {
+@test "\`show <hostname>\` exits with status 0 and shows all matches." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net
@@ -65,27 +52,14 @@ load test_helper
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
-}
 
-@test "\`show <hostname>\` shows all matches." {
-  {
-    run "${_HOSTS}" add 0.0.0.0 example.com
-    run "${_HOSTS}" add 0.0.0.0 example.net
-    run "${_HOSTS}" add 127.0.0.2 example.com
-    run "${_HOSTS}" disable 0.0.0.0
-  }
-
-  run "${_HOSTS}" show example.com
-  printf "\${status}: %s\\n" "${status}"
-  printf "\${output}: '%s'\\n" "${output}"
-
-  [[ "${lines[0]}" == "127.0.0.2	example.com" ]]
-  [[ "${lines[1]}" == "disabled: 0.0.0.0	example.com" ]]
+  [[ "${lines[0]}" =~ 127\.0\.0\.2[[:space:]]+example.com ]]
+  [[ "${lines[3]}" =~ 0\.0\.0\.0[[:space:]]+example.com ]]
 }
 
 # `hosts show <search string>` ################################################
 
-@test "\`show <search string>\` exits with status 0." {
+@test "\`show <search string>\` exits with status 0 and shows matching records." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net
@@ -96,20 +70,9 @@ load test_helper
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
-}
 
-@test "\`show <search string>\` prints list of matching records." {
-  {
-    run "${_HOSTS}" add 0.0.0.0 example.com
-    run "${_HOSTS}" add 0.0.0.0 example.net
-    run "${_HOSTS}" add 127.0.0.1 example.com
-  }
-
-  run "${_HOSTS}" show example.com
-  printf "\${status}: %s\\n" "${status}"
-  printf "\${output}: '%s'\\n" "${output}"
-  [[ "${lines[0]}" == "0.0.0.0	example.com" ]]
-  [[ "${lines[1]}" == "127.0.0.1	example.com" ]]
+  [[ "${lines[0]}" =~ 0\.0\.0\.0[[:space:]]+example.com ]]
+  [[ "${lines[1]}" =~ 127\.0\.0\.1[[:space:]]+example.com ]]
   [[ "${lines[2]}" == "" ]]
 }
 
@@ -123,7 +86,8 @@ load test_helper
   run "${_HOSTS}" show "Comment"
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
-  [[ "${lines[0]}" == "0.0.0.0	example.net	# Example Comment" ]]
+  printf "\${lines[0]}: '%s'\\n" "${lines[0]}"
+  [[ "${lines[0]}" =~ 0\.0\.0\.0[[:space:]]+example\.net[[:space:]]+\#\ Example\ Comment ]]
   [[ "${lines[2]}" == "" ]]
 }
 
@@ -139,9 +103,9 @@ load test_helper
   run "${_HOSTS}" show "Comment"
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
-  [[ "${lines[0]}" == "0.0.0.0	example.net	# Example Comment" ]]
-  [[ "${lines[1]}" == "disabled: 127.0.0.1	example.biz	# Example Comment" ]]
-  [[ "${lines[2]}" == "" ]]
+  [[ "${lines[0]}" =~ 0\.0\.0\.0[[:space:]]+example\.net[[:space:]]+\#\ Example\ Comment ]]
+  [[ "${lines[3]}" =~ 127\.0\.0\.1[[:space:]]+example\.biz[[:space:]]+\#\ Example\ Comment ]]
+  [[ "${lines[4]}" == "" ]]
 }
 
 # help ########################################################################

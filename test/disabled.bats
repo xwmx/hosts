@@ -29,8 +29,8 @@ load test_helper
   run "${_HOSTS}" disabled
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
-  [[ "${lines[0]}" == "0.0.0.0	example.com" ]]
-  [[ "${lines[1]}" == "127.0.0.1	example.com" ]]
+  [[ "${lines[0]}" =~ 0\.0\.0\.0[[:space:]]+example\.com ]]
+  [[ "${lines[1]}" =~ 127\.0\.0\.1[[:space:]]+example\.com ]]
   [[ "${lines[2]}" == "" ]]
 }
 
