@@ -775,6 +775,7 @@ add() {
   local _ip="${1:-}"
   local _hostname="${2:-}"
   local _comment="${*:3}"
+  local _tabs=$'\t'
 
   if [[ -z "${_ip:-}" ]]
   then
@@ -786,32 +787,41 @@ add() {
     help add
     exit 1
   elif grep \
-    -e "^${_ip}\\t${_hostname}$" \
-    -e "^${_ip}\\t${_hostname}\\t.*$" "${HOSTS_PATH}"
+    -e "^${_ip}[[:space:]]\+${_hostname}$" \
+    -e "^${_ip}[[:space:]]\+${_hostname}\\t.*$" "${HOSTS_PATH}"
   then
     _die printf \
       "Duplicate address/host combination, %s unchanged.\\n" \
       "${HOSTS_PATH}"
   else
+    if [[ "${#_ip}" -lt 8 ]]
+    then
+      _tabs=$'\t\t'
+    fi
+
     if [[ -n "${_comment:-}" ]]
     then
       local _formatted_comment
       _formatted_comment=$(_join " " "${_comment[@]}")
 
-      printf "%s\\t%s\\t# %s\\n" \
+      printf "%s%s%s\\t# %s\\n" \
         "${_ip}" \
+        "${_tabs}" \
         "${_hostname}" \
         "${_formatted_comment}" >> "${HOSTS_PATH}"
-      printf "Added:\\n%s\\t%s\\t# %s\\n" \
+      printf "Added:\\n%s%s%s\\t# %s\\n" \
         "${_ip}" \
+        "${_tabs}" \
         "${_hostname}" \
         "${_formatted_comment}"
     else
-      printf "%s\\t%s\\n" \
+      printf "%s%s%s\\n" \
         "${_ip}" \
+        "${_tabs}" \
         "${_hostname}" >> "${HOSTS_PATH}"
-      printf "Added:\\n%s\\t%s\\n" \
+      printf "Added:\\n%s%s%s\\n" \
         "${_ip}" \
+        "${_tabs}" \
         "${_hostname}"
     fi
   fi

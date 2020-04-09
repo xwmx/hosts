@@ -79,7 +79,7 @@ load test_helper
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   _compare "${_original}" "$(cat "${HOSTS_PATH}")"
-  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "0.0.0.0	example.com" ]]
+  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "0.0.0.0		example.com" ]]
   [[ "$(sed -n '12p' "${HOSTS_PATH}")" == "127.0.0.1	example.net" ]]
   [[ "$(sed -n '13p' "${HOSTS_PATH}")" == "" ]]
 }
@@ -106,7 +106,7 @@ load test_helper
 255.255.255.255	broadcasthost
 ::1             localhost
 fe80::1%lo0	localhost
-0.0.0.0	example.com
+0.0.0.0		example.com
 127.0.0.1	example.net"
   _compare "'${_expected}'" "'$(cat "${HOSTS_PATH}")'"
   [[ "$(cat "${HOSTS_PATH}")" != "${_original}" ]]
@@ -129,7 +129,7 @@ Removed:
 Removed:
 fe80::1%lo0	example.com
 Removed:
-::1	example.com"
+::1		example.com"
   [[ "${output}" == "${_expected}" ]]
 }
 
@@ -162,7 +162,7 @@ Removed:
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   _compare "${_original}" "$(cat "${HOSTS_PATH}")"
-  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "0.0.0.0	example.com" ]]
+  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "0.0.0.0		example.com" ]]
   [[ "$(sed -n '12p' "${HOSTS_PATH}")" == "127.0.0.1	example.net" ]]
   [[ "$(sed -n '13p' "${HOSTS_PATH}")" == "" ]]
 }
@@ -190,7 +190,7 @@ Removed:
 255.255.255.255	broadcasthost
 ::1             localhost
 fe80::1%lo0	localhost
-0.0.0.0	example.com
+0.0.0.0		example.com
 127.0.0.1	example.net"
   _compare "'${_expected}'" "'$(cat "${HOSTS_PATH}")'"
   [[ "$(cat "${HOSTS_PATH}")" != "${_original}" ]]
@@ -214,13 +214,13 @@ Removed:
 Removed:
 fe80::1%lo0	example.com
 Removed:
-::1	example.com
+::1		example.com
 Removed:
 127.0.0.1	example2.com
 Removed:
 fe80::1%lo0	example2.com
 Removed:
-::1	example2.com"
+::1		example2.com"
   _compare "'${output}'" "'${_expected}'"
   diff  <(echo "${output}" ) <(echo "${_expected}")
   [[ "${output}" == "${_expected}" ]]

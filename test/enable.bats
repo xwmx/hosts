@@ -58,9 +58,9 @@ load test_helper
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   _compare "${_original}" "$(cat "${HOSTS_PATH}")"
-  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "#disabled: 0.0.0.0	example.com" ]]
-  [[ "$(sed -n '12p' "${HOSTS_PATH}")" == "#disabled: 0.0.0.0	example.net" ]]
-  [[ "$(sed -n '13p' "${HOSTS_PATH}")" == "127.0.0.2	example.com" ]]
+  [[ "$(sed -n '11p' "${HOSTS_PATH}")" =~ \#disabled:\ 0.0.0.0[[:space:]]+example.com ]]
+  [[ "$(sed -n '12p' "${HOSTS_PATH}")" =~ \#disabled:\ 0.0.0.0[[:space:]]+example.net ]]
+  [[ "$(sed -n '13p' "${HOSTS_PATH}")" =~ 127.0.0.2[[:space:]]+example.com ]]
 }
 
 @test "\`enable <ip>\` enables all matches." {
@@ -89,9 +89,9 @@ load test_helper
     "'#disabled: 127.0.0.2	example.com'" \
     "'$(sed -n '13p' "${HOSTS_PATH}")'"
 
-  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "0.0.0.0	example.com" ]]
-  [[ "$(sed -n '12p' "${HOSTS_PATH}")" == "0.0.0.0	example.net" ]]
-  [[ "$(sed -n '13p' "${HOSTS_PATH}")" == "#disabled: 127.0.0.2	example.com" ]]
+  [[ "$(sed -n '11p' "${HOSTS_PATH}")" =~ 0.0.0.0[[:space:]]+example.com ]]
+  [[ "$(sed -n '12p' "${HOSTS_PATH}")" =~ 0.0.0.0[[:space:]]+example.net ]]
+  [[ "$(sed -n '13p' "${HOSTS_PATH}")" =~ \#disabled:\ 127.0.0.2[[:space:]]+example.com ]]
 }
 
 @test "\`enable <ip>\` prints feedback." {
@@ -106,7 +106,7 @@ load test_helper
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Enabling:" ]]
-  [[ "${lines[1]}" == "127.0.0.2	example.com" ]]
+  [[ "${lines[1]}" =~ 127.0.0.2[[:space:]]+example.com ]]
 }
 
 # `hosts enable <hostname>` ###################################################
@@ -138,9 +138,9 @@ load test_helper
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   _compare "${_original}" "$(cat "${HOSTS_PATH}")"
-  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "#disabled: 0.0.0.0	example.com" ]]
-  [[ "$(sed -n '12p' "${HOSTS_PATH}")" == "0.0.0.0	example.net" ]]
-  [[ "$(sed -n '13p' "${HOSTS_PATH}")" == "127.0.0.2	example.com" ]]
+  [[ "$(sed -n '11p' "${HOSTS_PATH}")" =~ \#disabled:\ 0.0.0.0[[:space:]]+example.com ]]
+  [[ "$(sed -n '12p' "${HOSTS_PATH}")" =~ 0.0.0.0[[:space:]]+example.net ]]
+  [[ "$(sed -n '13p' "${HOSTS_PATH}")" =~ 127.0.0.2[[:space:]]+example.com ]]
 }
 
 @test "\`enable <hostname>\` enables all matches." {
@@ -169,9 +169,9 @@ load test_helper
     "'127.0.0.2	example.com'" \
     "'$(sed -n '13p' "${HOSTS_PATH}")'"
 
-  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "0.0.0.0	example.com" ]]
-  [[ "$(sed -n '12p' "${HOSTS_PATH}")" == "#disabled: 0.0.0.0	example.net" ]]
-  [[ "$(sed -n '13p' "${HOSTS_PATH}")" == "127.0.0.2	example.com" ]]
+  [[ "$(sed -n '11p' "${HOSTS_PATH}")" =~ 0.0.0.0[[:space:]]+example.com ]]
+  [[ "$(sed -n '12p' "${HOSTS_PATH}")" =~ \#disabled:\ 0.0.0.0[[:space:]]+example.net ]]
+  [[ "$(sed -n '13p' "${HOSTS_PATH}")" =~ 127.0.0.2[[:space:]]+example.com ]]
 }
 
 @test "\`enable <hostname>\` prints feedback." {
@@ -186,7 +186,7 @@ load test_helper
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Enabling:" ]]
-  [[ "${lines[1]}" == "0.0.0.0	example.net" ]]
+  [[ "${lines[1]}" =~ 0.0.0.0[[:space:]]+example.net ]]
 }
 
 # help ########################################################################

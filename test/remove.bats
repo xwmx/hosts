@@ -83,8 +83,8 @@ load test_helper
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   _compare "${_original}" "$(cat "${HOSTS_PATH}")"
-  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "0.0.0.0	example.com" ]]
-  [[ "$(sed -n '12p' "${HOSTS_PATH}")" == "0.0.0.0	example.net" ]]
+  [[ "$(sed -n '11p' "${HOSTS_PATH}")" =~ 0.0.0.0[[:space:]]+example.com ]]
+  [[ "$(sed -n '12p' "${HOSTS_PATH}")" =~ 0.0.0.0[[:space:]]+example.net ]]
   [[ "$(sed -n '13p' "${HOSTS_PATH}")" == "" ]]
 }
 
@@ -129,7 +129,7 @@ fe80::1%lo0	localhost
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Removed:" ]]
-  [[ "${lines[1]}" == "127.0.0.2	example.com" ]]
+  [[ "${lines[1]}" =~ 127.0.0.2[[:space:]]+example.com ]]
 }
 
 # `hosts remove <hostname> --force` ###########################################
@@ -159,7 +159,7 @@ fe80::1%lo0	localhost
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   _compare "${_original}" "$(cat "${HOSTS_PATH}")"
-  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "0.0.0.0	example.net" ]]
+  [[ "$(sed -n '11p' "${HOSTS_PATH}")" =~ 0.0.0.0[[:space:]]+example.net ]]
   [[ "$(sed -n '12p' "${HOSTS_PATH}")" == "" ]]
 }
 
@@ -187,8 +187,8 @@ fe80::1%lo0	localhost
 255.255.255.255	broadcasthost
 ::1             localhost
 fe80::1%lo0	localhost
-0.0.0.0	example.net
-#disabled: 0.0.0.0	example.dev"
+0.0.0.0		example.net
+#disabled: 0.0.0.0		example.dev"
   _compare "'${_expected}'" "'$(cat "${HOSTS_PATH}")'"
   [[ "$(cat "${HOSTS_PATH}")" != "${_original}" ]]
   [[ "$(cat "${HOSTS_PATH}")" == "${_expected}" ]]
@@ -206,7 +206,7 @@ fe80::1%lo0	localhost
   printf "\${output}: '%s'\\n" "${output}"
   _expected="\
 Removed:
-0.0.0.0	example.com
+0.0.0.0		example.com
 127.0.0.2	example.com"
   [[ "${output}" == "${_expected}" ]]
 }

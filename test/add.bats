@@ -73,7 +73,7 @@ load test_helper
   _compare "${_original}" "$(cat "${HOSTS_PATH}")"
   _compare '0.0.0.0	example.com' "$(sed -n '11p' "${HOSTS_PATH}")"
   [[ "$(cat "${HOSTS_PATH}")" != "${_original}" ]]
-  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "0.0.0.0	example.com" ]]
+  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "0.0.0.0		example.com" ]]
 }
 
 @test "\`add <ip> <hostname>\` prints feedback." {
@@ -81,7 +81,7 @@ load test_helper
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Added:" ]]
-  [[ "${lines[1]}" == "0.0.0.0	example.com" ]]
+  [[ "${lines[1]}" == "0.0.0.0		example.com" ]]
 }
 
 @test "\`add <ip> <hostname>\` doesn't add duplicate entry." {
@@ -95,10 +95,10 @@ load test_helper
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   _compare "${_original}" "$(cat "${HOSTS_PATH}")"
-  _compare '0.0.0.0	example.com' "$(sed -n '11p' "${HOSTS_PATH}")"
+  _compare '0.0.0.0		example.com' "$(sed -n '11p' "${HOSTS_PATH}")"
   [[ "$(cat "${HOSTS_PATH}")" != "${_original}" ]]
   [[ "$(cat "${HOSTS_PATH}")" == "${_modified}" ]]
-  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "0.0.0.0	example.com" ]]
+  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "0.0.0.0		example.com" ]]
 }
 
 # `hosts add <ip> <hostname> [comment]` #######################################
@@ -118,7 +118,7 @@ load test_helper
   printf "\${output}: '%s'\\n" "${output}"
   [[ "$(cat "${HOSTS_PATH}")" != "${_original}" ]]
   [[ "$(sed -n '11p' "${HOSTS_PATH}")" == \
-      "0.0.0.0	example.com	# Example multi-word comment." ]]
+      "0.0.0.0		example.com	# Example multi-word comment." ]]
 }
 
 @test "\`add <ip> <hostname> [comment]\` doesn't add duplicate entry." {
@@ -135,9 +135,9 @@ load test_helper
   _compare '0.0.0.0	example.com' "$(sed -n '11p' "${HOSTS_PATH}")"
   [[ "$(cat "${HOSTS_PATH}")" != "${_original}" ]]
   [[ "$(cat "${HOSTS_PATH}")" == "${_modified}" ]]
-  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "0.0.0.0	example.com" ]]
+  [[ "$(sed -n '11p' "${HOSTS_PATH}")" == "0.0.0.0		example.com" ]]
   [[ "$(sed -n '11p' "${HOSTS_PATH}")" != \
-      "0.0.0.0	example.com	# Example multi-word comment." ]]
+      "0.0.0.0		example.com	# Example multi-word comment." ]]
 }
 
 @test "\`add <ip> <hostname> [comment]\` doesn't add duplicate commented entry." {
@@ -151,11 +151,11 @@ load test_helper
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   _compare "${_original}" "$(cat "${HOSTS_PATH}")"
-  _compare '0.0.0.0	example.com' "$(sed -n '11p' "${HOSTS_PATH}")"
+  _compare '0.0.0.0		example.com' "$(sed -n '11p' "${HOSTS_PATH}")"
   [[ "$(cat "${HOSTS_PATH}")" != "${_original}" ]]
   [[ "$(cat "${HOSTS_PATH}")" == "${_modified}" ]]
   [[ "$(sed -n '11p' "${HOSTS_PATH}")" == \
-      "0.0.0.0	example.com	# Example multi-word comment." ]]
+      "0.0.0.0		example.com	# Example multi-word comment." ]]
 }
 
 @test "\`add <ip> <hostname> [comment]\` prints feedback." {
@@ -163,7 +163,7 @@ load test_helper
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   [[ "${lines[0]}" == "Added:" ]]
-  [[ "${lines[1]}" == "0.0.0.0	example.com	# Example multi-word comment." ]]
+  [[ "${lines[1]}" == "0.0.0.0		example.com	# Example multi-word comment." ]]
 }
 
 # help ########################################################################
