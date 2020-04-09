@@ -13,6 +13,9 @@
 remove, comment, and search hosts file entries using simple, memorable
 commands.
 
+`hosts` is designed to be lightweight, easy to use, and contained in a
+single, portable script that can be `curl`ed into any environment.
+
 ## Installation
 
 ### Homebrew
@@ -54,11 +57,230 @@ A package for Arch users is also
 
 ## Usage
 
+### Listing Entries
+
+`hosts` with no arguments lists the entries in the system's hosts file:
+
+```bash
+> hosts
+127.0.0.1       localhost
+255.255.255.255 broadcasthost
+::1             localhost
+fe80::1%lo0     localhost
+```
+
+`hosts` called with a string or regular expression will search for entries
+that match.
+
+```bash
+> hosts localhost
+127.0.0.1   localhost
+::1         localhost
+fe80::1%lo0 localhost
+
+> hosts '\d\d\d'
+127.0.0.1         localhost
+255.255.255.255   broadcasthost
+```
+
+### Adding Entries
+
+To add an entry, use `hosts add`:
+
+```bash
+> hosts add 127.0.0.1 example.com
+Added:
+127.0.0.1 example.com
+```
+
+Run `hosts` or `hosts list` to see the new entry in the list:
+
+```bash
+> hosts
+127.0.0.1         localhost
+255.255.255.255   broadcasthost
+::1               localhost
+fe80::1%lo0       localhost
+127.0.0.1         example.com
+```
+
+### Removing Entries
+
+To remove an entry, use `hosts remove`, which can take an IP
+address, domain, or regular expression:
+
+```bash
+> hosts remove example.com
+Removing the following records:
+127.0.0.1	example.com
+Are you sure you want to proceed? [y/N] y
+Removed:
+127.0.0.1	example.com
+```
+
+### Blocking and Unblocking Domains
+
+`hosts` provides easy commands for blocking and unblocking domains with IPv4
+and IPv6 entries:
+
+```bash
+> hosts block example.com
+Added:
+127.0.0.1   example.com
+Added:
+fe80::1%lo0 example.com
+Added:
+::1         example.com
+
+> hosts unblock example.com
+Removed:
+127.0.0.1   example.com
+Removed:
+fe80::1%lo0 example.com
+Removed:
+::1         example.com
+```
+
+### Enabling / Disabling Entries
+
+Add entries are enabled by default. Disabiling an entry comments it out
+so it has no effect, but remains in the hosts file ready to be enabled
+again.
+
+```bash
+> hosts
+127.0.0.1         localhost
+255.255.255.255   broadcasthost
+::1               localhost
+fe80::1%lo0       localhost
+127.0.0.1         example.com
+
+> hosts disable example.com
+Disabling:
+127.0.0.1	example.com
+
+> hosts
+127.0.0.1         localhost
+255.255.255.255   broadcasthost
+::1               localhost
+fe80::1%lo0       localhost
+
+Disabled:
+---------
+127.0.0.1         example.com
+
+> hosts enable example.com
+Enabling:
+127.0.0.1	example.com
+
+> hosts
+127.0.0.1         localhost
+255.255.255.255   broadcasthost
+::1               localhost
+fe80::1%lo0       localhost
+127.0.0.1         example.com
+```
+
+### Backups
+
+Create backups of your hosts file with `hosts backups create`:
+
+```bash
+> hosts backups create
+Backed up to /etc/hosts--backup-20200101000000
+```
+
+List your backups with `hosts backups`. If you have existing hosts file
+backups, `hosts` will include them:
+
+```bash
+> hosts backups
+hosts--backup-20200101000000
+hosts.bak
+```
+
+`hosts backups compare` will open your hosts file with `diff`:
+
+```bash
+> hosts backups compare hosts--backup-20200101000000
+--- /etc/hosts	2020-01-01 00:00:00.000000000
++++ /etc/hosts--backup-20200101000000	2020-01-01 00:00:00.000000000
+@@ -8,3 +8,4 @@
+ 255.255.255.255  broadcasthost
+ ::1              localhost
+ fe80::1%lo0      localhost
++127.0.0.1        example.com
+```
+
+View a backup with `hosts backups show`:
+
+```bash
+> hosts backups show hosts--backup-20200101000000
+##
+# Host Database
+#
+# localhost is used to configure the loopback interface
+# when the system is booting.  Do not change this entry.
+##
+127.0.0.1       localhost
+255.255.255.255 broadcasthost
+::1             localhost
+fe80::1%lo0     localhost
+```
+
+Restore a backup with `hosts backups restore`. Before a backup is
+restored, a new one is created to avoid data loss:
+
+```bash
+> hosts backups restore hosts--backup-20200101000000
+Backed up to /etc/hosts--backup-20200102000001
+Restored from backup: hosts--backup-20200101000000
+```
+
+### Viewing and Editing `/etc/hosts` Directly
+
+`hosts file` prints the raw contents of `/etc/hosts`:
+
+```bash
+> hosts file
+##
+# Host Database
+#
+# localhost is used to configure the loopback interface
+# when the system is booting.  Do not change this entry.
+##
+127.0.0.1       localhost
+255.255.255.255 broadcasthost
+::1             localhost
+fe80::1%lo0     localhost
+```
+
+`hosts edit` opens `/etc/hosts` in your editor:
+
+```bash
+> hosts edit
+```
+
+### `--auto-sudo`
+
+When the `--auto-sudo` flag is used, all write operations that require
+`sudo` will automatically rerun the command using `sudo` when the current user
+does not have write permissions for the hosts file.
+
+To have this option always enabled, add the following line to your shell
+configuration (`.bashrc`, `.zshrc`, or similar):
+
+```bash
+alias hosts="hosts --auto-sudo"
+```
+
+## Help
+
 ```text
 Usage:
   hosts [<search string>]
   hosts add <ip> <hostname> [<comment>]
-  hosts backups [create | [compare | delete | restore | show] <filename>]
+  hosts backups [create | (compare | delete | restore | show) <filename>]
   hosts block <hostname>...
   hosts disable (<ip> | <hostname> | <search string>)
   hosts disabled
@@ -137,14 +359,15 @@ Subcommands:
   backups           List available backups.
   backups create    Create a new backup of the hosts file.
   backups compare   Compare a backup file with the current hosts file.
-                    The diff tool configured for git will be used if
-                    one is set.
   backups delete    Delete the specified backup.
   backups restore   Replace the contents of the hosts file with a
                     specified backup. The hosts file is automatically
                     backed up before being overwritten unless the
                     '--skip-backup' flag is specified.
   backups show      Show the contents of the specified backup file.
+
+Description:
+  Manage backups.
 ```
 
 ### `hosts block`
@@ -315,29 +538,6 @@ Usage:
 Description:
   Display the current program version.
 ```
-
-## Options
-
-### `--auto-sudo`
-
-When specified, all write operations that require `sudo` will automatically
-rerun the command using `sudo` when the current user does not have write
-permissions for the hosts file.
-
-To have this option always enabled, add the following line to your shell
-configuration (`.bashrc`, `.zshrc`, or similar):
-
-```bash
-alias hosts="hosts --auto-sudo"
-```
-
-### `-h` `--help`
-
-Display help information.
-
-### `--version`
-
-Display version information.
 
 ## Tests
 
