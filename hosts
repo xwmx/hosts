@@ -521,7 +521,7 @@ desc() {
   else # set ------------------------------------------------------------------
     if [[ -n "${2:-}" ]]
     then # argument is present
-      read -r -d '' "___desc_${1}" <<HEREDOC
+      read -r -d '' "___desc_${1}" <<HEREDOC || true
 ${2}
 HEREDOC
 
@@ -1299,6 +1299,8 @@ remove() {
 
   printf "Removed:\\n%s\\n" "${_target_records}"
 }
+desc "delete" "$(desc --get 'remove')"
+delete() { remove "${@}"; }
 
 # ---------------------------------------------------------------------- search
 
@@ -1436,6 +1438,7 @@ _SUBCOMMANDS=(
   help
   list
   remove
+  delete
   search
   show
   unblock
