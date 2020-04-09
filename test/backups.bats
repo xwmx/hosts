@@ -87,7 +87,7 @@ No backups found. Create a new backup:
   printf "\${output}: '%s'\\n" "${output}"
   printf "\${lines[1]}: '%s'\\n" "${lines[1]}"
   [[ ${status} -eq 1 ]]
-  [[ "${lines[1]}" =~ \<\ 0.0.0.0[[:space:]]+example.com ]]
+  [[ "${lines[2]}" == '@@ -8,4 +8,3 @@' ]]
 }
 
 @test "\`backups compare\` with missing backup exits with status 1" {

@@ -749,14 +749,15 @@ Subcommands:
   backups           List available backups.
   backups create    Create a new backup of the hosts file.
   backups compare   Compare a backup file with the current hosts file.
-                    The diff tool configured for git will be used if
-                    one is set.
   backups delete    Delete the specified backup.
   backups restore   Replace the contents of the hosts file with a
                     specified backup. The hosts file is automatically
                     backed up before being overwritten unless the
                     '--skip-backup' flag is specified.
   backups show      Show the contents of the specified backup file.
+
+Description:
+  Manage backups.
 HEREDOC
 backups() {
   local _subcommand="${1:-}"
@@ -804,19 +805,7 @@ backups() {
         exit 1
       fi
 
-      local _difftool="diff"
-
-      if ! ((_use_diff))
-      then
-        if command -v git &>/dev/null
-        then
-          local _git_merge_tool
-          _git_merge_tool="$(git config --get merge.tool)"
-          [[ -n "${_git_merge_tool}" ]] && _difftool="${_git_merge_tool}"
-        fi
-      fi
-
-      "${_difftool}" "${HOSTS_PATH}" "${_hosts_dirname}/${_filename}"
+      diff -u "${HOSTS_PATH}" "${_hosts_dirname}/${_filename}"
       ;;
     delete)
       if [[ -z "${1:-}" ]]
