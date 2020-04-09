@@ -6,9 +6,12 @@
 
 # Hosts
 
-`hosts` is a command line program for managing [hosts file](https://en.wikipedia.org/wiki/Hosts_\(file\)) entries.
+`hosts` is a command line program for managing
+[hosts file](https://en.wikipedia.org/wiki/Hosts_\(file\)) entries.
 
-`hosts` works with existing hosts files and entries, making it easier to add, remove, comment, and search hosts file entries using simple, memorable commands.
+`hosts` works with existing hosts files and entries, making it easier to add,
+remove, comment, and search hosts file entries using simple, memorable
+commands.
 
 ## Installation
 
@@ -46,7 +49,8 @@ curl -L https://raw.github.com/xwmx/hosts/master/hosts \
   -o ~/bin/hosts && chmod +x ~/bin/hosts
 ```
 
-A package for Arch users is also [available in the AUR](https://aur.archlinux.org/packages/hosts/).
+A package for Arch users is also
+[available in the AUR](https://aur.archlinux.org/packages/hosts/).
 
 ## Usage
 
