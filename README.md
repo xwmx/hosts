@@ -226,6 +226,7 @@ View a backup with `hosts backups show`:
 255.255.255.255 broadcasthost
 ::1             localhost
 fe80::1%lo0     localhost
+127.0.0.1       example.com
 ```
 
 Restore a backup with `hosts backups restore`. Before a backup is
