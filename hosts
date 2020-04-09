@@ -858,7 +858,7 @@ backups() {
         exit 1
       fi
 
-      less "${_hosts_dirname}/${1:-}"
+      cat "${_hosts_dirname}/${1:-}"
       ;;
     *)
       local _filenames=()
