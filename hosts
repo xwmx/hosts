@@ -1033,6 +1033,10 @@ enable() {
   else
     _debug printf "enable() \${_search_string}: %s\\n" "${_search_string}"
 
+    # Regular Expression Notes
+    #
+    # - Note double periods in regular expression in order to emulate /.+/,
+    #   which apparently doesn't work properly with all versions of sed.
     local _regex_ip
     _regex_ip="^\\#disabled: \\(${_search_string}[${_TAB_SPACE_}]..*\\)$"
 
@@ -1042,10 +1046,6 @@ enable() {
     local _regex_hostname
     _regex_hostname="^\\#disabled: \\(..*[${_TAB_SPACE_}]${_search_string}\\)$"
 
-    # Regular Expression Notes
-    #
-    # - Note double periods in regular expression in order to emulate /.+/,
-    #   which apparently doesn't work properly with all versions of sed.
     local _targets
     _targets=$(
       sed -n \
