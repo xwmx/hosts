@@ -695,7 +695,7 @@ add() {
     exit 1
   elif grep \
     -e "^${_ip}[[:space:]]\+${_hostname}$" \
-    -e "^${_ip}[[:space:]]\+${_hostname}\\t.*$" "${HOSTS_PATH}"
+    -e "^${_ip}[[:space:]]\+${_hostname}[[:space:]]\+.*$" "${HOSTS_PATH}"
   then
     _die printf \
       "Duplicate address/host combination, %s unchanged.\\n" \
