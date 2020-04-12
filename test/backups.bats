@@ -26,6 +26,8 @@ load test_helper
   run "${_HOSTS}" backups
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
+  printf "\${_HOSTS_TEMP_PATH}: '%s'\\n" "${_HOSTS_TEMP_PATH}"
+  printf "\${HOSTS_PATH}: '%s'\\n" "${HOSTS_PATH}"
   _expected="\
 No backups found. Create a new backup:
  hosts backups create"
@@ -42,6 +44,8 @@ No backups found. Create a new backup:
   run "${_HOSTS}" backups
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
+  printf "\${_HOSTS_TEMP_PATH}: '%s'\\n" "${_HOSTS_TEMP_PATH}"
+  printf "\${HOSTS_PATH}: '%s'\\n" "${HOSTS_PATH}"
   [[ "${lines[0]}" =~ hosts_test ]]
   [[ "${lines[0]}" =~ '--backup-' ]]
   [[ "${lines[1]}" =~ hosts_test ]]

@@ -14,7 +14,7 @@ setup() {
 
   export _HOSTS_TEMP_DIR="/tmp"
   export _HOSTS_TEMP_PATH
-  _HOSTS_TEMP_PATH="$(mktemp ${_HOSTS_TEMP_DIR}/hosts_test.XXXXXX)" || exit 1
+  _HOSTS_TEMP_PATH="$(mktemp "${_HOSTS_TEMP_DIR}/hosts_test.XXXXXX")" || exit 1
   cat "${BATS_TEST_DIRNAME}/fixtures/hosts" > "${_HOSTS_TEMP_PATH}"
 
   export HOSTS_PATH="${_HOSTS_TEMP_PATH}"
