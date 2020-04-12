@@ -420,7 +420,7 @@ _print_entries() {
     if [[ "${_parts[0]}" =~ disabled ]]
     then
       _parts=("${_parts[@]:1}")
-      printf "disabled:\n"
+      printf "disabled:\\n"
     fi
 
     _current_divided=$((${#_parts[0]} / 8))
@@ -774,7 +774,7 @@ backups() {
       _timestamp="$(date +"%Y%m%d%H%M%S")"
 
       cp "${HOSTS_PATH}" "${HOSTS_PATH}--backup-${_timestamp}" && \
-        printf "Backed up to %s--backup-%s\n" "${HOSTS_PATH}" "${_timestamp}"
+        printf "Backed up to %s--backup-%s\\n" "${HOSTS_PATH}" "${_timestamp}"
       ;;
     compare)
       local _filename
@@ -801,7 +801,7 @@ backups() {
         exit 1
       elif [[ ! -e "${_hosts_dirname}/${_filename}" ]]
       then
-        printf "Backup not found: %s\n" "${_filename:-}"
+        printf "Backup not found: %s\\n" "${_filename:-}"
         exit 1
       fi
 
@@ -820,9 +820,9 @@ backups() {
          [[ -e "${_hosts_dirname}/${1:-}" ]]
       then
         rm "${_hosts_dirname}/${1:-}" &&
-          printf "Backup deleted: %s\n" "${_hosts_dirname}/${1:-}"
+          printf "Backup deleted: %s\\n" "${_hosts_dirname}/${1:-}"
       else
-        printf "Backup not found: %s\n" "${1:-}"
+        printf "Backup not found: %s\\n" "${1:-}"
         exit 1
       fi
       ;;
@@ -833,7 +833,7 @@ backups() {
         exit 1
       elif [[ ! -e "${_hosts_dirname}/${1}" ]]
       then
-        printf "Backup not found: %s\n" "${1:-}"
+        printf "Backup not found: %s\\n" "${1:-}"
         exit 1
       fi
 
@@ -845,7 +845,7 @@ backups() {
       fi
 
       cat "${_hosts_dirname}/${1}" > "${HOSTS_PATH}" &&
-        printf "Restored from backup: %s\n" "${1}"
+        printf "Restored from backup: %s\\n" "${1}"
       ;;
     show)
       if [[ -z "${1:-}" ]]
@@ -854,7 +854,7 @@ backups() {
         exit 1
       elif [[ ! -e "${_hosts_dirname}/${1}" ]]
       then
-        printf "Backup not found: %s\n" "${1:-}"
+        printf "Backup not found: %s\\n" "${1:-}"
         exit 1
       fi
 
@@ -878,11 +878,11 @@ backups() {
       then
         for __filename in "${_filenames[@]:-}"
         do
-          printf "%s\n" "${__filename}"
+          printf "%s\\n" "${__filename}"
         done
       else
         printf \
-          "No backups found. Create a new backup:\n %s backups create\n" \
+          "No backups found. Create a new backup:\\n %s backups create\\n" \
           "${_ME}"
       fi
       ;;
