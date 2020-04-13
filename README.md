@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/xwmx/hosts.svg?branch=master)](https://travis-ci.org/xwmx/hosts)
+
         __               __
        / /_  ____  _____/ /______
       / __ \/ __ \/ ___/ __/ ___/
