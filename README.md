@@ -57,7 +57,7 @@ curl -L https://raw.github.com/xwmx/hosts/master/hosts \
 A package for Arch users is also
 [available in the AUR](https://aur.archlinux.org/packages/hosts/).
 
-### Completions
+### Tab Completion
 
 `hosts` supports tab completion for bash and zsh. If you install `hosts`
 with Homebrew, the completion scripts will be installed automatically.
