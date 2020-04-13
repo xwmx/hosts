@@ -1,3 +1,5 @@
+#compdef hosts
+
 __hosts_subcommands() {
   local _commands
   _commands=($(hosts commands --raw))
@@ -21,4 +23,4 @@ __hosts_subcommands() {
   fi
 }
 
-compdef __hosts_subcommands hosts
+__hosts_subcommands "$@"
