@@ -46,10 +46,8 @@ No backups found. Create a new backup:
   printf "\${output}: '%s'\\n" "${output}"
   printf "\${_HOSTS_TEMP_PATH}: '%s'\\n" "${_HOSTS_TEMP_PATH}"
   printf "\${HOSTS_PATH}: '%s'\\n" "${HOSTS_PATH}"
-  [[ "${lines[0]}" =~ hosts_test ]]
-  [[ "${lines[0]}" =~ '--backup-' ]]
-  [[ "${lines[1]}" =~ hosts_test ]]
-  [[ "${lines[1]}" =~ '--backup-' ]]
+  [[ "${lines[0]}" =~ hosts--backup- ]]
+  [[ "${lines[1]}" =~ hosts--backup- ]]
 }
 
 # `hosts backups create` ######################################################
@@ -65,7 +63,7 @@ No backups found. Create a new backup:
   run "${_HOSTS}" backups create
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
-  _backup_path="$(echo "${output}" | sed -e 's/.*\(\/tmp.*\)/\1/')"
+  _backup_path="$(echo "${output}" | sed -e 's/Backed up to \(.*\)/\1/')"
   printf "\${_backup_path}: '%s'\\n" "${_backup_path}"
   [[ -e "${_backup_path}" ]]
 }
@@ -82,7 +80,7 @@ No backups found. Create a new backup:
 @test "\`backups compare\` with valid backup exits with status 1 and prints." {
   {
     run "${_HOSTS}" backups create
-    _backup_path="$(echo "${output}" | sed -e 's/.*\(\/tmp.*\)/\1/')"
+    _backup_path="$(echo "${output}" | sed -e 's/Backed up to \(.*\)/\1/')"
     _backup_basename="$(basename "${_backup_path}")"
     run "${_HOSTS}" add 0.0.0.0 example.com
   }
@@ -97,7 +95,7 @@ No backups found. Create a new backup:
 @test "\`backups compare\` with missing backup exits with status 1" {
   {
     run "${_HOSTS}" backups create
-    _backup_path="$(echo "${output}" | sed -e 's/.*\(\/tmp.*\)/\1/')"
+    _backup_path="$(echo "${output}" | sed -e 's/Backed up to \(.*\)/\1/')"
     _backup_basename="$(basename "${_backup_path}")"
     run "${_HOSTS}" add 0.0.0.0 example.com
   }
@@ -112,7 +110,7 @@ No backups found. Create a new backup:
 @test "\`backups compare\` with invalid backup exits with status 1" {
   {
     run "${_HOSTS}" backups create
-    _backup_path="$(echo "${output}" | sed -e 's/.*\(\/tmp.*\)/\1/')"
+    _backup_path="$(echo "${output}" | sed -e 's/Backed up to \(.*\)/\1/')"
     _backup_basename="$(basename "${_backup_path}")"
     run "${_HOSTS}" add 0.0.0.0 example.com
   }
@@ -129,7 +127,7 @@ No backups found. Create a new backup:
 @test "\`backups delete\` with valid backup exits with status 0 and deletes backup" {
   {
     run "${_HOSTS}" backups create
-    _backup_path="$(echo "${output}" | sed -e 's/.*\(\/tmp.*\)/\1/')"
+    _backup_path="$(echo "${output}" | sed -e 's/Backed up to \(.*\)/\1/')"
     _backup_basename="$(basename "${_backup_path}")"
   }
 
@@ -144,7 +142,7 @@ No backups found. Create a new backup:
 @test "\`backups delete\` with invalid backup exits with status 1" {
   {
     run "${_HOSTS}" backups create
-    _backup_path="$(echo "${output}" | sed -e 's/.*\(\/tmp.*\)/\1/')"
+    _backup_path="$(echo "${output}" | sed -e 's/Backed up to \(.*\)/\1/')"
     _backup_basename="$(basename "${_backup_path}")"
   }
 
@@ -161,7 +159,7 @@ No backups found. Create a new backup:
 @test "\`backups restore\` with valid backup exits with status 0 and restores" {
   {
     run "${_HOSTS}" backups create
-    _backup_path="$(echo "${output}" | sed -e 's/.*\(\/tmp.*\)/\1/')"
+    _backup_path="$(echo "${output}" | sed -e 's/Backed up to \(.*\)/\1/')"
     _backup_basename="$(basename "${_backup_path}")"
     run "${_HOSTS}" add 0.0.0.0 example.com
     sleep 1
@@ -175,7 +173,10 @@ No backups found. Create a new backup:
   [[ "${lines[0]}" =~ 'Backed up to' ]]
   [[ "${lines[1]}" =~ 'Restored from backup' ]]
 
-  _new_backup_path="$(echo "${lines[0]}" | sed -e 's/.*\(\/tmp.*\)/\1/')"
+  _new_backup_path="$(echo "${lines[0]}" | sed -e 's/Backed up to \(.*\)/\1/')"
+
+  printf "\${_backup_path}: '%s'\\n" "${_backup_path}"
+  printf "\${_new_backup_path}: '%s'\\n" "${_new_backup_path}"
 
   _new_backup_content="$(cat "${_new_backup_path}")"
   _old_backup_content="$(cat "${_backup_path}")"
@@ -188,7 +189,7 @@ No backups found. Create a new backup:
 @test "\`backups restore --skip-backup\` with valid backup exits with status 0 and restores" {
   {
     run "${_HOSTS}" backups create
-    _backup_path="$(echo "${output}" | sed -e 's/.*\(\/tmp.*\)/\1/')"
+    _backup_path="$(echo "${output}" | sed -e 's/Backed up to \(.*\)/\1/')"
     _backup_basename="$(basename "${_backup_path}")"
     run "${_HOSTS}" add 0.0.0.0 example.com
     _replaced_content="$(cat "${HOSTS_PATH}")"
@@ -212,7 +213,7 @@ No backups found. Create a new backup:
 @test "\`backups restore\` with invalid backup exits with status 1" {
   {
     run "${_HOSTS}" backups create
-    _backup_path="$(echo "${output}" | sed -e 's/.*\(\/tmp.*\)/\1/')"
+    _backup_path="$(echo "${output}" | sed -e 's/Backed up to \(.*\)/\1/')"
     _backup_basename="$(basename "${_backup_path}")"
   }
 
@@ -228,7 +229,7 @@ No backups found. Create a new backup:
 @test "\`backups show\` with valid backup exits with status 0 and prints." {
   {
     run "${_HOSTS}" backups create
-    _backup_path="$(echo "${output}" | sed -e 's/.*\(\/tmp.*\)/\1/')"
+    _backup_path="$(echo "${output}" | sed -e 's/Backed up to \(.*\)/\1/')"
     _backup_basename="$(basename "${_backup_path}")"
   }
 
@@ -242,7 +243,7 @@ No backups found. Create a new backup:
 @test "\`backups show\` with invalid backup exits with status 1" {
   {
     run "${_HOSTS}" backups create
-    _backup_path="$(echo "${output}" | sed -e 's/.*\(\/tmp.*\)/\1/')"
+    _backup_path="$(echo "${output}" | sed -e 's/Backed up to \(.*\)/\1/')"
     _backup_basename="$(basename "${_backup_path}")"
   }
 

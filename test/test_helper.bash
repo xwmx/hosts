@@ -12,9 +12,12 @@ setup() {
   # The location of the `hosts` script being tested.
   export _HOSTS="${BATS_TEST_DIRNAME}/../hosts"
 
-  export _HOSTS_TEMP_DIR="/tmp"
+  export _HOSTS_TEMP_DIR
+  _HOSTS_TEMP_DIR="$(mktemp -d)"
+
   export _HOSTS_TEMP_PATH
-  _HOSTS_TEMP_PATH="$(mktemp "${_HOSTS_TEMP_DIR}/hosts_test.XXXXXX")" || exit 1
+  _HOSTS_TEMP_PATH="${_HOSTS_TEMP_DIR}/hosts"
+
   cat "${BATS_TEST_DIRNAME}/fixtures/hosts" > "${_HOSTS_TEMP_PATH}"
 
   export HOSTS_PATH="${_HOSTS_TEMP_PATH}"
