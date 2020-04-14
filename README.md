@@ -579,7 +579,7 @@ Description:
 
 ## Tests
 
-To run the test suite, install [Bats](https://github.com/sstephenson/bats) and
+To run the [test suite](test), install [Bats](https://github.com/sstephenson/bats) and
 run `bats test` in the project root directory.
 
 ---
