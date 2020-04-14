@@ -1,4 +1,4 @@
-# Completion Installation
+# `hosts` Tab Completion
 
 ## Homebrew
 
