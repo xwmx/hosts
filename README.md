@@ -67,8 +67,6 @@ A package for Arch users is also
 
 ### Tab Completion
 
-#### Tab Completion
-
 Bash and Zsh tab completion is enabled when `hosts` is installed using
 Homebrew, npm, bpkg, or Make. If you are installing `hosts` manually,
 [completion can be enabled with a few commands](etc/README.md).
