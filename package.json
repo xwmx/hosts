@@ -12,8 +12,8 @@
   },
   "scripts": {
     "test": "bats test",
-    "postinstall": "scripts/install-completion.bash",
-    "preuninstall": "scripts/uninstall-completion.bash"
+    "postinstall": "scripts/hosts-completion install",
+    "preuninstall": "scripts/hosts-completion uninstall"
   },
   "repository": {
     "type": "git",

@@ -1,27 +1,61 @@
-# Installation instructions
+# Completion Installation
 
 ## Homebrew
 
 Installing via Homebrew with `brew install xwmx/taps/hosts` will also
-install the completion scripts. The extra steps to install `hosts` completion
-scripts outlined below are *not needed*.
+install the completion scripts.
 
 A one-time setup might be needed to [enable completion for all Homebrew
 programs](https://docs.brew.sh/Shell-Completion).
 
-## npm
+## npm, bpkg, Make
 
-Installing via npm should install the completion scripts. If completion
-isn't working, try the instructions below.
+When `hosts` is installed with `npm`, `bpkg`, or Make, an install hook will
+check the environment and attempt to install completions. If it's successful,
+you should see a message similar to:
 
-## Scripts
+```bash
+Completion installed: /usr/local/etc/bash_completion.d/hosts-completion.bash
+Completion installed: /usr/local/share/zsh/site-functions/_hosts
+```
 
-`hosts` includes scripts for installing and uninstalling completions.
+If completion is working after installing through any of these methods, then
+you don't need to do anything else.
 
-- [install-completion.bash](../scripts/install-completion.bash)
-- [uninstall-completion.bash](../scripts/uninstall-completion.bash)
+## `scripts/hosts-completion`
 
-These scripts will try to determine the completion installation
+`hosts` includes a script for installing and uninstalling `hosts` completions
+that is used in installation hooks:
+[hosts-completion](../scripts/hosts-completion)
+
+To run this script directly, navigate to this directory in your terminal, and
+run:
+
+```bash
+./hosts-completion
+```
+
+To install completions:
+
+```bash
+./hosts-completion install
+```
+
+To uninstall:
+
+```bash
+./hosts-completion uninstall
+```
+
+Use the `check` subcommand to determine if completion scripts are installed:
+
+```bash
+> ./hosts-completion check
+Exists: /usr/local/etc/bash_completion.d/hosts-completion.bash
+Exists: /usr/local/share/zsh/site-functions/_hosts
+```
+
+This script will try to determine the completion installation
 locations from your environment. If completion doesn't work, you might
 need to try installing manually.
 

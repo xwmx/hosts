@@ -44,6 +44,15 @@ To install with [bpkg](https://github.com/bpkg/bpkg):
 bpkg install xwmx/hosts
 ```
 
+#### Make
+
+To install with [Make](https://en.wikipedia.org/wiki/Make_(software)),
+clone this repository, navigate to the clone's root directory, and run:
+
+```bash
+make install
+```
+
 ### Manual
 
 To install manually, simply add the `hosts` script to your `$PATH`. If
@@ -59,10 +68,11 @@ A package for Arch users is also
 
 ### Tab Completion
 
-`hosts` supports tab completion for bash and zsh. If you install `hosts`
-with Homebrew, the completion scripts will be installed automatically.
-When installing `hosts` through other methods, [completion can be
-enabled with a few commands](etc/README.md).
+#### Tab Completion
+
+Bash and Zsh tab completion is enabled when `hosts` is installed using
+Homebrew, npm, bpkg, or Make. If you are installing `hosts` manually,
+[completion can be enabled with a few commands](etc/README.md).
 
 ## Usage
 
