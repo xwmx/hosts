@@ -335,7 +335,28 @@ For help with a particular command, try:
 hosts help <command name>
 ```
 
-## Commands
+## Subcommands
+
+<p align="center">
+  <a href="#hosts-1">(default)</a> •
+  <a href="#hosts-add">add</a> •
+  <a href="#hosts-backups">backups</a> •
+  <a href="#hosts-block">block</a> •
+  <a href="#hosts-commands">commands</a> •
+  <a href="#hosts-disable">disable</a> •
+  <a href="#hosts-disabled">disabled</a> •
+  <a href="#hosts-edit">edit</a> •
+  <a href="#hosts-enable">enable</a> •
+  <a href="#hosts-enabled">enabled</a> •
+  <a href="#hosts-file">file</a> •
+  <a href="#hosts-help">help</a> •
+  <a href="#hosts-list">list</a> •
+  <a href="#hosts-remove">remove</a> •
+  <a href="#hosts-search">search</a> •
+  <a href="#hosts-show">show</a> •
+  <a href="#hosts-unblock">unblock</a> •
+  <a href="#hosts-version">version</a>
+</p>
 
 ### `hosts`
 
@@ -561,9 +582,11 @@ Description:
 To run the test suite, install [Bats](https://github.com/sstephenson/bats) and
 run `bats test` in the project root directory.
 
-## Acknowledgements
+---
+<p align="center">
+  Copyright (c) 2015-present William Melody • See LICENSE for details.
+</p>
 
-- https://gist.github.com/nddrylliog/1368532
-- https://gist.github.com/dfeyer/1369760
-- https://github.com/macmade/host-manager
-
+<p align="center">
+  <a href="https://github.com/xwmx/hosts">github.com/xwmx/hosts</a>
+</p>
