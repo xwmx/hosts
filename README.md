@@ -59,8 +59,7 @@ To install manually, simply add the `hosts` script to your `$PATH`. If
 you already have a `~/bin` directory, you can use the following command:
 
 ```bash
-curl -L https://raw.github.com/xwmx/hosts/master/hosts \
-  -o ~/bin/hosts && chmod +x ~/bin/hosts
+curl -L https://raw.github.com/xwmx/hosts/master/hosts -o ~/bin/hosts && chmod +x ~/bin/hosts
 ```
 
 A package for Arch users is also
