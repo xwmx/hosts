@@ -44,7 +44,7 @@ To install with [bpkg](https://github.com/bpkg/bpkg):
 bpkg install xwmx/hosts
 ```
 
-#### Make
+### Make
 
 To install with [Make](https://en.wikipedia.org/wiki/Make_(software)),
 clone this repository, navigate to the clone's root directory, and run:
