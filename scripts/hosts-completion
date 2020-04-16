@@ -82,10 +82,10 @@ _check() {
   if [[ -n "${_bash_completion_path:-}" ]] &&
      [[ -d "${_bash_completion_path}"   ]] &&
      [[ -w "${_bash_completion_path}"   ]] &&
-     [[ -e "${_bash_completion_path}/hosts-completion.bash" ]]
+     [[ -e "${_bash_completion_path}/hosts" ]]
   then
     _exists=1
-    printf "Exists: %s\\n" "${_bash_completion_path}/hosts-completion.bash"
+    printf "Exists: %s\\n" "${_bash_completion_path}/hosts"
   fi
 
   local _zsh_completion_path="/usr/local/share/zsh/site-functions"
@@ -109,13 +109,18 @@ _install() {
   if [[ -n "${_bash_completion_path:-}" ]] &&
      [[ -d "${_bash_completion_path}"   ]] &&
      [[ -w "${_bash_completion_path}"   ]] &&
-     [[ ! -e "${_bash_completion_path}/hosts-completion.bash" ]]
+     [[ ! -e "${_bash_completion_path}/hosts" ]]
   then
     cp \
       "${_MY_DIR}/../etc/hosts-completion.bash" \
-      "${_bash_completion_path}/hosts-completion.bash"
-    printf "Completion installed: %s\\n" \
-      "${_bash_completion_path}/hosts-completion.bash"
+      "${_bash_completion_path}/hosts"
+    printf "Completion installed: %s\\n" "${_bash_completion_path}/hosts"
+
+    # Cleanup old completion script.
+    if [[ -e "${_bash_completion_path}/hosts-completion.bash" ]]
+    then
+      rm "${_bash_completion_path}/hosts-completion.bash"
+    fi
   fi
 
   local _zsh_completion_path="/usr/local/share/zsh/site-functions"
@@ -127,8 +132,7 @@ _install() {
     cp \
       "${_MY_DIR}/../etc/hosts-completion.zsh" \
       "${_zsh_completion_path}/_hosts"
-    printf "Completion installed: %s\\n" \
-      "${_zsh_completion_path}/_hosts"
+    printf "Completion installed: %s\\n" "${_zsh_completion_path}/_hosts"
   fi
 }
 
@@ -140,11 +144,16 @@ _uninstall() {
   if [[ -n "${_bash_completion_path:-}" ]] &&
      [[ -d "${_bash_completion_path}"   ]] &&
      [[ -w "${_bash_completion_path}"   ]] &&
-     [[ -e "${_bash_completion_path}/hosts-completion.bash" ]]
+     [[ -e "${_bash_completion_path}/hosts" ]]
   then
-    rm "${_bash_completion_path}/hosts-completion.bash"
-    printf "Completion removed: %s\\n" \
-      "${_bash_completion_path}/hosts-completion.bash"
+    rm "${_bash_completion_path}/hosts"
+    printf "Completion removed: %s\\n" "${_bash_completion_path}/hosts"
+
+    # Cleanup old completion script.
+    if [[ -e "${_bash_completion_path}/hosts-completion.bash" ]]
+    then
+      rm "${_bash_completion_path}/hosts-completion.bash"
+    fi
   fi
 
   local _zsh_completion_path="/usr/local/share/zsh/site-functions"
@@ -154,8 +163,7 @@ _uninstall() {
      [[ -e "${_zsh_completion_path}/_hosts" ]]
   then
     rm "${_zsh_completion_path}/_hosts"
-    printf "Completion removed: %s\\n" \
-      "${_zsh_completion_path}/_hosts"
+    printf "Completion removed: %s\\n" "${_zsh_completion_path}/_hosts"
   fi
 }
 

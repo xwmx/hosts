@@ -15,7 +15,7 @@ check the environment and attempt to install completions. If it's successful,
 you should see a message similar to:
 
 ```bash
-Completion installed: /usr/local/etc/bash_completion.d/hosts-completion.bash
+Completion installed: /usr/local/etc/bash_completion.d/hosts
 Completion installed: /usr/local/share/zsh/site-functions/_hosts
 ```
 
@@ -51,7 +51,7 @@ Use the `check` subcommand to determine if completion scripts are installed:
 
 ```bash
 > ./hosts-completion check
-Exists: /usr/local/etc/bash_completion.d/hosts-completion.bash
+Exists: /usr/local/etc/bash_completion.d/hosts
 Exists: /usr/local/share/zsh/site-functions/_hosts
 ```
 
