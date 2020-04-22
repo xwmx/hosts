@@ -1345,7 +1345,7 @@ Description:
 
 Exit status:
   0   Success.
-  1   Invalid parameters.
+  1   Invalid parameters or entry not found.
 HEREDOC
 show() {
   if [[ -n "${1:-}" ]]
@@ -1360,6 +1360,12 @@ show() {
     _enabled_records="$(
       grep --invert-match "^#" "${HOSTS_PATH}" | grep "${1}" || true
     )"
+
+    if [[ -z "${_disabled_records}" ]] && [[ -z "${_enabled_records}" ]]
+    then
+      printf "No matching entries.\\n"
+      return 1
+    fi
 
     _print_entries "${_enabled_records}"
 

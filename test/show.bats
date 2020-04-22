@@ -19,6 +19,24 @@ load test_helper
   [[ "${lines[1]}" == "  hosts show (<ip> | <hostname> | <search string>)" ]]
 }
 
+# `hosts show <no matching>` ##################################################
+
+@test "\`show <query>\` with no matching records with status 1." {
+  {
+    run "${_HOSTS}" add 0.0.0.0 example.com
+    run "${_HOSTS}" add 0.0.0.0 example.net
+    run "${_HOSTS}" add 127.0.0.2 example.com
+    run "${_HOSTS}" disable example.com
+  }
+
+  run "${_HOSTS}" show bad-query
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
+  [[ ${status} -eq 1 ]]
+
+  [[ "${lines[0]}" =~ No\ matching\ entries ]]
+}
+
 # `hosts show <ip>` #########################################################
 
 @test "\`show <ip>\` exits with status 0 and shows all matches." {
