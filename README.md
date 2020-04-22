@@ -380,6 +380,10 @@ Usage:
 
 Description:
   Add a given IP address and hostname pair, along with an optional comment.
+
+Exit status:
+  0   Success.
+  1   Invalid parameters or entry exists.
 ```
 
 ### `hosts backups`
@@ -406,6 +410,10 @@ Subcommands:
 
 Description:
   Manage backups.
+
+Exit status:
+  0   Success.
+  1   Invalid parameters or backup not found.
 ```
 
 ### `hosts block`
@@ -417,6 +425,10 @@ Usage:
 Description:
   Block one or more hostnames by adding new entries assigned to `127.0.0.1`
   for IPv4 and both `fe80::1%lo0` and `::1` for IPv6.
+
+Exit status:
+  0   Success.
+  1   Invalid parameters or entry exists.
 ```
 
 #### Blocklists
@@ -446,6 +458,10 @@ Usage:
 Description:
   Disable one or more records based on a given ip address, hostname, or
   search string.
+
+Exit status:
+  0   Success.
+  1   Invalid parameters or entry not found.
 ```
 
 ### `hosts disabled`
@@ -477,6 +493,10 @@ Usage:
 Description:
   Enable one or more disabled records based on a given ip address, hostname,
   or search string.
+
+Exit status:
+  0   Success.
+  1   Invalid parameters or entry not found.
 ```
 
 ### `hosts enabled`
@@ -535,6 +555,10 @@ Description:
   Remove one or more records based on a given IP address, hostname, or search
   string. If an IP and hostname are both provided, only records matching the
   IP and hostname pair will be removed.
+
+Exit status:
+  0   Success.
+  1   Invalid parameters or entry not found.
 ```
 
 ### `hosts search`
@@ -555,6 +579,10 @@ Usage:
 
 Description:
   Print entries matching a given IP address, hostname, or search string.
+
+Exit status:
+  0   Success.
+  1   Invalid parameters or entry not found.
 ```
 
 ### `hosts unblock`
@@ -565,6 +593,10 @@ Usage:
 
 Description:
   Unblock one or more hostnames by removing the entries from the hosts file.
+
+Exit status:
+  0   Success.
+  1   Invalid parameters or entry not found
 ```
 
 ### `hosts version`
