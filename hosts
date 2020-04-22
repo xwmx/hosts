@@ -673,7 +673,8 @@ Description:
   Add a given IP address and hostname pair, along with an optional comment.
 
 Exit status:
-  Add exits 0 on success, and 1 either an error occurs or no parameter pass.
+  0   Success.
+  1   Invalid parameters or entry exists.
 HEREDOC
 add() {
   _debug printf "add() \${1}: %s\\n" "${1:-}"
@@ -763,7 +764,8 @@ Description:
   Manage backups.
 
 Exit status:
-  Backup exits 0 on success, and 1 either an error occurs or no backup found.
+  0   Success.
+  1   Invalid parameters or backup not found.
 HEREDOC
 backups() {
   local _subcommand="${1:-}"
@@ -906,7 +908,8 @@ Description:
   for IPv4 and both \`fe80::1%lo0\` and \`::1\` for IPv6.
 
 Exit status:
-  Block exits 0 on success, and 1 either an error occurs or no parameter pass.
+  0   Success.
+  1   Invalid parameters or entry exists.
 HEREDOC
 block() {
   _verify_write_permissions "$@"
@@ -937,7 +940,8 @@ Description:
   search string.
 
 Exit status:
-  Disable exits 0 on success, and 1 either an error occurs or no parameter pass.
+  0   Success.
+  1   Invalid parameters or entry not found.
 HEREDOC
 disable() {
   _verify_write_permissions "$@"
@@ -1034,7 +1038,8 @@ Description:
   or search string.
 
 Exit status:
-  Enable exits 0 on success, and 1 either an error occurs or no parameter pass.
+  0   Success.
+  1   Invalid parameters or entry not found.
 HEREDOC
 enable() {
   _verify_write_permissions "$@"
@@ -1175,7 +1180,8 @@ Description:
   IP and hostname pair will be removed.
 
 Exit status:
-  Remove exits 0 on success, and 1 if an error occurs or no matching records found.
+  0   Success.
+  1   Invalid parameters or entry not found.
 HEREDOC
 remove() {
   _verify_write_permissions "$@"
@@ -1338,7 +1344,8 @@ Description:
   Print entries matching a given IP address, hostname, or search string.
 
 Exit status:
-  Show exits 0 on success, and 1 either an error occurs or no parameter pass.
+  0   Success.
+  1   Invalid parameters.
 HEREDOC
 show() {
   if [[ -n "${1:-}" ]]
@@ -1380,7 +1387,8 @@ Description:
   Unblock one or more hostnames by removing the entries from the hosts file.
 
 Exit status:
-  Unblock exits 0 on success, and 1 either an error occurs or no parameter pass.
+  0   Success.
+  1   Invalid parameters or entry not found.
 HEREDOC
 unblock() {
   _verify_write_permissions "$@"
