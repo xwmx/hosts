@@ -697,12 +697,12 @@ add() {
 
   if [[ -z "${_ip:-}" ]]
   then
-    help add
+    help "add"
     exit 1
   elif [[ -z "${_hostname:-}" ]]
   then
     printf "Please include a hostname\\n"
-    help add
+    help "add"
     exit 1
   elif grep \
     -e "^${_ip}[[:space:]]\+${_hostname}$" \
@@ -812,7 +812,7 @@ backups() {
     compare)
       if [[ -z "${_filename:-}" ]]
       then
-        help backups
+        help "backups"
         exit 1
       elif [[ ! -e "${_hosts_dirname}/${_filename}" ]]
       then
@@ -825,7 +825,7 @@ backups() {
     delete)
       if [[ -z "${_filename:-}" ]]
       then
-        help backups
+        help "backups"
         exit 1
       fi
 
@@ -844,7 +844,7 @@ backups() {
     restore)
       if [[ -z "${_filename:-}" ]]
       then
-        help backups
+        help "backups"
         exit 1
       elif [[ ! -e "${_hosts_dirname}/${_filename}" ]]
       then
@@ -865,7 +865,7 @@ backups() {
     show)
       if [[ -z "${_filename:-}" ]]
       then
-        help backups
+        help "backups"
         exit 1
       elif [[ ! -e "${_hosts_dirname}/${_filename}" ]]
       then
@@ -923,7 +923,7 @@ block() {
 
   if [[ -z "${1:-}" ]]
   then
-    help block
+    help "block"
     exit 1
   fi
 
@@ -957,7 +957,7 @@ disable() {
 
   if [[ -z "${_search_string:-}" ]]
   then
-    help disable
+    help "disable"
     exit 1
   else
     _debug printf "disable() \${_search_string}: %s\\n" "${_search_string}"
@@ -1055,7 +1055,7 @@ enable() {
 
   if [[ -z "${_search_string:-}" ]]
   then
-    help enable
+    help "enable"
     exit 1
   else
     _debug printf "enable() \${_search_string}: %s\\n" "${_search_string}"
@@ -1220,7 +1220,7 @@ remove() {
 
   if [[ -z "${_arguments[0]:-}" ]]
   then
-    help remove
+    help "remove"
     exit 1
   elif [[ -n "${_arguments[1]:-}" ]]
   then
@@ -1334,7 +1334,8 @@ HEREDOC
 search() {
   if _blank "${_COMMAND_ARGV[1]:-}"
   then
-    _return_1 help "search"
+    help "search"
+    exit 1
   fi
 
   list "$@"
