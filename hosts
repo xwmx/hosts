@@ -1334,8 +1334,7 @@ HEREDOC
 search() {
   if _blank "${_COMMAND_ARGV[1]:-}"
   then
-    help "search"
-    return 1
+    _return_1 help "search"
   fi
 
   list "$@"
@@ -1370,8 +1369,7 @@ show() {
 
     if [[ -z "${_disabled_records}" ]] && [[ -z "${_enabled_records}" ]]
     then
-      printf "No matching entries.\\n"
-      return 1
+      _return_1 printf "No matching entries.\\n"
     fi
 
     _print_entries "${_enabled_records}"
