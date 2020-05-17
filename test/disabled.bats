@@ -2,7 +2,7 @@
 
 load test_helper
 
-# `hosts disabled` #############################################################
+# `hosts disabled` ############################################################
 
 @test "\`disabled\` with no arguments exits with status 0." {
   {

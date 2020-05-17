@@ -2,7 +2,7 @@
 
 load test_helper
 
-# `hosts remove` #################################################################
+# `hosts remove` ##############################################################
 
 @test "\`remove\` with no arguments exits with status 1." {
   run "${_HOSTS}" remove
@@ -83,9 +83,9 @@ load test_helper
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   _compare "${_original}" "$(cat "${HOSTS_PATH}")"
-  [[ "$(sed -n '11p' "${HOSTS_PATH}")" =~ 0.0.0.0[[:space:]]+example.com ]]
-  [[ "$(sed -n '12p' "${HOSTS_PATH}")" =~ 0.0.0.0[[:space:]]+example.net ]]
-  [[ "$(sed -n '13p' "${HOSTS_PATH}")" == "" ]]
+  [[ "$(sed -n '11p' "${HOSTS_PATH}")" =~ 0.0.0.0[[:space:]]+example.com  ]]
+  [[ "$(sed -n '12p' "${HOSTS_PATH}")" =~ 0.0.0.0[[:space:]]+example.net  ]]
+  [[ "$(sed -n '13p' "${HOSTS_PATH}")" == ""                              ]]
 }
 
 @test "\`remove <ip>\` removes all matches." {

@@ -2,7 +2,7 @@
 
 load test_helper
 
-# `hosts block` #################################################################
+# `hosts block` ###############################################################
 
 @test "\`block\` with no arguments exits with status 1." {
   run "${_HOSTS}" block
@@ -28,7 +28,7 @@ load test_helper
   [[ "${lines[1]}" == "  hosts block <hostname>..." ]]
 }
 
-# `hosts block <hostname>` #################################################
+# `hosts block <hostname>` ####################################################
 
 @test "\`block <hostname>\` exits with status 0." {
   run "${_HOSTS}" block example.com

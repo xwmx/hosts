@@ -2,7 +2,7 @@
 
 load test_helper
 
-# `hosts show` ##############################################################
+# `hosts show` ################################################################
 
 @test "\`show\` with no arguments exits with status 1." {
   run "${_HOSTS}" show
@@ -37,7 +37,7 @@ load test_helper
   [[ "${lines[0]}" =~ No\ matching\ entries ]]
 }
 
-# `hosts show <ip>` #########################################################
+# `hosts show <ip>` ###########################################################
 
 @test "\`show <ip>\` exits with status 0 and shows all matches." {
   {
@@ -72,7 +72,7 @@ load test_helper
   [[ ${status} -eq 0 ]]
 
   [[ "${lines[0]}" =~ 127\.0\.0\.2[[:space:]]+example.com ]]
-  [[ "${lines[3]}" =~ 0\.0\.0\.0[[:space:]]+example.com ]]
+  [[ "${lines[3]}" =~ 0\.0\.0\.0[[:space:]]+example.com   ]]
 }
 
 # `hosts show <search string>` ################################################
@@ -89,7 +89,7 @@ load test_helper
   printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 0 ]]
 
-  [[ "${lines[0]}" =~ 0\.0\.0\.0[[:space:]]+example.com ]]
+  [[ "${lines[0]}" =~ 0\.0\.0\.0[[:space:]]+example.com   ]]
   [[ "${lines[1]}" =~ 127\.0\.0\.1[[:space:]]+example.com ]]
   [[ "${lines[2]}" == "" ]]
 }
@@ -121,8 +121,8 @@ load test_helper
   run "${_HOSTS}" show "Comment"
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
-  [[ "${lines[0]}" =~ 0\.0\.0\.0[[:space:]]+example\.net[[:space:]]+\#\ Example\ Comment ]]
-  [[ "${lines[3]}" =~ 127\.0\.0\.1[[:space:]]+example\.biz[[:space:]]+\#\ Example\ Comment ]]
+  [[ "${lines[0]}" =~ 0\.0\.0\.0[[:space:]]+example\.net[[:space:]]+\#\ Example\ Comment    ]]
+  [[ "${lines[3]}" =~ 127\.0\.0\.1[[:space:]]+example\.biz[[:space:]]+\#\ Example\ Comment  ]]
   [[ "${lines[4]}" == "" ]]
 }
 

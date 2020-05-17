@@ -2,7 +2,7 @@
 
 load test_helper
 
-# `hosts unblock` #################################################################
+# `hosts unblock` #############################################################
 
 @test "\`unblock\` with no arguments exits with status 1." {
   run "${_HOSTS}" unblock
@@ -28,7 +28,7 @@ load test_helper
   [[ "${lines[1]}" == "  hosts unblock <hostname>..." ]]
 }
 
-# `hosts unblock <invalid>` ############################################
+# `hosts unblock <invalid>` ###################################################
 
 @test "\`unblock <invalid> \` exits with status 1." {
   {
@@ -52,7 +52,7 @@ load test_helper
   [[ ${output} == "${_ERROR_PREFIX}No matching records found." ]]
 }
 
-# `hosts unblock <hostname>` ###########################################
+# `hosts unblock <hostname>` ##################################################
 
 @test "\`unblock <hostname>\` exits with status 0." {
   {
