@@ -768,11 +768,29 @@ Exit status:
   1   Invalid parameters or backup not found.
 HEREDOC
 backups() {
-  local _subcommand="${1:-}"
-  shift
-
-  local _hosts_dirname
+  local _filename=
+  local _hosts_dirname=
   _hosts_dirname="$(dirname "${HOSTS_PATH}")"
+  local _skip_backup=0
+  local _subcommand=
+
+  for __arg in "${@:-}"
+  do
+    case "${__arg}" in
+      --skip-backup)
+        _skip_backup=1
+        ;;
+      create|compare|delete|restore|show)
+        _subcommand="${__arg}"
+        ;;
+      *)
+        if [[ -z "${_filename:-}" ]]
+        then
+          _filename="${__arg}"
+        fi
+        ;;
+    esac
+  done
 
   case "${_subcommand}" in
     create)
@@ -785,24 +803,6 @@ backups() {
         printf "Backed up to %s--backup-%s\\n" "${HOSTS_PATH}" "${_timestamp}"
       ;;
     compare)
-      local _filename
-      local _use_diff=0
-
-      for __arg in "${@:-}"
-      do
-        case "${__arg}" in
-          --diff)
-            _use_diff=1
-            ;;
-          *)
-            if [[ -z "${_filename:-}" ]]
-            then
-              _filename="${__arg}"
-            fi
-            ;;
-        esac
-      done
-
       if [[ -z "${_filename:-}" ]]
       then
         help backups
@@ -816,7 +816,7 @@ backups() {
       diff -u "${HOSTS_PATH}" "${_hosts_dirname}/${_filename}"
       ;;
     delete)
-      if [[ -z "${1:-}" ]]
+      if [[ -z "${_filename:-}" ]]
       then
         help backups
         exit 1
@@ -824,49 +824,49 @@ backups() {
 
       _verify_write_permissions "$@"
 
-      if [[ "${HOSTS_PATH}" != "${_hosts_dirname}/${1:-}" ]] &&
-         [[ -e "${_hosts_dirname}/${1:-}" ]]
+      if [[ "${HOSTS_PATH}" != "${_hosts_dirname}/${_filename:-}" ]] &&
+         [[ -e "${_hosts_dirname}/${_filename:-}" ]]
       then
-        rm "${_hosts_dirname}/${1:-}" &&
-          printf "Backup deleted: %s\\n" "${_hosts_dirname}/${1:-}"
+        rm "${_hosts_dirname}/${_filename:-}" &&
+          printf "Backup deleted: %s\\n" "${_hosts_dirname}/${_filename:-}"
       else
-        printf "Backup not found: %s\\n" "${1:-}"
+        printf "Backup not found: %s\\n" "${_filename:-}"
         exit 1
       fi
       ;;
     restore)
-      if [[ -z "${1:-}" ]]
+      if [[ -z "${_filename:-}" ]]
       then
         help backups
         exit 1
-      elif [[ ! -e "${_hosts_dirname}/${1}" ]]
+      elif [[ ! -e "${_hosts_dirname}/${_filename}" ]]
       then
-        printf "Backup not found: %s\\n" "${1:-}"
+        printf "Backup not found: %s\\n" "${_filename:-}"
         exit 1
       fi
 
       _verify_write_permissions "$@"
 
-      if [[ "${2:-}" != "--skip-backup" ]]
+      if ! ((_skip_backup))
       then
         backups create
       fi
 
-      cat "${_hosts_dirname}/${1}" > "${HOSTS_PATH}" &&
-        printf "Restored from backup: %s\\n" "${1}"
+      cat "${_hosts_dirname}/${_filename}" > "${HOSTS_PATH}" &&
+        printf "Restored from backup: %s\\n" "${_filename}"
       ;;
     show)
-      if [[ -z "${1:-}" ]]
+      if [[ -z "${_filename:-}" ]]
       then
         help backups
         exit 1
-      elif [[ ! -e "${_hosts_dirname}/${1}" ]]
+      elif [[ ! -e "${_hosts_dirname}/${_filename}" ]]
       then
-        printf "Backup not found: %s\\n" "${1:-}"
+        printf "Backup not found: %s\\n" "${_filename:-}"
         exit 1
       fi
 
-      cat "${_hosts_dirname}/${1:-}"
+      cat "${_hosts_dirname}/${_filename:-}"
       ;;
     *)
       local _filenames=()

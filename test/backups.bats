@@ -85,7 +85,7 @@ No backups found. Create a new backup:
     run "${_HOSTS}" add 0.0.0.0 example.com
   }
 
-  run "${_HOSTS}" backups compare "${_backup_basename}" --diff
+  run "${_HOSTS}" backups compare "${_backup_basename}"
   printf "\${output}: '%s'\\n" "${output}"
   printf "\${lines[1]}: '%s'\\n" "${lines[1]}"
   [[ ${status} -eq 1 ]]
@@ -100,7 +100,7 @@ No backups found. Create a new backup:
     run "${_HOSTS}" add 0.0.0.0 example.com
   }
 
-  run "${_HOSTS}" backups compare --diff
+  run "${_HOSTS}" backups compare
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 1 ]]
@@ -115,7 +115,7 @@ No backups found. Create a new backup:
     run "${_HOSTS}" add 0.0.0.0 example.com
   }
 
-  run "${_HOSTS}" backups compare "invalid-backup-name" --diff
+  run "${_HOSTS}" backups compare "invalid-backup-name"
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
   [[ ${status} -eq 1 ]]
@@ -128,6 +128,7 @@ No backups found. Create a new backup:
   {
     run "${_HOSTS}" backups create
     _backup_path="$(echo "${output}" | sed -e 's/Backed up to \(.*\)/\1/')"
+    [[ -e "${_backup_path}" ]]
     _backup_basename="$(basename "${_backup_path}")"
   }
 
@@ -230,6 +231,7 @@ No backups found. Create a new backup:
   {
     run "${_HOSTS}" backups create
     _backup_path="$(echo "${output}" | sed -e 's/Backed up to \(.*\)/\1/')"
+    [[ -e "${_backup_path:-}" ]]
     _backup_basename="$(basename "${_backup_path}")"
   }
 
