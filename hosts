@@ -424,6 +424,7 @@ _print_entries() {
 
     _current_divided=$((${#_parts[0]} / 8))
     _tab_count=$((_max_divided - _current_divided + 1))
+    # shellcheck disable=SC2183
     _tabs="$(printf "%*s" ${_tab_count} | tr " " '\t')"
 
     if [[ -n "${_parts[2]:-}" ]]
