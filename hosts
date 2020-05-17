@@ -723,23 +723,23 @@ add() {
       _formatted_comment=$(_join " " "${_comment[@]}")
 
       printf "%s%s%s\\t# %s\\n" \
-        "${_ip}" \
-        "${_tabs}" \
-        "${_hostname}" \
+        "${_ip}"                \
+        "${_tabs}"              \
+        "${_hostname}"          \
         "${_formatted_comment}" >> "${HOSTS_PATH}"
-      printf "Added:\\n%s%s%s\\t# %s\\n" \
-        "${_ip}" \
-        "${_tabs}" \
-        "${_hostname}" \
+      printf "Added:\\n%s%s%s\\t# %s\\n"  \
+        "${_ip}"                          \
+        "${_tabs}"                        \
+        "${_hostname}"                    \
         "${_formatted_comment}"
     else
-      printf "%s%s%s\\n" \
-        "${_ip}" \
-        "${_tabs}" \
+      printf "%s%s%s\\n"  \
+        "${_ip}"          \
+        "${_tabs}"        \
         "${_hostname}" >> "${HOSTS_PATH}"
       printf "Added:\\n%s%s%s\\n" \
-        "${_ip}" \
-        "${_tabs}" \
+        "${_ip}"                  \
+        "${_tabs}"                \
         "${_hostname}"
     fi
   fi
@@ -832,7 +832,7 @@ backups() {
       _verify_write_permissions
 
       if [[ "${HOSTS_PATH}" != "${_hosts_dirname}/${_filename:-}" ]] &&
-         [[ -e "${_hosts_dirname}/${_filename:-}" ]]
+         [[ -e "${_hosts_dirname}/${_filename:-}"                 ]]
       then
         rm "${_hosts_dirname}/${_filename:-}" &&
           printf "Backup deleted: %s\\n" "${_hosts_dirname}/${_filename:-}"
@@ -881,8 +881,8 @@ backups() {
       set +f
       for __filename in $(cd "${_hosts_dirname}" && ls -1 hosts* 2> /dev/null)
       do
-        if [[ "${__filename:-}" != "hosts" ]] && \
-           [[ ! "${__filename:-}" =~ ^hosts_test..{6}$ ]]
+        if [[ "${__filename:-}" != "hosts"              ]] &&
+           [[ ! "${__filename:-}" =~ ^hosts_test..{6}$  ]]
         then
           _filenames+=("${__filename:-}")
         fi
@@ -977,10 +977,10 @@ disable() {
     #   which apparently doesn't work properly with all versions of sed.
     local _targets
     _targets=$(
-      sed -n \
-        -e "s/${_regex_ip}/\\1/p" \
+      sed -n                                      \
+        -e "s/${_regex_ip}/\\1/p"                 \
         -e "s/${_regex_commented_hostname}/\\1/p" \
-        -e "s/${_regex_hostname}/\\1/p" \
+        -e "s/${_regex_hostname}/\\1/p"           \
         "${HOSTS_PATH}"
     )
 
@@ -993,10 +993,10 @@ disable() {
 
     printf "Disabling:\\n%s\\n" "${_targets}"
 
-    "${_SED_I_COMMAND[@]}" \
-      -e "s/${_regex_ip}/\\#disabled: \\1/g" \
-      -e "s/${_regex_commented_hostname}/\\#disabled: \\1/g" \
-      -e "s/${_regex_hostname}/\\#disabled: \\1/g" \
+    "${_SED_I_COMMAND[@]}"                                    \
+      -e "s/${_regex_ip}/\\#disabled: \\1/g"                  \
+      -e "s/${_regex_commented_hostname}/\\#disabled: \\1/g"  \
+      -e "s/${_regex_hostname}/\\#disabled: \\1/g"            \
       "${HOSTS_PATH}"
   fi
 }
@@ -1075,10 +1075,10 @@ enable() {
 
     local _targets
     _targets=$(
-      sed -n \
-        -e "s/${_regex_ip}/\\1/p" \
+      sed -n                                      \
+        -e "s/${_regex_ip}/\\1/p"                 \
         -e "s/${_regex_commented_hostname}/\\1/p" \
-        -e "s/${_regex_hostname}/\\1/p" \
+        -e "s/${_regex_hostname}/\\1/p"           \
         "${HOSTS_PATH}"
     )
 
@@ -1091,10 +1091,10 @@ enable() {
 
     printf "Enabling:\\n%s\\n" "${_targets}"
 
-    "${_SED_I_COMMAND[@]}" \
-      -e "s/${_regex_ip}/\\1/g" \
+    "${_SED_I_COMMAND[@]}"                      \
+      -e "s/${_regex_ip}/\\1/g"                 \
       -e "s/${_regex_commented_hostname}/\\1/g" \
-      -e "s/${_regex_hostname}/\\1/g" \
+      -e "s/${_regex_hostname}/\\1/g"           \
       "${HOSTS_PATH}"
   fi
 }
@@ -1262,17 +1262,17 @@ remove() {
   if ((_is_search_pair))
   then
     _target_records=$(
-      sed -n \
-        -e "s/${_regex_ip_hostname_commented}/\\1/p" \
-        -e "s/${_regex_ip_hostname}/\\1/p" \
+      sed -n                                          \
+        -e "s/${_regex_ip_hostname_commented}/\\1/p"  \
+        -e "s/${_regex_ip_hostname}/\\1/p"            \
         "${HOSTS_PATH}"
     )
   else
     _target_records=$(
-      sed -n \
-        -e "s/${_regex_ip}/\\1/p" \
+      sed -n                                      \
+        -e "s/${_regex_ip}/\\1/p"                 \
         -e "s/${_regex_commented_hostname}/\\1/p" \
-        -e "s/${_regex_hostname}/\\1/p" \
+        -e "s/${_regex_hostname}/\\1/p"           \
         "${HOSTS_PATH}"
     )
   fi
@@ -1305,15 +1305,15 @@ remove() {
 
   if ((_is_search_pair))
   then
-    "${_SED_I_COMMAND[@]}" \
+    "${_SED_I_COMMAND[@]}"                    \
       -e "/${_regex_ip_hostname_commented}/d" \
-      -e "/${_regex_ip_hostname}/d" \
+      -e "/${_regex_ip_hostname}/d"           \
       "${HOSTS_PATH}"
   else
-    "${_SED_I_COMMAND[@]}" \
-      -e "/${_regex_ip}/d" \
-      -e "/${_regex_commented_hostname}/d" \
-      -e "/${_regex_hostname}/d" \
+    "${_SED_I_COMMAND[@]}"                    \
+      -e "/${_regex_ip}/d"                    \
+      -e "/${_regex_commented_hostname}/d"    \
+      -e "/${_regex_hostname}/d"              \
       "${HOSTS_PATH}"
   fi
 
@@ -1367,7 +1367,8 @@ show() {
       grep --invert-match "^#" "${HOSTS_PATH}" | grep "${1}" || true
     )"
 
-    if [[ -z "${_disabled_records}" ]] && [[ -z "${_enabled_records}" ]]
+    if [[ -z "${_disabled_records}" ]] &&
+       [[ -z "${_enabled_records}"  ]]
     then
       _return_1 printf "No matching entries.\\n"
     fi
@@ -1412,10 +1413,10 @@ unblock() {
 
   for __hostname in "${@}"
   do
-    remove 127.0.0.1 "${__hostname}" --force
+    remove 127.0.0.1      "${__hostname}" --force
     # unblock IPv6
-    remove "fe80::1%lo0" "${__hostname}" --force
-    remove "::1" "${__hostname}" --force
+    remove "fe80::1%lo0"  "${__hostname}" --force
+    remove "::1"          "${__hostname}" --force
   done
 }
 
@@ -1500,7 +1501,8 @@ do
     *)
       # The first non-option argument is assumed to be the command name.
       # All subsequent arguments are added to $_COMMAND_ARGV.
-      if [[ -z "${_CMD:-}" ]] &&  [[ "${__opt:-}" =~ ${_SUBCOMMANDS_PATTERN} ]]
+      if [[ -z "${_CMD:-}"                          ]] &&
+         [[ "${__opt:-}" =~ ${_SUBCOMMANDS_PATTERN} ]]
       then
         _CMD="${__opt}"
       else
