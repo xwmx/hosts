@@ -53,7 +53,7 @@ load test_helper
   run "${_HOSTS}" remove 127.0.0.3 --force
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
-  [[ ${output} == "No matching records found." ]]
+  [[ ${output} == "${_ERROR_PREFIX}No matching records found." ]]
 }
 
 # `hosts remove <ip> --force` #################################################

@@ -49,7 +49,7 @@ load test_helper
   run "${_HOSTS}" unblock example.net
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
-  [[ ${output} == "No matching records found." ]]
+  [[ ${output} == "${_ERROR_PREFIX}No matching records found." ]]
 }
 
 # `hosts unblock <hostname>` ###########################################

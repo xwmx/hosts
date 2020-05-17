@@ -816,8 +816,7 @@ backups() {
         exit 1
       elif [[ ! -e "${_hosts_dirname}/${_filename}" ]]
       then
-        printf "Backup not found: %s\\n" "${_filename:-}"
-        exit 1
+        _exit_1 printf "Backup not found: %s\\n" "${_filename:-}"
       fi
 
       diff -u "${HOSTS_PATH}" "${_hosts_dirname}/${_filename}"
@@ -837,8 +836,7 @@ backups() {
         rm "${_hosts_dirname}/${_filename:-}" &&
           printf "Backup deleted: %s\\n" "${_hosts_dirname}/${_filename:-}"
       else
-        printf "Backup not found: %s\\n" "${_filename:-}"
-        exit 1
+        _exit_1 printf "Backup not found: %s\\n" "${_filename:-}"
       fi
       ;;
     restore)
@@ -848,8 +846,7 @@ backups() {
         exit 1
       elif [[ ! -e "${_hosts_dirname}/${_filename}" ]]
       then
-        printf "Backup not found: %s\\n" "${_filename:-}"
-        exit 1
+        _exit_1 printf "Backup not found: %s\\n" "${_filename:-}"
       fi
 
       _verify_write_permissions
@@ -869,8 +866,7 @@ backups() {
         exit 1
       elif [[ ! -e "${_hosts_dirname}/${_filename}" ]]
       then
-        printf "Backup not found: %s\\n" "${_filename:-}"
-        exit 1
+        _exit_1 printf "Backup not found: %s\\n" "${_filename:-}"
       fi
 
       cat "${_hosts_dirname}/${_filename:-}"
@@ -1279,8 +1275,7 @@ remove() {
 
   if [[ -z "${_target_records:-}" ]]
   then
-    printf "No matching records found.\\n"
-    exit 1
+    _exit_1 printf "No matching records found.\\n"
   fi
 
   if ! ((_force_skip_prompt))
