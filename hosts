@@ -450,7 +450,7 @@ _print_entries() {
 # performed due to the lack of write permissions. If `$_AUTO_SUDO` is enabled,
 # then run the command with sudo and exit with the command's exit value.
 _verify_write_permissions() {
-  if ! test -w "${HOSTS_PATH}"
+  if [[ ! -w "${HOSTS_PATH}" ]]
   then
     if ((_AUTO_SUDO))
     then
