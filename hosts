@@ -109,33 +109,41 @@ debug() {
 }
 
 ###############################################################################
-# Die
+# Error Messaging
 ###############################################################################
 
-# _die()
+# _exit_1()
 #
 # Usage:
-#   _die printf "Error message. Variable: %s\\n" "$0"
+#   _exit_1 <command>
 #
-# A simple function for exiting with an error after executing the specified
-# command. The command is expected to print a message and should typically
-# be either `echo`, `printf`, or `cat`.
-_die() {
-  # Prefix die message with "cross mark (U+274C)", often displayed as a red x.
-  printf "❌  "
-  "${@}" 1>&2
+# Description:
+#   Exit with status 1 after executing the specified with output redirected
+#   to standard error. The command is expected to print a message and should
+#   typically be either `echo`, `printf`, or `cat`.
+_exit_1() {
+  {
+    printf "%s " "$(tput setaf 1)!$(tput sgr0)"
+    "${@}"
+  } 1>&2
   exit 1
 }
-# die()
+
+# _return_1()
 #
 # Usage:
-#   die "Error message. Variable: $0"
+#   _return_1 <command>
 #
-# Exit with an error and print the specified message.
-#
-# This is a shortcut for the _die() function that simply echos the message.
-die() {
-  _die echo "${@}"
+# Description:
+#   Return with status 1 after executing the specified with output redirected
+#   to standard error. The command is expected to print a message and should
+#   typically be either `echo`, `printf`, or `cat`.
+_return_1() {
+  {
+    printf "%s " "$(tput setaf 1)!$(tput sgr0)"
+    "${@}"
+  } 1>&2
+  return 1
 }
 
 ###############################################################################
@@ -193,12 +201,11 @@ _load_commands() {
       "${_function_name}"
 
     # Add the function name to the $_DEFINED_COMMANDS array unless it starts
-    # with an underscore or is one of the desc(), debug(), or die() functions,
+    # with an underscore or is one of the desc(), or debug() functions,
     # since these are treated as having 'private' visibility.
     if ! { [[ "${_function_name}" =~ ^_(.*)  ]] || \
            [[ "${_function_name}" == "desc"  ]] || \
-           [[ "${_function_name}" == "debug" ]] || \
-           [[ "${_function_name}" == "die"   ]]
+           [[ "${_function_name}" == "debug" ]]
     }
     then
       _DEFINED_COMMANDS+=("${_function_name}")
@@ -240,7 +247,7 @@ _main() {
     # Pass all comment arguments to the program except for the first ($0).
     "${_CMD}" "${_COMMAND_PARAMETERS[@]:-}"
   else
-    _die printf "Unknown command: %s\\n" "${_CMD}"
+    _exit_1 printf "Unknown command: %s\\n" "${_CMD}"
   fi
 }
 
@@ -460,7 +467,7 @@ _verify_write_permissions() {
       sudo "${_my_path}" "${_CMD}" "${_COMMAND_PARAMETERS[@]:-}"
       exit $?
     else
-      _die printf \
+      _exit_1 printf \
 "You don't have permission to perform this operation. Try again with:
 sudo !!\\n"
     fi
@@ -503,11 +510,11 @@ sudo !!\\n"
 # one has been set.
 desc() {
   _debug printf "desc() \${*}: %s\\n" "$@"
-  [[ -z "${1:-}" ]] && _die printf "desc(): No command name specified.\\n"
+  [[ -z "${1:-}" ]] && _exit_1 printf "desc(): No command name specified.\\n"
 
   if [[ "${1}" == "--get" ]]
   then # get ------------------------------------------------------------------
-    [[ -z "${2:-}" ]] && _die printf "desc(): No command name specified.\\n"
+    [[ -z "${2:-}" ]] && _exit_1 printf "desc(): No command name specified.\\n"
 
     local _name="${2:-}"
     local _desc_var="___desc_${_name}"
@@ -701,7 +708,7 @@ add() {
     -e "^${_ip}[[:space:]]\+${_hostname}$" \
     -e "^${_ip}[[:space:]]\+${_hostname}[[:space:]]\+.*$" "${HOSTS_PATH}"
   then
-    _die printf \
+    _exit_1 printf \
       "Duplicate address/host combination, %s unchanged.\\n" \
       "${HOSTS_PATH}"
   else
@@ -981,7 +988,7 @@ disable() {
 
     if [[ -z "${_targets:-}" ]]
     then
-      _die printf "Not found: %s\\n" "${_search_string}"
+      _exit_1 printf "Not found: %s\\n" "${_search_string}"
     fi
 
     printf "Disabling:\\n%s\\n" "${_targets}"
@@ -1021,7 +1028,7 @@ edit() {
 
   if [[ -z "${EDITOR}" ]]
   then
-    _die printf "\$EDITOR not set.\\n"
+    _exit_1 printf "\$EDITOR not set.\\n"
   else
     "${EDITOR}" "${HOSTS_PATH}"
   fi
@@ -1079,7 +1086,7 @@ enable() {
 
     if [[ -z "${_targets:-}" ]]
     then
-      _die printf "Not found: %s\\n" "${_search_string}"
+      _exit_1 printf "Not found: %s\\n" "${_search_string}"
     fi
 
     printf "Enabling:\\n%s\\n" "${_targets}"
