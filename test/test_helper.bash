@@ -18,6 +18,9 @@ setup() {
   export _HOSTS_TEMP_PATH
   _HOSTS_TEMP_PATH="${_HOSTS_TEMP_DIR}/hosts"
 
+  export _ERROR_PREFIX
+  _ERROR_PREFIX="$(tput setaf 1)!$(tput sgr0) "
+
   cat "${BATS_TEST_DIRNAME}/fixtures/hosts" > "${_HOSTS_TEMP_PATH}"
 
   export HOSTS_PATH="${_HOSTS_TEMP_PATH}"
