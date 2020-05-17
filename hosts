@@ -397,7 +397,6 @@ _print_entries() {
     _input+="${_newline}${2:-}"
   fi
 
-  local _disabled=0
   local _max_length=0
 
   while IFS=$'\t ' read -r -a _parts
