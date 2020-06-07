@@ -59,10 +59,12 @@ _VERSION="3.5.1"
 # This program's basename.
 _ME="$(basename "${0}")"
 
-# $HOSTS_DEFAULT_COMMAND
+# $HOSTS_DEFAULT_SUBCOMMAND
 #
 # The command to be run by default, when no command name is specified.
-HOSTS_DEFAULT_COMMAND="${HOSTS_DEFAULT_COMMAND:-list}"
+[[ -n "${HOSTS_DEFAULT_COMMAND:-}" ]] &&
+  HOSTS_DEFAULT_SUBCOMMAND="${HOSTS_DEFAULT_COMMAND}"
+HOSTS_DEFAULT_SUBCOMMAND="${HOSTS_DEFAULT_SUBCOMMAND:-list}"
 
 # $HOSTS_PATH
 #
@@ -1650,7 +1652,7 @@ _main() {
 
   if [[ -z "${_SUBCOMMAND}" ]]
   then
-    _SUBCOMMAND="${HOSTS_DEFAULT_COMMAND}"
+    _SUBCOMMAND="${HOSTS_DEFAULT_SUBCOMMAND}"
   fi
 
   _load_commands
