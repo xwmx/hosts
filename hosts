@@ -554,7 +554,7 @@ HEREDOC
 #
 # desc example <<HEREDOC
 #   Usage:
-#     $_ME example
+#     ${_ME} example
 #
 #   Description:
 #     Print "Hello, World!"
@@ -803,7 +803,7 @@ backups() {
 
 desc "block" <<HEREDOC
 Usage:
-  $_ME block <hostname>...
+  ${_ME} block <hostname>...
 
 Description:
   Block one or more hostnames by adding new entries assigned to \`127.0.0.1\`
@@ -1488,7 +1488,7 @@ delete() { remove "${@}"; }
 
 desc "search" <<HEREDOC
 Usage:
-  $_ME search <search string>
+  ${_ME} search <search string>
 
 Description:
   Search entries for <search string>.
@@ -1556,7 +1556,7 @@ show() {
 
 desc "unblock" <<HEREDOC
 Usage:
-  $_ME unblock <hostname>...
+  ${_ME} unblock <hostname>...
 
 Description:
   Unblock one or more hostnames by removing the entries from the hosts file.
