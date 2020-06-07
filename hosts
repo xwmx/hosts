@@ -268,36 +268,6 @@ _main() {
 # Utility Functions
 ###############################################################################
 
-# _function_exists()
-#
-# Usage:
-#   _function_exists "possible_function_name"
-#
-# Exit Status:
-#   0  If a function with the given name is defined in the current environment.
-#   1  If not.
-#
-# Other implementations, some with better performance:
-# http://stackoverflow.com/q/85880
-_function_exists() {
-  [ "$(type -t "${1}")" == 'function' ]
-}
-
-# _command_exists()
-#
-# Usage:
-#   _command_exists "possible_command_name"
-#
-# Exit Status:
-#   0  If a command with the given name is defined in the current environment.
-#   1  If not.
-#
-# Information on why `hash` is used here:
-# http://stackoverflow.com/a/677212
-_command_exists() {
-  hash "${1}" 2>/dev/null
-}
-
 # _contains()
 #
 # Usage:
