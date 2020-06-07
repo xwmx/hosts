@@ -255,7 +255,7 @@ _main() {
   _load_commands
 
   # If the command is defined, run it, otherwise return an error.
-  if _contains "${_CMD}" "${_DEFINED_COMMANDS[*]:-}"
+  if _contains "${_CMD}" "${_DEFINED_COMMANDS[@]:-}"
   then
     # Pass all comment arguments to the program except for the first ($0).
     "${_CMD}" "${_COMMAND_PARAMETERS[@]:-}"
@@ -301,22 +301,26 @@ _command_exists() {
 # _contains()
 #
 # Usage:
-#   _contains "$item" "${list[*]}"
+#   _contains "${item}" "${list[@]}"
 #
-# Exit Status:
+# Returns:
 #   0  If the item is included in the list.
 #   1  If not.
 _contains() {
-  local _test_list=(${*:2})
-  for __test_element in "${_test_list[@]:-}"
+  local _query="${1:-}"
+  shift
+
+  if [[ -z "${_query}"  ]] ||
+     [[ -z "${*:-}"     ]]
+  then
+    return 1
+  fi
+
+  for __element in "${@}"
   do
-    _debug printf "_contains() \${__test_element}: %s\\n" "${__test_element}"
-    if [[ "${__test_element}" == "${1}" ]]
-    then
-      _debug printf "_contains() match: %s\\n" "${1}"
-      return 0
-    fi
+    [[ "${__element}" == "${_query}" ]] && return 0
   done
+
   return 1
 }
 
