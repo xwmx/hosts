@@ -311,7 +311,7 @@ _verify_write_permissions() {
       local _my_path
       _my_path="$(cd "$(dirname "$0")"; pwd)/${_ME}"
 
-      sudo "${_my_path}" "${_CMD}" "${_COMMAND_PARAMETERS[@]:-}"
+      sudo "${_my_path}" "${_SUBCOMMAND}" "${_COMMAND_PARAMETERS[@]:-}"
       exit $?
     else
       _exit_1 printf \
@@ -1514,7 +1514,7 @@ version() {
 
 # Parse Options ###############################################################
 
-_CMD=
+_SUBCOMMAND=
 _COMMAND_PARAMETERS=()
 _USE_DEBUG=0
 _AUTO_SUDO=0
@@ -1550,10 +1550,10 @@ do
 
   case "${__opt}" in
     -h|--help)
-      _CMD="help"
+      _SUBCOMMAND="help"
       ;;
     --version)
-      _CMD="version"
+      _SUBCOMMAND="version"
       ;;
     --debug)
       _USE_DEBUG=1
@@ -1562,10 +1562,10 @@ do
       _AUTO_SUDO=1
       ;;
     *)
-      if [[ -z "${_CMD:-}"                          ]] &&
+      if [[ -z "${_SUBCOMMAND:-}"                          ]] &&
          [[ "${__opt:-}" =~ ${_SUBCOMMANDS_PATTERN} ]]
       then
-        _CMD="${__opt}"
+        _SUBCOMMAND="${__opt}"
       else
         _COMMAND_PARAMETERS+=("${__opt}")
       fi
@@ -1574,8 +1574,8 @@ do
 done
 
 _debug printf       \
-  "\${_CMD}: %s\\n" \
-  "${_CMD}"
+  "\${_SUBCOMMAND}: %s\\n" \
+  "${_SUBCOMMAND}"
 _debug printf                           \
   "\${_COMMAND_PARAMETERS[*]:-}: %s\\n" \
   "${_COMMAND_PARAMETERS[*]:-}"
@@ -1646,20 +1646,20 @@ _load_commands() {
 # NOTE: must be called at end of program after all commands have been defined.
 _main() {
   _debug printf "main(): entering...\\n"
-  _debug printf "main() \${_CMD} (upon entering): %s\\n" "${_CMD}"
+  _debug printf "main() \${_SUBCOMMAND} (upon entering): %s\\n" "${_SUBCOMMAND}"
 
-  if [[ -z "${_CMD}" ]]
+  if [[ -z "${_SUBCOMMAND}" ]]
   then
-    _CMD="${HOSTS_DEFAULT_COMMAND}"
+    _SUBCOMMAND="${HOSTS_DEFAULT_COMMAND}"
   fi
 
   _load_commands
 
-  if _contains "${_CMD}" "${_DEFINED_COMMANDS[@]:-}"
+  if _contains "${_SUBCOMMAND}" "${_DEFINED_COMMANDS[@]:-}"
   then
-    "${_CMD}" "${_COMMAND_PARAMETERS[@]:-}"
+    "${_SUBCOMMAND}" "${_COMMAND_PARAMETERS[@]:-}"
   else
-    _exit_1 printf "Unknown command: %s\\n" "${_CMD}"
+    _exit_1 printf "Unknown command: %s\\n" "${_SUBCOMMAND}"
   fi
 }
 
