@@ -469,25 +469,10 @@ HEREDOC
 }
 
 ###############################################################################
-# Default Commands
+# Help
 ###############################################################################
 
-# Version #####################################################################
-
-desc "version" <<HEREDOC
-Usage:
-  ${_ME} (version | --version)
-
-Description:
-  Display the current program version.
-
-  To save you the trouble, the current version is ${_VERSION}
-HEREDOC
-version() {
-  printf "%s\\n" "${_VERSION}"
-}
-
-# Help ########################################################################
+# help ################################################################### help
 
 desc "help" <<HEREDOC
 Usage:
@@ -542,28 +527,6 @@ Help:
 More Information:
   https://github.com/xwmx/hosts
 HEREDOC
-  fi
-}
-
-# Command List ################################################################
-
-desc "commands" <<HEREDOC
-Usage:
-  ${_ME} commands [--raw]
-
-Options:
-  --raw  Display the command list without formatting.
-
-Description:
-  Display the list of available commands.
-HEREDOC
-commands() {
-  if [[ "${1:-}" == "--raw" ]]
-  then
-    printf "%s\\n" "${_DEFINED_COMMANDS[@]}"
-  else
-    printf "Available commands:\\n"
-    printf "  %s\\n" "${_DEFINED_COMMANDS[@]}"
   fi
 }
 
@@ -854,6 +817,28 @@ block() {
     add "fe80::1%lo0" "${__hostname}"
     add "::1" "${__hostname}"
   done
+}
+
+# commands ########################################################### commands
+
+desc "commands" <<HEREDOC
+Usage:
+  ${_ME} commands [--raw]
+
+Options:
+  --raw  Display the command list without formatting.
+
+Description:
+  Display the list of available commands.
+HEREDOC
+commands() {
+  if [[ "${1:-}" == "--raw" ]]
+  then
+    printf "%s\\n" "${_DEFINED_COMMANDS[@]}"
+  else
+    printf "Available commands:\\n"
+    printf "  %s\\n" "${_DEFINED_COMMANDS[@]}"
+  fi
 }
 
 # completions ##################################################### completions
@@ -1584,6 +1569,21 @@ unblock() {
     remove "fe80::1%lo0"  "${__hostname}" --force
     remove "::1"          "${__hostname}" --force
   done
+}
+
+# version ############################################################# version
+
+desc "version" <<HEREDOC
+Usage:
+  ${_ME} (version | --version)
+
+Description:
+  Display the current program version.
+
+  To save you the trouble, the current version is ${_VERSION}
+HEREDOC
+version() {
+  printf "%s\\n" "${_VERSION}"
 }
 
 ###############################################################################
