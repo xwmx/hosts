@@ -1347,9 +1347,9 @@ remove() {
   local _is_search_pair=0
   local _force_skip_prompt=0
   local _arguments=()
-  local _search_ip=""
-  local _search_hostname=""
-  local _search_string=""
+  local _search_ip=
+  local _search_hostname=
+  local _search_string=
 
   _debug printf "remove() \${1}: %s\\n" "${1:-}"
   _debug printf "remove() \${2}: %s\\n" "${2:-}"
@@ -1592,7 +1592,7 @@ version() {
 
 # Parse Options ###############################################################
 
-_CMD=""
+_CMD=
 _COMMAND_PARAMETERS=()
 _USE_DEBUG=0
 _AUTO_SUDO=0
