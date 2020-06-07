@@ -510,8 +510,6 @@ help() {
 
 A program for managing host file entries.
 
-Version: ${_VERSION}
-
 Usage:
   ${_ME} [<search string>]
   ${_ME} add <ip> <hostname> [<comment>]
