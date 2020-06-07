@@ -743,28 +743,6 @@ block() {
   done
 }
 
-# commands ########################################################### commands
-
-desc "commands" <<HEREDOC
-Usage:
-  ${_ME} commands [--raw]
-
-Options:
-  --raw  Display the command list without formatting.
-
-Description:
-  Display the list of available commands.
-HEREDOC
-commands() {
-  if [[ "${1:-}" == "--raw" ]]
-  then
-    printf "%s\\n" "${_DEFINED_SUBCOMMANDS[@]}"
-  else
-    printf "Available commands:\\n"
-    printf "  %s\\n" "${_DEFINED_SUBCOMMANDS[@]}"
-  fi
-}
-
 # completions ##################################################### completions
 
 desc "completions" <<HEREDOC
@@ -1464,6 +1442,30 @@ show() {
   fi
 }
 
+# subcommands ##################################################### subcommands
+
+desc "subcommands" <<HEREDOC
+Usage:
+  ${_ME} subcommands [--raw]
+
+Options:
+  --raw  Display the subcommand list without formatting.
+
+Description:
+  Display the list of available subcommands.
+HEREDOC
+subcommands() {
+  if [[ "${1:-}" == "--raw" ]]
+  then
+    printf "%s\\n" "${_DEFINED_SUBCOMMANDS[@]}"
+  else
+    printf "Available subcommands:\\n"
+    printf "  %s\\n" "${_DEFINED_SUBCOMMANDS[@]}"
+  fi
+}
+desc "commands" "$(desc --get 'subcommands')"
+commands() { subcommands "${@}"; }
+
 # unblock ############################################################# unblock
 
 desc "unblock" <<HEREDOC
@@ -1539,6 +1541,7 @@ _SUBCOMMANDS=(
   delete
   search
   show
+  subcommands
   unblock
   version
 )
