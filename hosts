@@ -1587,28 +1587,28 @@ _debug printf                           \
 # Initialize $_DEFINED_COMMANDS array.
 _DEFINED_COMMANDS=()
 
-# _load_commands()
+# _load_subcommands()
 #
 # Usage:
-#   _load_commands
+#   _load_subcommands
 #
 # Loads all of the commands sourced in the environment.
-_load_commands() {
+_load_subcommands() {
 
-  _debug printf "_load_commands(): entering...\\n"
-  _debug printf "_load_commands() declare -F:\\n%s\\n" "$(declare -F)"
+  _debug printf "_load_subcommands(): entering...\\n"
+  _debug printf "_load_subcommands() declare -F:\\n%s\\n" "$(declare -F)"
 
   local _function_list
   _function_list=($(declare -F))
 
   _debug printf \
-    "_load_commands() \${_function_list[@]}: %s\\n" \
+    "_load_subcommands() \${_function_list[@]}: %s\\n" \
     "${_function_list[@]}"
 
   for __name in "${_function_list[@]}"
   do
     _debug printf \
-      "_load_commands() \${__name}: %s\\n" \
+      "_load_subcommands() \${__name}: %s\\n" \
       "${__name}"
     # Each element has the format `declare -f function_name`, so set the name
     # to only the 'function_name' part of the string.
@@ -1616,7 +1616,7 @@ _load_commands() {
     _function_name="$(printf "%s" "${__name}" | awk '{ print $3 }')"
 
     _debug printf \
-      "_load_commands() \${_function_name}: %s\\n" \
+      "_load_subcommands() \${_function_name}: %s\\n" \
       "${_function_name}"
 
     # Add the function name to the $_DEFINED_COMMANDS array unless it starts
@@ -1655,7 +1655,7 @@ _main() {
     _SUBCOMMAND="${HOSTS_DEFAULT_SUBCOMMAND}"
   fi
 
-  _load_commands
+  _load_subcommands
 
   if _contains "${_SUBCOMMAND}" "${_DEFINED_COMMANDS[@]:-}"
   then
