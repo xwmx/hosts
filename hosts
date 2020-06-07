@@ -1653,13 +1653,10 @@ _main() {
     _CMD="${HOSTS_DEFAULT_COMMAND}"
   fi
 
-  # Load all of the commands.
   _load_commands
 
-  # If the command is defined, run it, otherwise return an error.
   if _contains "${_CMD}" "${_DEFINED_COMMANDS[@]:-}"
   then
-    # Pass all comment arguments to the program except for the first ($0).
     "${_CMD}" "${_COMMAND_PARAMETERS[@]:-}"
   else
     _exit_1 printf "Unknown command: %s\\n" "${_CMD}"
