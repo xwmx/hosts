@@ -338,22 +338,6 @@ _join() {
   printf "%s\\n" "${*}"
 }
 
-# _command_argv_includes()
-#
-# Usage:
-#   _command_argv_includes "an_argument"
-#
-# Exit Status:
-#   0  If the argument is included in `$_COMMAND_ARGV`, the program's command
-#      argument list.
-#   1  If not.
-#
-# This is a shortcut for simple cases where a command wants to check for the
-# presence of options quickly without parsing the options again.
-_command_argv_includes() {
-  _contains "${1}" "${_COMMAND_ARGV[*]}"
-}
-
 # _blank()
 #
 # Usage:
@@ -648,7 +632,7 @@ Description:
   Display the list of available commands.
 HEREDOC
 commands() {
-  if _command_argv_includes "--raw"
+  if [[ "${1:-}" == "--raw" ]]
   then
     printf "%s\\n" "${_DEFINED_COMMANDS[@]}"
   else
