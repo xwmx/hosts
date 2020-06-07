@@ -361,15 +361,15 @@ _print_entries() {
 
     if [[ -n "${_parts[2]:-}" ]]
     then
-      printf "%s%s  %s\t%s\\n" \
-        "${_parts[0]}" \
-        "${_tabs}" \
-        "${_parts[1]}" \
+      printf "%s%s  %s\t%s\\n"  \
+        "${_parts[0]}"          \
+        "${_tabs}"              \
+        "${_parts[1]}"          \
         "$(printf "%s" "${_parts[*]:2}" | tr '\r\n' ' ')"
     else
-      printf "%s%s  %s\\n" \
-        "${_parts[0]}" \
-        "${_tabs}" \
+      printf "%s%s  %s\\n"  \
+        "${_parts[0]}"      \
+        "${_tabs}"          \
         "${_parts[1]}"
     fi
 
