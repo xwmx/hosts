@@ -1650,7 +1650,7 @@ _main() {
   then
     "${_SUBCOMMAND}" "${_COMMAND_PARAMETERS[@]:-}"
   else
-    _exit_1 printf "Unknown command: %s\\n" "${_SUBCOMMAND}"
+    _exit_1 printf "Unknown subcommand: %s\\n" "${_SUBCOMMAND}"
   fi
 }
 
