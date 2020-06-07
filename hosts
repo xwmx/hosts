@@ -204,10 +204,6 @@ _load_commands() {
   _debug printf "_load_commands(): entering...\\n"
   _debug printf "_load_commands() declare -F:\\n%s\\n" "$(declare -F)"
 
-  # declare is a bash built-in shell function that, when called with the '-F'
-  # option, displays all of the functions with the format
-  # `declare -f function_name`. These are then assigned as elements in the
-  # $function_list array.
   local _function_list
   _function_list=($(declare -F))
 
