@@ -76,7 +76,7 @@ export _TAB_SPACE_CC_="[${_TAB_SPACE_}]"
 if sed --help >/dev/null 2>&1
 then # GNU
   export _SED_I_COMMAND=(sed -i)
-else # macOS
+else # BSD
   export _SED_I_COMMAND=(sed -i '')
 fi
 
