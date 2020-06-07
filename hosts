@@ -207,7 +207,7 @@ _load_commands() {
     # Each element has the format `declare -f function_name`, so set the name
     # to only the 'function_name' part of the string.
     local _function_name
-    _function_name=$(printf "%s" "${__name}" | awk '{ print $3 }')
+    _function_name="$(printf "%s" "${__name}" | awk '{ print $3 }')"
 
     _debug printf \
       "_load_commands() \${_function_name}: %s\\n" \
