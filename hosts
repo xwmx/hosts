@@ -758,10 +758,10 @@ HEREDOC
 commands() {
   if [[ "${1:-}" == "--raw" ]]
   then
-    printf "%s\\n" "${_DEFINED_COMMANDS[@]}"
+    printf "%s\\n" "${_DEFINED_SUBCOMMANDS[@]}"
   else
     printf "Available commands:\\n"
-    printf "  %s\\n" "${_DEFINED_COMMANDS[@]}"
+    printf "  %s\\n" "${_DEFINED_SUBCOMMANDS[@]}"
   fi
 }
 
@@ -1584,8 +1584,8 @@ _debug printf                           \
 
 # Load Commands ###############################################################
 
-# Initialize $_DEFINED_COMMANDS array.
-_DEFINED_COMMANDS=()
+# Initialize $_DEFINED_SUBCOMMANDS array.
+_DEFINED_SUBCOMMANDS=()
 
 # _load_subcommands()
 #
@@ -1619,7 +1619,7 @@ _load_subcommands() {
       "_load_subcommands() \${_function_name}: %s\\n" \
       "${_function_name}"
 
-    # Add the function name to the $_DEFINED_COMMANDS array unless it starts
+    # Add the function name to the $_DEFINED_SUBCOMMANDS array unless it starts
     # with an underscore or is one of the desc(), or debug() functions,
     # since these are treated as having 'private' visibility.
     if ! { [[ "${_function_name}" =~ ^_(.*)  ]] || \
@@ -1627,13 +1627,13 @@ _load_subcommands() {
            [[ "${_function_name}" == "debug" ]]
     }
     then
-      _DEFINED_COMMANDS+=("${_function_name}")
+      _DEFINED_SUBCOMMANDS+=("${_function_name}")
     fi
   done
 
   _debug printf \
-    "commands() \${_DEFINED_COMMANDS[*]:-}:\\n%s\\n" \
-    "${_DEFINED_COMMANDS[*]:-}"
+    "commands() \${_DEFINED_SUBCOMMANDS[*]:-}:\\n%s\\n" \
+    "${_DEFINED_SUBCOMMANDS[*]:-}"
 }
 
 # Main ########################################################################
@@ -1657,7 +1657,7 @@ _main() {
 
   _load_subcommands
 
-  if _contains "${_SUBCOMMAND}" "${_DEFINED_COMMANDS[@]:-}"
+  if _contains "${_SUBCOMMAND}" "${_DEFINED_SUBCOMMANDS[@]:-}"
   then
     "${_SUBCOMMAND}" "${_COMMAND_PARAMETERS[@]:-}"
   else
