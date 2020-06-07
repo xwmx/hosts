@@ -50,7 +50,7 @@ To install with [Make](https://en.wikipedia.org/wiki/Make_(software)),
 clone this repository, navigate to the clone's root directory, and run:
 
 ```bash
-make install
+sudo make install
 ```
 
 ### Manual
