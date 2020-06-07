@@ -187,96 +187,6 @@ _warn() {
 }
 
 ###############################################################################
-# Load Commands
-###############################################################################
-
-# Initialize $_DEFINED_COMMANDS array.
-_DEFINED_COMMANDS=()
-
-# _load_commands()
-#
-# Usage:
-#   _load_commands
-#
-# Loads all of the commands sourced in the environment.
-_load_commands() {
-
-  _debug printf "_load_commands(): entering...\\n"
-  _debug printf "_load_commands() declare -F:\\n%s\\n" "$(declare -F)"
-
-  local _function_list
-  _function_list=($(declare -F))
-
-  _debug printf \
-    "_load_commands() \${_function_list[@]}: %s\\n" \
-    "${_function_list[@]}"
-
-  for __name in "${_function_list[@]}"
-  do
-    _debug printf \
-      "_load_commands() \${__name}: %s\\n" \
-      "${__name}"
-    # Each element has the format `declare -f function_name`, so set the name
-    # to only the 'function_name' part of the string.
-    local _function_name
-    _function_name="$(printf "%s" "${__name}" | awk '{ print $3 }')"
-
-    _debug printf \
-      "_load_commands() \${_function_name}: %s\\n" \
-      "${_function_name}"
-
-    # Add the function name to the $_DEFINED_COMMANDS array unless it starts
-    # with an underscore or is one of the desc(), or debug() functions,
-    # since these are treated as having 'private' visibility.
-    if ! { [[ "${_function_name}" =~ ^_(.*)  ]] || \
-           [[ "${_function_name}" == "desc"  ]] || \
-           [[ "${_function_name}" == "debug" ]]
-    }
-    then
-      _DEFINED_COMMANDS+=("${_function_name}")
-    fi
-  done
-
-  _debug printf \
-    "commands() \${_DEFINED_COMMANDS[*]:-}:\\n%s\\n" \
-    "${_DEFINED_COMMANDS[*]:-}"
-}
-
-###############################################################################
-# Main
-###############################################################################
-
-# _main()
-#
-# Usage:
-#   _main
-#
-# The primary function for starting the program.
-#
-# NOTE: must be called at end of program after all commands have been defined.
-_main() {
-  _debug printf "main(): entering...\\n"
-  _debug printf "main() \${_CMD} (upon entering): %s\\n" "${_CMD}"
-
-  if [[ -z "${_CMD}" ]]
-  then
-    _CMD="${HOSTS_DEFAULT_COMMAND}"
-  fi
-
-  # Load all of the commands.
-  _load_commands
-
-  # If the command is defined, run it, otherwise return an error.
-  if _contains "${_CMD}" "${_DEFINED_COMMANDS[@]:-}"
-  then
-    # Pass all comment arguments to the program except for the first ($0).
-    "${_CMD}" "${_COMMAND_PARAMETERS[@]:-}"
-  else
-    _exit_1 printf "Unknown command: %s\\n" "${_CMD}"
-  fi
-}
-
-###############################################################################
 # Utility Functions
 ###############################################################################
 
@@ -1599,7 +1509,7 @@ version() {
 }
 
 ###############################################################################
-# Options
+# Load Program & Run
 ###############################################################################
 
 # Parse Options ###############################################################
@@ -1670,9 +1580,90 @@ _debug printf                           \
   "\${_COMMAND_PARAMETERS[*]:-}: %s\\n" \
   "${_COMMAND_PARAMETERS[*]:-}"
 
-###############################################################################
-# Run Program
-###############################################################################
+# Load Commands ###############################################################
 
-# Call the `_main` function after everything has been defined.
+# Initialize $_DEFINED_COMMANDS array.
+_DEFINED_COMMANDS=()
+
+# _load_commands()
+#
+# Usage:
+#   _load_commands
+#
+# Loads all of the commands sourced in the environment.
+_load_commands() {
+
+  _debug printf "_load_commands(): entering...\\n"
+  _debug printf "_load_commands() declare -F:\\n%s\\n" "$(declare -F)"
+
+  local _function_list
+  _function_list=($(declare -F))
+
+  _debug printf \
+    "_load_commands() \${_function_list[@]}: %s\\n" \
+    "${_function_list[@]}"
+
+  for __name in "${_function_list[@]}"
+  do
+    _debug printf \
+      "_load_commands() \${__name}: %s\\n" \
+      "${__name}"
+    # Each element has the format `declare -f function_name`, so set the name
+    # to only the 'function_name' part of the string.
+    local _function_name
+    _function_name="$(printf "%s" "${__name}" | awk '{ print $3 }')"
+
+    _debug printf \
+      "_load_commands() \${_function_name}: %s\\n" \
+      "${_function_name}"
+
+    # Add the function name to the $_DEFINED_COMMANDS array unless it starts
+    # with an underscore or is one of the desc(), or debug() functions,
+    # since these are treated as having 'private' visibility.
+    if ! { [[ "${_function_name}" =~ ^_(.*)  ]] || \
+           [[ "${_function_name}" == "desc"  ]] || \
+           [[ "${_function_name}" == "debug" ]]
+    }
+    then
+      _DEFINED_COMMANDS+=("${_function_name}")
+    fi
+  done
+
+  _debug printf \
+    "commands() \${_DEFINED_COMMANDS[*]:-}:\\n%s\\n" \
+    "${_DEFINED_COMMANDS[*]:-}"
+}
+
+# Main ########################################################################
+
+# _main()
+#
+# Usage:
+#   _main
+#
+# The primary function for starting the program.
+#
+# NOTE: must be called at end of program after all commands have been defined.
+_main() {
+  _debug printf "main(): entering...\\n"
+  _debug printf "main() \${_CMD} (upon entering): %s\\n" "${_CMD}"
+
+  if [[ -z "${_CMD}" ]]
+  then
+    _CMD="${HOSTS_DEFAULT_COMMAND}"
+  fi
+
+  # Load all of the commands.
+  _load_commands
+
+  # If the command is defined, run it, otherwise return an error.
+  if _contains "${_CMD}" "${_DEFINED_COMMANDS[@]:-}"
+  then
+    # Pass all comment arguments to the program except for the first ($0).
+    "${_CMD}" "${_COMMAND_PARAMETERS[@]:-}"
+  else
+    _exit_1 printf "Unknown command: %s\\n" "${_CMD}"
+  fi
+}
+
 _main
