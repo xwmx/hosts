@@ -154,6 +154,22 @@ _return_1() {
   return 1
 }
 
+# _warn()
+#
+# Usage:
+#   _warn <command>
+#
+# Description:
+#   Print the specified command with output redirected to standard error.
+#   The command is expected to print a message and should typically be either
+#   `echo`, `printf`, or `cat`.
+_warn() {
+  {
+    printf "%s " "$(tput setaf 1)!$(tput sgr0)"
+    "${@}"
+  } 1>&2
+}
+
 ###############################################################################
 # Load Commands
 ###############################################################################
@@ -1106,10 +1122,10 @@ HEREDOC
               printf "Completion script installed: %s\\n" \
                 "${_completion_target}"
             else
-              printf "Exists: %s\\n" "${_completion_target}"
+              _warn printf "Exists: %s\\n" "${_completion_target}"
             fi
           else
-            printf "Permission denied: %s\\n" "${_completion_path}"
+            _warn printf "Permission denied: %s\\n" "${_completion_path}"
           fi
         fi
       fi
@@ -1146,7 +1162,7 @@ HEREDOC
               "${_completion_target}"
           fi
         else
-          printf "Permission denied: %s\\n" "${_completion_path}"
+          _warn printf "Permission denied: %s\\n" "${_completion_path}"
         fi
       fi
     done
