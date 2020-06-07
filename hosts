@@ -1598,7 +1598,6 @@ _DEFINED_SUBCOMMANDS=()
 #
 # Loads all of the commands sourced in the environment.
 _load_subcommands() {
-
   _debug printf "_load_subcommands(): entering...\\n"
   _debug printf "_load_subcommands() declare -F:\\n%s\\n" "$(declare -F)"
 
