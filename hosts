@@ -25,7 +25,7 @@ set -o noglob
 IFS=$'\n\t'
 
 ###############################################################################
-# Globals
+# Environment & Globals
 ###############################################################################
 
 # $_VERSION
@@ -33,6 +33,11 @@ IFS=$'\n\t'
 # Manually set this to to current version of the program. Adhere to the
 # semantic versioning specification: http://semver.org
 _VERSION="3.5.1"
+
+# $_ME
+#
+# Set to the program's basename.
+_ME="$(basename "${0}")"
 
 # $HOSTS_DEFAULT_COMMAND
 #
@@ -136,17 +141,6 @@ _return_1() {
   } 1>&2
   return 1
 }
-
-###############################################################################
-# Environment
-###############################################################################
-
-# $_ME
-#
-# Set to the program's basename.
-_ME=$(basename "${0}")
-
-_debug printf "\${_ME}: %s\\n" "${_ME}"
 
 ###############################################################################
 # Load Commands
