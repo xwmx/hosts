@@ -1529,6 +1529,7 @@ _SUBCOMMANDS=(
   block
   commands
   completions
+  delete
   disable
   disabled
   edit
@@ -1538,7 +1539,6 @@ _SUBCOMMANDS=(
   help
   list
   remove
-  delete
   search
   show
   subcommands
