@@ -344,7 +344,7 @@ _print_entries() {
     fi
   done <<< "${_input}"
 
-  local _max_quotient="$((_max_length / 8))"
+  local _max_tab_equivalent="$((_max_length / 8))"
 
   while IFS=$'\t ' read -r -a _parts
   do
@@ -354,8 +354,8 @@ _print_entries() {
       printf "disabled:\\n"
     fi
 
-    local _current_quotient=$((${#_parts[0]} / 8))
-    local _tab_count=$((_max_quotient - _current_quotient + 1))
+    local _current_tab_equivalent=$((${#_parts[0]} / 8))
+    local _tab_count=$((_max_tab_equivalent - _current_tab_equivalent + 1))
     local _tabs=
     _tabs="$(printf "%*s" ${_tab_count} | tr " " '\t')"
 
