@@ -1568,7 +1568,7 @@ do
       _AUTO_SUDO=1
       ;;
     *)
-      if [[ -z "${_SUBCOMMAND:-}"                          ]] &&
+      if [[ -z "${_SUBCOMMAND:-}"                   ]] &&
          [[ "${__opt:-}" =~ ${_SUBCOMMANDS_PATTERN} ]]
       then
         _SUBCOMMAND="${__opt}"
@@ -1579,7 +1579,7 @@ do
   esac
 done
 
-_debug printf       \
+_debug printf              \
   "\${_SUBCOMMAND}: %s\\n" \
   "${_SUBCOMMAND}"
 _debug printf                           \
