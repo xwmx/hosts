@@ -80,6 +80,16 @@ else # macOS
   export _SED_I_COMMAND=(sed -i '')
 fi
 
+# $_REPO
+#
+# The <user>/<repo> identifier for the git repository.
+_REPO="xwmx/hosts"
+
+# $_REPO_RAW_URL
+#
+# The base URL for raw files.
+_REPO_RAW_URL="https://raw.githubusercontent.com/${_REPO}/master"
+
 ###############################################################################
 # Debug
 ###############################################################################
@@ -579,6 +589,7 @@ Usage:
   ${_ME} add <ip> <hostname> [<comment>]
   ${_ME} backups [create | [compare | delete | restore | show] <filename>]
   ${_ME} block <hostname>...
+  ${_ME} completions (check | install [-d | --download] | uninstall)
   ${_ME} disable (<ip> | <hostname> | <search string>)
   ${_ME} disabled
   ${_ME} edit
@@ -917,6 +928,252 @@ block() {
     add "fe80::1%lo0" "${__hostname}"
     add "::1" "${__hostname}"
   done
+}
+
+# completions ##################################################### completions
+
+desc "completions" <<HEREDOC
+Usage:
+  ${_ME} completions (check | install [-d | --download] | uninstall)
+
+Options:
+  -d, --download  Download the completion scripts and install.
+
+Description:
+  Manage completion scripts. For more information, visit:
+  https://github.com/${_REPO}/blob/master/etc/README.md
+HEREDOC
+completions() {
+  local _BASH_COMP_NAME="hosts"
+  local _ZSH_COMP_NAME="_hosts"
+
+  # Usage: _completions_check
+  _completions_check() {
+    local _bash_completion_path=
+    _bash_completion_path="$(_get_bash_completion_path)"
+
+    local _exists=0
+
+    if [[ -n "${_bash_completion_path:-}" ]] &&
+       [[ -d "${_bash_completion_path}"   ]]
+    then
+      if [[ -w "${_bash_completion_path}"   ]]
+      then
+        if [[ -e "${_bash_completion_path}/${_BASH_COMP_NAME}" ]]
+        then
+          _exists=1
+          printf "Exists: %s\\n" "${_bash_completion_path}/${_BASH_COMP_NAME}"
+        fi
+      else
+        printf "Permission denied: %s\\n" "${_bash_completion_path}"
+      fi
+    fi
+
+    local _zsh_completion_path="/usr/local/share/zsh/site-functions"
+
+    if [[ -d "${_zsh_completion_path}" ]]
+    then
+      if [[ -w "${_zsh_completion_path}" ]]
+      then
+        if [[ -e "${_zsh_completion_path}/${_ZSH_COMP_NAME}" ]]
+        then
+          _exists=1
+          printf "Exists: %s\\n" "${_zsh_completion_path}/${_ZSH_COMP_NAME}"
+        fi
+      else
+        printf "Permission denied: %s\\n" "${_zsh_completion_path}"
+      fi
+    fi
+
+    if ! ((_exists))
+    then
+      _exit_1 printf "Completion scripts not found.\\n"
+    fi
+  }
+
+  # Usage: _get_bash_completion_path
+  _get_bash_completion_path() {
+    local _bash_completion_path=
+
+    if [[ -n "${BASH_COMPLETION_COMPAT_DIR:-}" ]]
+    then
+      _bash_completion_path="${BASH_COMPLETION_COMPAT_DIR}"
+    fi
+
+    if [[ -z "${_bash_completion_path:-}" ]]
+    then
+      local _maybe_path
+      _maybe_path="$(
+        pkg-config \
+          --variable=completionsdir bash-completion 2>/dev/null || true
+      )"
+
+      if [[ -n "${_maybe_path:-}" ]]
+      then
+        _bash_completion_path="${_maybe_path}"
+      fi
+    fi
+
+    if [[ -z "${_bash_completion_path:-}"       ]] &&
+       [[ -d "/usr/local/etc/bash_completion.d" ]]
+    then
+      _bash_completion_path="/usr/local/etc/bash_completion.d"
+    fi
+
+    if [[ -z "${_bash_completion_path:-}" ]] &&
+       [[ -d "/etc/bash_completion.d"     ]]
+    then
+      _bash_completion_path="/etc/bash_completion.d"
+    fi
+
+    printf "%s\\n" "${_bash_completion_path:-}"
+  }
+
+  # Usage: _completions_install [--download]
+  _completions_install() {
+    local _download=0
+    if [[ "${1:-}" == "--download" ]]
+    then
+      _download=1
+    fi
+
+    local _my_dir=
+    _my_dir="$(cd "$(dirname "$(realpath "$0")")"; pwd)"
+    if [[ -z "${_my_dir}" ]] || [[ ! -d "${_my_dir}" ]]
+    then
+      exit 1
+    fi
+
+    if [[ -z "${_REPO:-}" ]] || [[ -z "${_REPO_RAW_URL:-}" ]]
+    then
+      _exit_1 printf "Source Git repository not configured.\\n"
+    fi
+
+    for _shell in bash zsh
+    do
+      local _completion_source="${_my_dir}/etc/${_ME}-completion.${_shell}"
+
+      if ((_download))
+      then
+        if [[ ! -f "${_completion_source}" ]]
+        then
+          _completion_source="$(mktemp)"
+          local _completion_url="${_REPO_RAW_URL}/etc/${_ME}-completion.${_shell}"
+
+          if ! _download_from "${_completion_url}" "${_completion_source}"
+          then
+            _exit_1 printf "Unable to download Completion script from %s\\n" \
+              "${_completion_source}"
+          fi
+        fi
+      fi
+
+      if [[ ! -f "${_completion_source}" ]]
+      then
+        cat <<HEREDOC
+Unable to find source ${_shell} completion script. You can try downloading
+and installing the latest version with the following command (\`sudo\` might
+be necessary):
+  ${_ME} completions install --download
+
+More information: ${_shell}
+  https://github.com/${_REPO}/blob/master/etc/README.md
+HEREDOC
+      else
+        local _completion_path=
+        local _completion_target=
+        if [[ "${_shell}" == "bash" ]]
+        then
+          _completion_path="$(_get_bash_completion_path)"
+          _completion_target="${_completion_path}/${_BASH_COMP_NAME}"
+        elif [[ "${_shell}" == "zsh" ]]
+        then
+          _completion_path="/usr/local/share/zsh/site-functions"
+          _completion_target="${_completion_path}/${_ZSH_COMP_NAME}"
+        fi
+
+        if [[ -n "${_completion_path:-}" ]] &&
+           [[ -d "${_completion_path}"   ]]
+        then
+          if [[ -w "${_completion_path}" ]]
+          then
+            if [[ ! -e "${_completion_target}" ]]
+            then
+              cp \
+                "${_completion_source}" \
+                "${_completion_target}"
+              chmod +r "${_completion_target}"
+              printf "Completion script installed: %s\\n" \
+                "${_completion_target}"
+            else
+              printf "Exists: %s\\n" "${_completion_target}"
+            fi
+          else
+            printf "Permission denied: %s\\n" "${_completion_path}"
+          fi
+        fi
+      fi
+    done
+  }
+
+  # Usage: _completions_uninstall
+  _completions_uninstall() {
+    local _completion_path=
+    local _completion_target=
+
+    for _shell in bash zsh
+    do
+      if [[ "${_shell}" == "bash" ]]
+      then
+        _completion_path="$(_get_bash_completion_path)"
+        _completion_target="${_completion_path}/${_BASH_COMP_NAME}"
+      elif [[ "${_shell}" == "zsh" ]]
+      then
+        _completion_path="/usr/local/share/zsh/site-functions"
+        _completion_target="${_completion_path}/${_ZSH_COMP_NAME}"
+      fi
+
+      if [[ -n "${_completion_path:-}" ]] &&
+         [[ -d "${_completion_path}"   ]]
+      then
+        if [[ -w "${_completion_path}"   ]] &&
+           [[ -w "${_completion_target}" ]]
+        then
+          if [[ -f "${_completion_target}" ]]
+          then
+            rm "${_completion_target}"
+            printf "Completion script removed: %s\\n" \
+              "${_completion_target}"
+          fi
+        else
+          printf "Permission denied: %s\\n" "${_completion_path}"
+        fi
+      fi
+    done
+  }
+
+  local _subcommand="${1:-}"
+
+  case "${_subcommand}" in
+    check)
+      _completions_check
+      ;;
+    install)
+      if [[ "${2:-}" =~ ^-d|--download$ ]]
+      then
+        _completions_install --download
+      else
+        _completions_install
+      fi
+      ;;
+    uninstall)
+      _completions_uninstall
+      ;;
+    *)
+      help "completions"
+      return 0
+      ;;
+  esac
 }
 
 # disable ############################################################# disable
@@ -1445,6 +1702,7 @@ _SUBCOMMANDS=(
   backups
   block
   commands
+  completions
   disable
   disabled
   edit

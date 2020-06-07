@@ -55,12 +55,44 @@ make install
 
 ### Manual
 
-To install manually, simply add the `hosts` script to your `$PATH`. If
-you already have a `~/bin` directory, you can use the following command:
+To install as an administrator, copy and paste one of the following multi-line
+commands:
 
 ```bash
+# install using wget
+sudo wget https://raw.github.com/xwmx/hosts/master/hosts -O /usr/local/bin/hosts &&
+  sudo chmod +x /usr/local/bin/hosts &&
+  sudo hosts completions install
+
+# install using curl
+sudo curl -L https://raw.github.com/xwmx/hosts/master/hosts -o /usr/local/bin/hosts &&
+  sudo chmod +x /usr/local/bin/hosts &&
+  sudo hosts completions install
+```
+
+###### User-only Installation
+
+To install with just user permissions, simply add the `hosts` script to your
+`$PATH`. If you already have a `~/bin` directory, for example, you can use
+one of the following commands:
+
+```bash
+# download with wget
+wget https://raw.github.com/xwmx/hosts/master/hosts -O ~/bin/hosts && chmod +x ~/bin/hosts
+
+# download with curl
 curl -L https://raw.github.com/xwmx/hosts/master/hosts -o ~/bin/hosts && chmod +x ~/bin/hosts
 ```
+
+Installing with just user permissions doesn't install the completions, but
+`hosts` works without them. If you have `sudo` access and want to install the
+completion scripts, run the following command:
+
+```bash
+sudo hosts completions install
+```
+
+### Arch Linux
 
 A package for Arch users is also
 [available in the AUR](https://aur.archlinux.org/packages/hosts/).

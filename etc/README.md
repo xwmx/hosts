@@ -22,42 +22,41 @@ Completion installed: /usr/local/share/zsh/site-functions/_hosts
 If completion is working after installing through any of these methods, then
 you don't need to do anything else.
 
-## `scripts/hosts-completion`
+## `hosts completions`
 
-`hosts` includes a script for installing and uninstalling `hosts` completions
-that is used in installation hooks:
-[hosts-completion](../scripts/hosts-completion)
-
-To run this script directly, navigate to this directory in your terminal, and
-run:
+The `hosts completions` subcommand can be used for installing and uninstalling
+completion scripts. Depending on your configuration, you might need to use
+`sudo` to install completion scripts easily:
 
 ```bash
-./hosts-completion
-```
+> sudo hosts completions check
+Completion scripts not found.
 
-To install completions:
+> sudo hosts completions install
+Completion script installed: /usr/share/bash-completion/completions/hosts
+Completion script installed: /usr/local/share/zsh/site-functions/_hosts
 
-```bash
-./hosts-completion install
-```
-
-To uninstall:
-
-```bash
-./hosts-completion uninstall
-```
-
-Use the `check` subcommand to determine if completion scripts are installed:
-
-```bash
-> ./hosts-completion check
-Exists: /usr/local/etc/bash_completion.d/hosts
+> sudo hosts completions check
+Exists: /usr/share/bash-completion/completions/hosts
 Exists: /usr/local/share/zsh/site-functions/_hosts
+
+> sudo hosts completions uninstall
+Completion script removed: /usr/share/bash-completion/completions/hosts
+Completion script removed: /usr/local/share/zsh/site-functions/_hosts
 ```
 
-This script will try to determine the completion installation
-locations from your environment. If completion doesn't work, you might
-need to try installing manually.
+If you installed `hosts` manually by downloading just the `hosts` script,
+the completion scripts won't be immediately available for
+`hosts completions install`. You can try installing the completions with
+the `--download` flag, which will get the latest version from GitHub:
+
+```bash
+sudo hosts completions install --download
+```
+
+`hosts completions` will try to determine the completion script directories
+from your environment. If `hosts completions` isn't able to install
+the completion scripts, you can try installing them manually.
 
 ## Manual Installation
 
