@@ -329,7 +329,7 @@ alias hosts="hosts --auto-sudo"
 Usage:
   hosts [<search string>]
   hosts add <ip> <hostname> [<comment>]
-  hosts backups [create | (compare | delete | restore | show) <filename>]
+  hosts backups [create | [compare | delete | restore | show] <filename>]
   hosts block <hostname>...
   hosts completions (check | install [-d | --download] | uninstall)
   hosts disable (<ip> | <hostname> | <search string>)
@@ -341,6 +341,7 @@ Usage:
   hosts list [enabled | disabled | <search string>]
   hosts search <search string>
   hosts show (<ip> | <hostname> | <search string>)
+  hosts subcommands [--raw]
   hosts remove (<ip> | <hostname> | <search string>) [--force]
   hosts unblock <hostname>...
   hosts --auto-sudo
@@ -375,7 +376,6 @@ hosts help <command name>
   <a href="#hosts-add">add</a> •
   <a href="#hosts-backups">backups</a> •
   <a href="#hosts-block">block</a> •
-  <a href="#hosts-commands">commands</a> •
   <a href="#hosts-completions">completions</a> •
   <a href="#hosts-disable">disable</a> •
   <a href="#hosts-disabled">disabled</a> •
@@ -388,6 +388,7 @@ hosts help <command name>
   <a href="#hosts-remove">remove</a> •
   <a href="#hosts-search">search</a> •
   <a href="#hosts-show">show</a> •
+  <a href="#hosts-subcommands">subcommands</a> •
   <a href="#hosts-unblock">unblock</a> •
   <a href="#hosts-version">version</a>
 </p>
@@ -469,19 +470,6 @@ Exit status:
 
 - [jmdugan/blocklists](https://github.com/jmdugan/blocklists)
 - [notracking/hosts-blocklists](https://github.com/notracking/hosts-blocklists)
-
-### `hosts commands`
-
-```text
-Usage:
-  hosts commands [--raw]
-
-Options:
-  --raw  Display the command list without formatting.
-
-Description:
-  Display the list of available commands.
-```
 
 ### `hosts completions`
 
@@ -631,6 +619,19 @@ Description:
 Exit status:
   0   Success.
   1   Invalid parameters or entry not found.
+```
+
+### `hosts subcommands`
+
+```text
+Usage:
+  hosts subcommands [--raw]
+
+Options:
+  --raw  Display the subcommands list without formatting.
+
+Description:
+  Display the list of available subcommands.
 ```
 
 ### `hosts unblock`
