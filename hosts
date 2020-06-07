@@ -1599,14 +1599,9 @@ _DEFINED_SUBCOMMANDS=()
 # Loads all of the commands sourced in the environment.
 _load_subcommands() {
   _debug printf "_load_subcommands(): entering...\\n"
-  _debug printf "_load_subcommands() declare -F:\\n%s\\n" "$(declare -F)"
 
   local _function_list
   _function_list=($(declare -F))
-
-  _debug printf \
-    "_load_subcommands() \${_function_list[@]}: %s\\n" \
-    "${_function_list[@]}"
 
   for __name in "${_function_list[@]}"
   do
@@ -1618,17 +1613,11 @@ _load_subcommands() {
     local _function_name
     _function_name="$(printf "%s" "${__name}" | awk '{ print $3 }')"
 
-    _debug printf \
-      "_load_subcommands() \${_function_name}: %s\\n" \
-      "${_function_name}"
-
     # Add the function name to the $_DEFINED_SUBCOMMANDS array unless it starts
-    # with an underscore or is one of the desc(), or debug() functions,
-    # since these are treated as having 'private' visibility.
-    if ! { [[ "${_function_name}" =~ ^_(.*)  ]] || \
-           [[ "${_function_name}" == "desc"  ]] || \
-           [[ "${_function_name}" == "debug" ]]
-    }
+    # with an underscore or is desc() since these are treated as having
+    # 'private' visibility.
+    if [[ ! "${_function_name}" =~ ^_(.*) ]] &&
+       [[ "${_function_name}" != "desc"   ]]
     then
       _DEFINED_SUBCOMMANDS+=("${_function_name}")
     fi
