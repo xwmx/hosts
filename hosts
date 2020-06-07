@@ -1605,9 +1605,6 @@ _load_subcommands() {
 
   for __name in "${_function_list[@]}"
   do
-    _debug printf \
-      "_load_subcommands() \${__name}: %s\\n" \
-      "${__name}"
     # Each element has the format `declare -f function_name`, so set the name
     # to only the 'function_name' part of the string.
     local _function_name
