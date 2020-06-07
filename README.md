@@ -331,6 +331,7 @@ Usage:
   hosts add <ip> <hostname> [<comment>]
   hosts backups [create | (compare | delete | restore | show) <filename>]
   hosts block <hostname>...
+  hosts completions (check | install [-d | --download] | uninstall)
   hosts disable (<ip> | <hostname> | <search string>)
   hosts disabled
   hosts edit
@@ -375,6 +376,7 @@ hosts help <command name>
   <a href="#hosts-backups">backups</a> •
   <a href="#hosts-block">block</a> •
   <a href="#hosts-commands">commands</a> •
+  <a href="#hosts-completions">completions</a> •
   <a href="#hosts-disable">disable</a> •
   <a href="#hosts-disabled">disabled</a> •
   <a href="#hosts-edit">edit</a> •
@@ -479,6 +481,20 @@ Options:
 
 Description:
   Display the list of available commands.
+```
+
+### `hosts completions`
+
+```text
+Usage:
+  hosts completions (check | install [-d | --download] | uninstall)
+
+Options:
+  -d, --download  Download the completion scripts and install.
+
+Description:
+  Manage completion scripts. For more information, visit:
+  https://github.com/xwmx/hosts/blob/master/etc/README.md
 ```
 
 ### `hosts disable`
