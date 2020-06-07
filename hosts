@@ -32,20 +32,17 @@ IFS=$'\n\t'
 
 # $_VERSION
 #
-# Manually set this to to current version of the program. Adhere to the
-# semantic versioning specification: http://semver.org
+# The most recent program version.
 _VERSION="3.5.1"
 
 # $_ME
 #
-# Set to the program's basename.
+# This program's basename.
 _ME="$(basename "${0}")"
 
 # $HOSTS_DEFAULT_COMMAND
 #
-# The command to be run by default, when no command name is specified. If the
-# environment has an existing `$HOSTS_DEFAULT_COMMAND` set, then that value is
-# used.
+# The command to be run by default, when no command name is specified.
 HOSTS_DEFAULT_COMMAND="${HOSTS_DEFAULT_COMMAND:-list}"
 
 # $HOSTS_PATH
