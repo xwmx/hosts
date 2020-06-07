@@ -5,6 +5,14 @@
 # https://github.com/koalaman/shellcheck/wiki/Ignore
 ###############################################################################
 
+# Disable SC2183
+#
+# Running into this: https://github.com/koalaman/shellcheck/issues/1310
+# TODO: Check if resolved.
+#
+#https://github.com/koalaman/shellcheck/wiki/SC2183
+disable=SC2183
+
 # Disable SC2206 and SC2207
 #
 # `IFS` and `noglob` are set.

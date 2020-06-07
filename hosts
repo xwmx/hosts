@@ -344,7 +344,7 @@ _print_entries() {
     fi
   done <<< "${_input}"
 
-  _max_divided="$((_max_length / 8))"
+  local _max_quotient="$((_max_length / 8))"
 
   while IFS=$'\t ' read -r -a _parts
   do
@@ -354,9 +354,9 @@ _print_entries() {
       printf "disabled:\\n"
     fi
 
-    _current_divided=$((${#_parts[0]} / 8))
-    _tab_count=$((_max_divided - _current_divided + 1))
-    # shellcheck disable=SC2183
+    local _current_quotient=$((${#_parts[0]} / 8))
+    local _tab_count=$((_max_quotient - _current_quotient + 1))
+    local _tabs=
     _tabs="$(printf "%*s" ${_tab_count} | tr " " '\t')"
 
     if [[ -n "${_parts[2]:-}" ]]
