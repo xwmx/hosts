@@ -1632,7 +1632,7 @@ _load_subcommands() {
   done
 
   _debug printf \
-    "commands() \${_DEFINED_SUBCOMMANDS[*]:-}:\\n%s\\n" \
+    "_load_subcommands() \${_DEFINED_SUBCOMMANDS[*]:-}:\\n%s\\n" \
     "${_DEFINED_SUBCOMMANDS[*]:-}"
 }
 
