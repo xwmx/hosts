@@ -610,16 +610,16 @@ add() {
 desc "backups" <<HEREDOC
 Usage:
   ${_ME} backups
-  ${_ME} backups create
   ${_ME} backups compare <filename>
+  ${_ME} backups create
   ${_ME} backups delete  <filename>
   ${_ME} backups restore <filename> [--skip-backup]
   ${_ME} backups show    <filename>
 
 Subcommands:
   backups           List available backups.
-  backups create    Create a new backup of the hosts file.
   backups compare   Compare a backup file with the current hosts file.
+  backups create    Create a new backup of the hosts file.
   backups delete    Delete the specified backup.
   backups restore   Replace the contents of the hosts file with a
                     specified backup. The hosts file is automatically
@@ -647,7 +647,7 @@ backups() {
       --skip-backup)
         _skip_backup=1
         ;;
-      create|compare|delete|restore|show)
+      compare|create|delete|restore|show)
         _subcommand="${__arg}"
         ;;
       *)
@@ -660,15 +660,6 @@ backups() {
   done
 
   case "${_subcommand}" in
-    create)
-      _verify_write_permissions
-
-      local _timestamp
-      _timestamp="$(date +"%Y%m%d%H%M%S")"
-
-      cp "${HOSTS_PATH}" "${HOSTS_PATH}--backup-${_timestamp}" && \
-        printf "Backed up to %s--backup-%s\\n" "${HOSTS_PATH}" "${_timestamp}"
-      ;;
     compare)
       if [[ -z "${_filename:-}" ]]
       then
@@ -680,6 +671,15 @@ backups() {
       fi
 
       diff -u "${HOSTS_PATH}" "${_hosts_dirname}/${_filename}"
+      ;;
+    create)
+      _verify_write_permissions
+
+      local _timestamp
+      _timestamp="$(date +"%Y%m%d%H%M%S")"
+
+      cp "${HOSTS_PATH}" "${HOSTS_PATH}--backup-${_timestamp}" && \
+        printf "Backed up to %s--backup-%s\\n" "${HOSTS_PATH}" "${_timestamp}"
       ;;
     delete)
       if [[ -z "${_filename:-}" ]]
