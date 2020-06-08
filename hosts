@@ -1477,7 +1477,6 @@ show() {
 
     _print_entries "${_enabled_records}"
 
-
     if [[ -n "${_disabled_records}" ]]
     then
       [[ -n "${_enabled_records}" ]] && printf "\\n"
