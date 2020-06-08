@@ -473,7 +473,7 @@ A program for managing host file entries.
 Usage:
   ${_ME} [<search string>]
   ${_ME} add <ip> <hostname> [<comment>]
-  ${_ME} backups [create | [compare | delete | restore | show] <filename>]
+  ${_ME} backups [create | (compare | delete | restore | show) <filename>]
   ${_ME} block <hostname>...
   ${_ME} completions (check | install [-d | --download] | uninstall)
   ${_ME} disable (<ip> | <hostname> | <search string>)
@@ -613,16 +613,16 @@ add() {
 desc "backups" <<HEREDOC
 Usage:
   ${_ME} backups
-  ${_ME} backups compare <filename>
   ${_ME} backups create
+  ${_ME} backups compare <filename>
   ${_ME} backups delete  <filename>
   ${_ME} backups restore <filename> [--skip-backup]
   ${_ME} backups show    <filename>
 
 Subcommands:
   backups           List available backups.
-  backups compare   Compare a backup file with the current hosts file.
   backups create    Create a new backup of the hosts file.
+  backups compare   Compare a backup file with the current hosts file.
   backups delete    Delete the specified backup.
   backups restore   Replace the contents of the hosts file with a
                     specified backup. The hosts file is automatically

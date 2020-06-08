@@ -329,7 +329,7 @@ alias hosts="hosts --auto-sudo"
 Usage:
   hosts [<search string>]
   hosts add <ip> <hostname> [<comment>]
-  hosts backups [create | [compare | delete | restore | show] <filename>]
+  hosts backups [create | (compare | delete | restore | show) <filename>]
   hosts block <hostname>...
   hosts completions (check | install [-d | --download] | uninstall)
   hosts disable (<ip> | <hostname> | <search string>)
