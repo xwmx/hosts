@@ -902,8 +902,20 @@ completions() {
       _download=1
     fi
 
+    local _my_path="${0}"
+
+    if [[ -L "${_my_path}" ]]
+    then
+      if hash "realpath" 2>/dev/null
+      then
+        _my_path="$(realpath "${_my_path}")"
+      else
+        _my_path="$(readlink "${_my_path}")"
+      fi
+    fi
+
     local _my_dir=
-    _my_dir="$(cd "$(dirname "$(realpath "$0")")"; pwd)"
+    _my_dir="$(cd "$(dirname "${_my_path}")"; pwd)"
     if [[ -z "${_my_dir}" ]] || [[ ! -d "${_my_dir}" ]]
     then
       exit 1
