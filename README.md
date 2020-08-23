@@ -191,7 +191,7 @@ Removed:
 
 ### Enabling / Disabling Entries
 
-Add entries are enabled by default. Disabiling an entry comments it out
+All entries are enabled by default. Disabiling an entry comments it out
 so it has no effect, but remains in the hosts file ready to be enabled
 again.
 
