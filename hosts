@@ -82,22 +82,6 @@ export _SPACE_=$' '
 export _TAB_SPACE_="${_TAB_}${_SPACE_}"
 export _TAB_SPACE_CC_="[${_TAB_SPACE_}]"
 
-# $_SED_I_COMMAND
-#
-# `sed -i` takes an extension on macOS, but that extension can cause errors in
-# GNU `sed`.
-#
-# NOTE: To use this command, call it with `"${_SED_I_COMMAND[@]}"`
-#
-# https://stackoverflow.com/q/43171648
-# http://stackoverflow.com/a/16746032
-if sed --help >/dev/null 2>&1
-then # GNU
-  export _SED_I_COMMAND=(sed -i)
-else # BSD
-  export _SED_I_COMMAND=(sed -i '')
-fi
-
 # $_REPO
 #
 # The <user>/<repo> identifier for the git repository.
@@ -346,6 +330,22 @@ _print_entries() {
     fi
 
   done <<< "${_input}"
+}
+
+# _sed_i()
+#
+# `sed -i` takes an extension on macOS, but that extension can cause errors in
+# GNU `sed`.
+#
+# https://stackoverflow.com/q/43171648
+# https://stackoverflow.com/a/16746032
+_sed_i() {
+  if sed --help >/dev/null 2>&1
+  then # GNU
+    sed -i "${@}"
+  else # BSD
+    sed -i '' "${@}"
+  fi
 }
 
 # _verify_write_permissions
@@ -1111,7 +1111,7 @@ disable() {
 
     printf "Disabling:\\n%s\\n" "${_targets}"
 
-    "${_SED_I_COMMAND[@]}"                                    \
+    _sed_i                                                    \
       -e "s/${_regex_ip}/\\#disabled: \\1/g"                  \
       -e "s/${_regex_commented_hostname}/\\#disabled: \\1/g"  \
       -e "s/${_regex_hostname}/\\#disabled: \\1/g"            \
@@ -1210,7 +1210,7 @@ enable() {
 
     printf "Enabling:\\n%s\\n" "${_targets}"
 
-    "${_SED_I_COMMAND[@]}"                      \
+    _sed_i                                      \
       -e "s/${_regex_ip}/\\1/g"                 \
       -e "s/${_regex_commented_hostname}/\\1/g" \
       -e "s/${_regex_hostname}/\\1/g"           \
@@ -1423,12 +1423,12 @@ remove() {
 
   if ((_is_search_pair))
   then
-    "${_SED_I_COMMAND[@]}"                    \
+    _sed_i                                    \
       -e "/${_regex_ip_hostname_commented}/d" \
       -e "/${_regex_ip_hostname}/d"           \
       "${HOSTS_PATH}"
   else
-    "${_SED_I_COMMAND[@]}"                    \
+    _sed_i                                    \
       -e "/${_regex_ip}/d"                    \
       -e "/${_regex_commented_hostname}/d"    \
       -e "/${_regex_hostname}/d"              \
