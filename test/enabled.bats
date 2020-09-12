@@ -18,7 +18,7 @@ load test_helper
   [[ ${status} -eq 0 ]]
 }
 
-@test "\`enabled\` with no arguments prints list of enabled records." {
+@test "\`enabled\` with no arguments prints list of enabled entries." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net

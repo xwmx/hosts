@@ -49,7 +49,7 @@ load test_helper
   [[ ${status} -eq 0 ]]
 }
 
-@test "\`search enabled\` prints list of enabled records." {
+@test "\`search enabled\` prints list of enabled entries." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net
@@ -95,7 +95,7 @@ load test_helper
   [[ ${status} -eq 0 ]]
 }
 
-@test "\`search disabled\` prints list of disabled records." {
+@test "\`search disabled\` prints list of disabled entries." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net
@@ -133,7 +133,7 @@ load test_helper
   [[ ${status} -eq 0 ]]
 }
 
-@test "\`search <search string>\` prints list of matching records." {
+@test "\`search <search string>\` prints list of matching entries." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net
@@ -148,7 +148,7 @@ load test_helper
   [[ "${lines[2]}" == "" ]]
 }
 
-@test "\`search <search string>\` prints records with matching comments." {
+@test "\`search <search string>\` prints entries with matching comments." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net "Example Comment"
@@ -162,7 +162,7 @@ load test_helper
   [[ "${lines[2]}" == "" ]]
 }
 
-@test "\`search <search string>\` prints disabled records with matching comments." {
+@test "\`search <search string>\` prints disabled entries with matching comments." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net "Example Comment"

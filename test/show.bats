@@ -21,7 +21,7 @@ load test_helper
 
 # `hosts show <no matching>` ##################################################
 
-@test "\`show <query>\` with no matching records with status 1." {
+@test "\`show <query>\` with no matching entries with status 1." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net
@@ -77,7 +77,7 @@ load test_helper
 
 # `hosts show <search string>` ################################################
 
-@test "\`show <search string>\` exits with status 0 and shows matching records." {
+@test "\`show <search string>\` exits with status 0 and shows matching entries." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net
@@ -94,7 +94,7 @@ load test_helper
   [[ "${lines[2]}" == "" ]]
 }
 
-@test "\`show <search string>\` prints records with matching comments." {
+@test "\`show <search string>\` prints entries with matching comments." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net "Example Comment"
@@ -109,7 +109,7 @@ load test_helper
   [[ "${lines[2]}" == "" ]]
 }
 
-@test "\`show <search string>\` prints disabled records with matching comments." {
+@test "\`show <search string>\` prints disabled entries with matching comments." {
   {
     run "${_HOSTS}" add 0.0.0.0 example.com
     run "${_HOSTS}" add 0.0.0.0 example.net "Example Comment"

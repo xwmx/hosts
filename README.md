@@ -159,7 +159,7 @@ address, domain, or regular expression:
 
 ```bash
 > hosts remove example.com
-Removing the following records:
+Removing the following entries:
 127.0.0.1	example.com
 Are you sure you want to proceed? [y/N] y
 Removed:
@@ -401,7 +401,7 @@ Usage:
 
 Description:
   List the existing IP / hostname pairs, optionally limited to a specified
-  state. When provided with a seach string, all matching enabled records will
+  state. When provided with a seach string, all matching enabled entries will
   be printed.
 
   Alias for `hosts list`
@@ -496,7 +496,7 @@ Usage:
   hosts disable (<ip> | <hostname> | <search string>)
 
 Description:
-  Disable one or more records based on a given ip address, hostname, or
+  Disable one or more entries based on a given ip address, hostname, or
   search string.
 
 Exit status:
@@ -511,7 +511,7 @@ Usage:
   hosts disabled
 
 Description:
-  List all disabled records. This is an alias for `hosts list disabled`.
+  List all disabled entries. This is an alias for `hosts list disabled`.
 
 Exit status:
   0   One or more disabled entries found.
@@ -535,7 +535,7 @@ Usage:
   hosts enable (<ip> | <hostname> | <search string>)
 
 Description:
-  Enable one or more disabled records based on a given ip address, hostname,
+  Enable one or more disabled entries based on a given ip address, hostname,
   or search string.
 
 Exit status:
@@ -550,7 +550,7 @@ Usage:
   hosts enabled
 
 Description:
-  List all enabled records. This is an alias for `hosts list enabled`.
+  List all enabled entries. This is an alias for `hosts list enabled`.
 
 Exit status:
   0   One or more enabled entries found.
@@ -585,7 +585,7 @@ Usage:
 
 Description:
   List the existing IP / hostname pairs, optionally limited to a specified
-  state. When provided with a seach string, all matching enabled records will
+  state. When provided with a seach string, all matching enabled entries will
   be printed.
 
 Exit status:
@@ -604,8 +604,8 @@ Options:
   --force  Skip the confirmation prompt.
 
 Description:
-  Remove one or more records based on a given IP address, hostname, or search
-  string. If an IP and hostname are both provided, only records matching the
+  Remove one or more entries based on a given IP address, hostname, or search
+  string. If an IP and hostname are both provided, only entries matching the
   IP and hostname pair will be removed.
 
 Exit status:

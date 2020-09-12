@@ -1064,7 +1064,7 @@ Usage:
   ${_ME} disable (<ip> | <hostname> | <search string>)
 
 Description:
-  Disable one or more records based on a given ip address, hostname, or
+  Disable one or more entries based on a given ip address, hostname, or
   search string.
 
 Exit status:
@@ -1130,7 +1130,7 @@ Usage:
   ${_ME} disabled
 
 Description:
-  List all disabled records. This is an alias for \`hosts list disabled\`.
+  List all disabled entries. This is an alias for \`hosts list disabled\`.
 
 Exit status:
   0   One or more disabled entries found.
@@ -1167,7 +1167,7 @@ Usage:
   ${_ME} enable (<ip> | <hostname> | <search string>)
 
 Description:
-  Enable one or more disabled records based on a given ip address, hostname,
+  Enable one or more disabled entries based on a given ip address, hostname,
   or search string.
 
 Exit status:
@@ -1233,7 +1233,7 @@ Usage:
   ${_ME} enabled
 
 Description:
-  List all enabled records. This is an alias for \`hosts list enabled\`.
+  List all enabled entries. This is an alias for \`hosts list enabled\`.
 
 Exit status:
   0   One or more enabled entries found.
@@ -1264,7 +1264,7 @@ Usage:
 
 Description:
   List the existing IP / hostname pairs, optionally limited to a specified
-  state. When provided with a seach string, all matching enabled records will
+  state. When provided with a seach string, all matching enabled entries will
   be printed.
 
 Exit status:
@@ -1272,15 +1272,15 @@ Exit status:
   1   Invalid parameters or entry not found.
 HEREDOC
 list() {
-  local _disabled_records
-  _disabled_records=$(
+  local _disabled_entries
+  _disabled_entries=$(
     sed -n "s/^\\#disabled: \\(.*\\)$/\\1/p" "${HOSTS_PATH}"
   )
 
   # NOTE: use separate expressions since using `|` for the 'or' results in
   # inconsistent behavior.
-  local _enabled_records
-  _enabled_records="$(
+  local _enabled_entries
+  _enabled_entries="$(
     grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
   )"
 
@@ -1288,28 +1288,28 @@ list() {
   then
     if [[ "${1}" == "disabled" ]]
     then
-      [[ -z "${_disabled_records}" ]] && return 1
-      _print_entries "${_disabled_records}"
+      [[ -z "${_disabled_entries}" ]] && return 1
+      _print_entries "${_disabled_entries}"
     elif [[ "${1}" == "enabled" ]]
     then
-      [[ -z "${_enabled_records}" ]] && return 1
-      _print_entries "${_enabled_records}"
+      [[ -z "${_enabled_entries}" ]] && return 1
+      _print_entries "${_enabled_entries}"
     else
       show "${1}"
     fi
   else
-    [[ -z "${_enabled_records}" ]] &&
-    [[ -z "${_enabled_records}" ]] &&
+    [[ -z "${_enabled_entries}" ]] &&
+    [[ -z "${_enabled_entries}" ]] &&
       return 1
 
-    _print_entries "${_enabled_records:-}"
+    _print_entries "${_enabled_entries:-}"
 
-    if [[ -n "${_disabled_records:-}" ]]
+    if [[ -n "${_disabled_entries:-}" ]]
     then
-      [[ -n "${_enabled_records:-}" ]] && printf "\\n"
+      [[ -n "${_enabled_entries:-}" ]] && printf "\\n"
       printf "Disabled:\\n"
       printf "%s\\n" "---------"
-      _print_entries "${_disabled_records}"
+      _print_entries "${_disabled_entries}"
     fi
   fi
 }
@@ -1325,8 +1325,8 @@ Options:
   --force  Skip the confirmation prompt.
 
 Description:
-  Remove one or more records based on a given IP address, hostname, or search
-  string. If an IP and hostname are both provided, only records matching the
+  Remove one or more entries based on a given IP address, hostname, or search
+  string. If an IP and hostname are both provided, only entries matching the
   IP and hostname pair will be removed.
 
 Exit status:
@@ -1400,18 +1400,18 @@ remove() {
   local _regex_hostname
   _regex_hostname="^\\(..*[${_TAB_SPACE_}]${_search_string}\\)$"
 
-  local _target_records
+  local _target_entries
 
   if ((_is_search_pair))
   then
-    _target_records=$(
+    _target_entries=$(
       sed -n                                          \
         -e "s/${_regex_ip_hostname_commented}/\\1/p"  \
         -e "s/${_regex_ip_hostname}/\\1/p"            \
         "${HOSTS_PATH}"
     )
   else
-    _target_records=$(
+    _target_entries=$(
       sed -n                                      \
         -e "s/${_regex_ip}/\\1/p"                 \
         -e "s/${_regex_commented_hostname}/\\1/p" \
@@ -1420,14 +1420,14 @@ remove() {
     )
   fi
 
-  if [[ -z "${_target_records:-}" ]]
+  if [[ -z "${_target_entries:-}" ]]
   then
-    _exit_1 printf "No matching records found.\\n"
+    _exit_1 printf "No matching entries found.\\n"
   fi
 
   if ! ((_force_skip_prompt))
   then
-    printf "Removing the following records:\\n%s\\n" "${_target_records}"
+    printf "Removing the following entries:\\n%s\\n" "${_target_entries}"
 
     while true
     do
@@ -1459,7 +1459,7 @@ remove() {
       "${HOSTS_PATH}"
   fi
 
-  printf "Removed:\\n%s\\n" "${_target_records}"
+  printf "Removed:\\n%s\\n" "${_target_entries}"
 }
 desc "delete" "$(desc --get 'remove')"
 delete() { remove "${@}"; }
@@ -1504,30 +1504,30 @@ show() {
   if [[ -n "${1:-}" ]]
   then
     # Run `sed` before `grep` to avoid conflict that supresses `sed` output.
-    local _disabled_records
-    _disabled_records="$(
+    local _disabled_entries
+    _disabled_entries="$(
       sed -n "s/^\\#disabled: \\(.*${1}.*\\)$/\\1/p" "${HOSTS_PATH}"
     )"
 
-    local _enabled_records
-    _enabled_records="$(
+    local _enabled_entries
+    _enabled_entries="$(
       grep --invert-match "^#" "${HOSTS_PATH}" | grep "${1}" || true
     )"
 
-    if [[ -z "${_disabled_records}" ]] &&
-       [[ -z "${_enabled_records}"  ]]
+    if [[ -z "${_disabled_entries}" ]] &&
+       [[ -z "${_enabled_entries}"  ]]
     then
       _return_1 printf "No matching entries.\\n"
     fi
 
-    _print_entries "${_enabled_records}"
+    _print_entries "${_enabled_entries}"
 
-    if [[ -n "${_disabled_records}" ]]
+    if [[ -n "${_disabled_entries}" ]]
     then
-      [[ -n "${_enabled_records}" ]] && printf "\\n"
+      [[ -n "${_enabled_entries}" ]] && printf "\\n"
       printf "Disabled:\\n"
       printf "%s\\n" "---------"
-      _print_entries "${_disabled_records}"
+      _print_entries "${_disabled_entries}"
     fi
   else
     help show
