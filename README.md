@@ -512,6 +512,10 @@ Usage:
 
 Description:
   List all disabled records. This is an alias for `hosts list disabled`.
+
+Exit status:
+  0   One or more disabled entries found.
+  1   Invalid parameters or no disabled entries found.
 ```
 
 ### `hosts edit`
@@ -547,6 +551,10 @@ Usage:
 
 Description:
   List all enabled records. This is an alias for `hosts list enabled`.
+
+Exit status:
+  0   One or more enabled entries found.
+  1   Invalid parameters or no enabled entries found.
 ```
 
 ### `hosts file`
@@ -579,6 +587,10 @@ Description:
   List the existing IP / hostname pairs, optionally limited to a specified
   state. When provided with a seach string, all matching enabled records will
   be printed.
+
+Exit status:
+  0   One or more matching entries found.
+  1   Invalid parameters or entry not found.
 ```
 
 ### `hosts remove`

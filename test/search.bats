@@ -29,18 +29,8 @@ load test_helper
   run "${_HOSTS}" search
   printf "\${status}: %s\\n" "${status}"
   printf "\${output}: '%s'\\n" "${output}"
-  _expected="\
-Usage:
-  hosts search <search string>
-
-Description:
-  Search entries for <search string>.
-
-Exit status:
-  0   One or more matching entries found.
-  1   Invalid parameters or entry not found."
-  _compare "'${_expected}'" "'${output}'"
-  [[ "${output}" == "${_expected}" ]]
+  [[ "${lines[0]}" == "Usage:"                          ]]
+  [[ "${lines[1]}" == "  hosts search <search string>"  ]]
 }
 
 # `hosts search enabled` ######################################################
@@ -77,6 +67,18 @@ Exit status:
   [[ "${lines[4]}" =~ 127.0.0.2[[:space:]]+example.com          ]]
 }
 
+@test "\`search enabled\` exits with status 1 when no matching entries found." {
+  {
+    run "${_HOSTS}" disable localhost
+    run "${_HOSTS}" disable broadcasthost
+  }
+
+  run "${_HOSTS}" search enabled
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
+  [[ ${status} -eq 1 ]]
+}
+
 # `hosts search disabled` #####################################################
 
 @test "\`search disabled\` exits with status 0." {
@@ -107,6 +109,13 @@ Exit status:
   [[ "${lines[0]}" =~ 0.0.0.0[[:space:]]+example.com    ]]
   [[ "${lines[1]}" =~ 127.0.0.1[[:space:]]+example.com  ]]
   [[ "${lines[2]}" == "" ]]
+}
+
+@test "\`search disabled\` exits with status 1 when no matching entries found." {
+  run "${_HOSTS}" search disabled
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
+  [[ ${status} -eq 1 ]]
 }
 
 # `hosts search <search string>` ################################################
@@ -168,6 +177,13 @@ Exit status:
   [[ "${lines[0]}" =~ 0.0.0.0[[:space:]]+example.net[[:space:]]+\#\ Example\ Comment    ]]
   [[ "${lines[3]}" =~ 127.0.0.1[[:space:]]+example.biz[[:space:]]+\#\ Example\ Comment  ]]
   [[ "${lines[4]}" == "" ]]
+}
+
+@test "\`search <search string>\` exits with status 1 when no matching entries found." {
+  run "${_HOSTS}" search query-that-matches-no-entries
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
+  [[ ${status} -eq 1 ]]
 }
 
 # help ########################################################################

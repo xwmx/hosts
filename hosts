@@ -1131,6 +1131,10 @@ Usage:
 
 Description:
   List all disabled records. This is an alias for \`hosts list disabled\`.
+
+Exit status:
+  0   One or more disabled entries found.
+  1   Invalid parameters or no disabled entries found.
 HEREDOC
 disabled() {
   list disabled
@@ -1230,6 +1234,10 @@ Usage:
 
 Description:
   List all enabled records. This is an alias for \`hosts list enabled\`.
+
+Exit status:
+  0   One or more enabled entries found.
+  1   Invalid parameters or no enabled entries found.
 HEREDOC
 enabled() {
   list enabled
@@ -1258,6 +1266,10 @@ Description:
   List the existing IP / hostname pairs, optionally limited to a specified
   state. When provided with a seach string, all matching enabled records will
   be printed.
+
+Exit status:
+  0   One or more matching entries found.
+  1   Invalid parameters or entry not found.
 HEREDOC
 list() {
   local _disabled_records
@@ -1265,22 +1277,30 @@ list() {
     sed -n "s/^\\#disabled: \\(.*\\)$/\\1/p" "${HOSTS_PATH}"
   )
 
+  # NOTE: use separate expressions since using `|` for the 'or' results in
+  # inconsistent behavior.
+  local _enabled_records
+  _enabled_records="$(
+    grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
+  )"
+
   if [[ -n "${1:-}" ]]
   then
     if [[ "${1}" == "disabled" ]]
     then
+      [[ -z "${_disabled_records}" ]] && return 1
       _print_entries "${_disabled_records}"
     elif [[ "${1}" == "enabled" ]]
     then
-      _print_entries "$(grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}")"
+      [[ -z "${_enabled_records}" ]] && return 1
+      _print_entries "${_enabled_records}"
     else
       show "${1}"
     fi
   else
-    # NOTE: use separate expressions since using `|` for the 'or' results in
-    # inconsistent behavior.
-    local _enabled_records
-    _enabled_records="$(grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}")"
+    [[ -z "${_enabled_records}" ]] &&
+    [[ -z "${_enabled_records}" ]] &&
+      return 1
 
     _print_entries "${_enabled_records:-}"
 

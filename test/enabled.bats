@@ -36,6 +36,18 @@ load test_helper
   [[ "${lines[4]}" =~ 127.0.0.2[[:space:]]+example.com ]]
 }
 
+@test "\`enabled\` exits with status 1 when no matching entries found." {
+  {
+    run "${_HOSTS}" disable localhost
+    run "${_HOSTS}" disable broadcasthost
+  }
+
+  run "${_HOSTS}" enabled
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
+  [[ ${status} -eq 1 ]]
+}
+
 # help ########################################################################
 
 @test "\`help enabled\` exits with status 0." {

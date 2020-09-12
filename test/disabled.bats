@@ -34,6 +34,13 @@ load test_helper
   [[ "${lines[2]}" == "" ]]
 }
 
+@test "\`disabled\` exits with status 1 when no matching entries found." {
+  run "${_HOSTS}" disabled
+  printf "\${status}: %s\\n" "${status}"
+  printf "\${output}: '%s'\\n" "${output}"
+  [[ ${status} -eq 1 ]]
+}
+
 # help ########################################################################
 
 @test "\`help disabled\` exits with status 0." {
