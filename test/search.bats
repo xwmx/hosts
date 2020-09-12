@@ -34,7 +34,11 @@ Usage:
   hosts search <search string>
 
 Description:
-  Search entries for <search string>."
+  Search entries for <search string>.
+
+Exit status:
+  0   One or more matching entries found.
+  1   Invalid parameters or entry not found."
   _compare "'${_expected}'" "'${output}'"
   [[ "${output}" == "${_expected}" ]]
 }

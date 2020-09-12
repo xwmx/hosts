@@ -417,7 +417,7 @@ Description:
   Add a given IP address and hostname pair, along with an optional comment.
 
 Exit status:
-  0   Success.
+  0   Entry successfully added.
   1   Invalid parameters or entry exists.
 ```
 
@@ -462,7 +462,7 @@ Description:
   for IPv4 and both `fe80::1%lo0` and `::1` for IPv6.
 
 Exit status:
-  0   Success.
+  0   <hostname> successfully blocked.
   1   Invalid parameters or entry exists.
 ```
 
@@ -483,6 +483,10 @@ Options:
 Description:
   Manage completion scripts. For more information, visit:
   https://github.com/xwmx/hosts/blob/master/etc/README.md
+
+Exit status:
+  0   Completions successfully installed.
+  1   Invalid parameters or other error.
 ```
 
 ### `hosts disable`
@@ -496,7 +500,7 @@ Description:
   search string.
 
 Exit status:
-  0   Success.
+  0   Entry successfully disabled.
   1   Invalid parameters or entry not found.
 ```
 
@@ -531,7 +535,7 @@ Description:
   or search string.
 
 Exit status:
-  0   Success.
+  0   Entry successfully enabled.
   1   Invalid parameters or entry not found.
 ```
 
@@ -593,7 +597,7 @@ Description:
   IP and hostname pair will be removed.
 
 Exit status:
-  0   Success.
+  0   Entry successfully removed.
   1   Invalid parameters or entry not found.
 ```
 
@@ -605,6 +609,10 @@ Usage:
 
 Description:
   Search entries for <search string>.
+
+Exit status:
+  0   One or more matching entries found.
+  1   Invalid parameters or entry not found.
 ```
 
 ### `hosts show`
@@ -617,7 +625,7 @@ Description:
   Print entries matching a given IP address, hostname, or search string.
 
 Exit status:
-  0   Success.
+  0   One or more matching entries found.
   1   Invalid parameters or entry not found.
 ```
 
@@ -644,7 +652,7 @@ Description:
   Unblock one or more hostnames by removing the entries from the hosts file.
 
 Exit status:
-  0   Success.
+  0   <hostname> successfully unblocked.
   1   Invalid parameters or entry not found
 ```
 
