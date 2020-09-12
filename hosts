@@ -71,17 +71,6 @@ HOSTS_DEFAULT_SUBCOMMAND="${HOSTS_DEFAULT_SUBCOMMAND:-list}"
 # The path to the hosts file. This will almost always be /etc/hosts
 HOSTS_PATH="${HOSTS_PATH:-/etc/hosts}"
 
-# Space and tab for regular expressions
-#
-# sed regular expressions have slightly different behaviors dependending on
-# the environment, and POSIX [[:space:]] matches whitespace characters other
-# than just space and tab. These variables provide an easier, portable way to
-# test for just these two characters.
-export _TAB_=$'\t'
-export _SPACE_=$' '
-export _TAB_SPACE_="${_TAB_}${_SPACE_}"
-export _TAB_SPACE_CC_="[${_TAB_SPACE_}]"
-
 # $_REPO
 #
 # The <user>/<repo> identifier for the git repository.
@@ -173,8 +162,19 @@ _warn() {
 }
 
 ###############################################################################
-# Utility Functions
+# Helpers
 ###############################################################################
+
+# Space and tab for regular expressions
+#
+# sed regular expressions have slightly different behaviors dependending on
+# the environment, and POSIX [[:space:]] matches whitespace characters other
+# than just space and tab. These variables provide an easier, portable way to
+# test for just these two characters.
+export _TAB_=$'\t'
+export _SPACE_=$' '
+export _TAB_SPACE_="${_TAB_}${_SPACE_}"
+export _TAB_SPACE_CC_="[${_TAB_SPACE_}]"
 
 # _contains()
 #
