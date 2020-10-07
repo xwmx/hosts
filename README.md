@@ -25,7 +25,8 @@ single, portable script that can be `curl`ed into any environment.
 To install with [Homebrew](http://brew.sh/):
 
 ```bash
-brew install xwmx/taps/hosts
+brew tap xwmx/taps
+brew install hosts
 ```
 
 ### npm
