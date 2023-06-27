@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/xwmx/hosts.svg?branch=master)](https://travis-ci.org/xwmx/hosts)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/xwmx/hosts/tests.yml?branch=master)](https://github.com/xwmx/hosts/actions)
 
         __               __
        / /_  ____  _____/ /______
