@@ -1504,7 +1504,7 @@ show() {
     # Run `sed` before `grep` to avoid conflict that supresses `sed` output.
     local _disabled_entries=
     _disabled_entries="$(
-      sed -n "s/^\\#disabled: \\(.*${1}.*\\)$/\\1/p" "${HOSTS_PATH}"
+      sed -n "s/^#disabled: \\(.*${1}.*\\)$/\\1/p" "${HOSTS_PATH}"
     )"
 
     local _enabled_entries=
