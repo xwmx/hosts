@@ -1272,7 +1272,7 @@ HEREDOC
 list() {
   local _disabled_entries=
   _disabled_entries=$(
-    sed -n "s/^\\#disabled: \\(.*\\)$/\\1/p" "${HOSTS_PATH}"
+    sed -n 's/^#disabled: \(.*\)$/\1/p' "${HOSTS_PATH}"
   )
 
   # NOTE: use separate expressions since using `|` for the 'or' results in
