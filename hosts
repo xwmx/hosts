@@ -676,7 +676,7 @@ backups() {
     create)
       _verify_write_permissions
 
-      local _timestamp
+      local _timestamp=
       _timestamp="$(date +"%Y%m%d%H%M%S")"
 
       cp "${HOSTS_PATH}" "${HOSTS_PATH}--backup-${_timestamp}" && \
@@ -1086,16 +1086,16 @@ disable() {
     # - Note double periods in regular expression in order to emulate /.+/,
     #   which apparently doesn't work properly with all versions of sed.
 
-    local _regex_ip
+    local _regex_ip=
     _regex_ip="^\\(${_search_string}[${_TAB_SPACE_}]..*\\)$"
 
-    local _regex_commented_hostname
+    local _regex_commented_hostname=
     _regex_commented_hostname="^\\([^#]..*[${_TAB_SPACE_}]${_search_string}[${_TAB_SPACE_}]..*\\)$"
 
-    local _regex_hostname
+    local _regex_hostname=
     _regex_hostname="^\\([^#]..*[${_TAB_SPACE_}]${_search_string}\\)$"
 
-    local _targets
+    local _targets=
     _targets=$(
       sed -n                                      \
         -e "s/${_regex_ip}/\\1/p"                 \
@@ -1189,16 +1189,16 @@ enable() {
     # - Note double periods in regular expression in order to emulate /.+/,
     #   which apparently doesn't work properly with all versions of sed.
 
-    local _regex_ip
+    local _regex_ip=
     _regex_ip="^\\#disabled: \\(${_search_string}[${_TAB_SPACE_}]..*\\)$"
 
-    local _regex_commented_hostname
+    local _regex_commented_hostname=
     _regex_commented_hostname="^\\#disabled: \\(..*[${_TAB_SPACE_}]${_search_string}[${_TAB_SPACE_}]..*\\)$"
 
-    local _regex_hostname
+    local _regex_hostname=
     _regex_hostname="^\\#disabled: \\(..*[${_TAB_SPACE_}]${_search_string}\\)$"
 
-    local _targets
+    local _targets=
     _targets=$(
       sed -n                                      \
         -e "s/${_regex_ip}/\\1/p"                 \
@@ -1270,14 +1270,14 @@ Exit status:
   1   Invalid parameters or entry not found.
 HEREDOC
 list() {
-  local _disabled_entries
+  local _disabled_entries=
   _disabled_entries=$(
     sed -n "s/^\\#disabled: \\(.*\\)$/\\1/p" "${HOSTS_PATH}"
   )
 
   # NOTE: use separate expressions since using `|` for the 'or' results in
   # inconsistent behavior.
-  local _enabled_entries
+  local _enabled_entries=
   _enabled_entries="$(
     grep -v -e '^$' -e '^\s*#' "${HOSTS_PATH}"
   )"
@@ -1382,23 +1382,23 @@ remove() {
   # which apparently doesn't work properly with all versions of sed.
 
   # IP / Hostname pair regular expressions:
-  local _regex_ip_hostname_commented
+  local _regex_ip_hostname_commented=
   _regex_ip_hostname_commented="^\\(${_search_ip}[${_TAB_SPACE_}]*${_search_hostname}[${_TAB_SPACE_}]..*\\)$"
 
-  local _regex_ip_hostname
+  local _regex_ip_hostname=
   _regex_ip_hostname="^\\(${_search_ip}[${_TAB_SPACE_}]*${_search_hostname}\\)$"
 
   # Search string regular expressions:
-  local _regex_ip
+  local _regex_ip=
   _regex_ip="^\\(${_search_string}[${_TAB_SPACE_}]..*\\)$"
 
-  local _regex_commented_hostname
+  local _regex_commented_hostname=
   _regex_commented_hostname="^\\(..*[${_TAB_SPACE_}]${_search_string}[${_TAB_SPACE_}]..*\\)$"
 
-  local _regex_hostname
+  local _regex_hostname=
   _regex_hostname="^\\(..*[${_TAB_SPACE_}]${_search_string}\\)$"
 
-  local _target_entries
+  local _target_entries=
 
   if ((_is_search_pair))
   then
@@ -1502,12 +1502,12 @@ show() {
   if [[ -n "${1:-}" ]]
   then
     # Run `sed` before `grep` to avoid conflict that supresses `sed` output.
-    local _disabled_entries
+    local _disabled_entries=
     _disabled_entries="$(
       sed -n "s/^\\#disabled: \\(.*${1}.*\\)$/\\1/p" "${HOSTS_PATH}"
     )"
 
-    local _enabled_entries
+    local _enabled_entries=
     _enabled_entries="$(
       grep --invert-match "^#" "${HOSTS_PATH}" | grep "${1}" || true
     )"
@@ -1690,14 +1690,14 @@ _DEFINED_SUBCOMMANDS=()
 _load_subcommands() {
   _debug printf "_load_subcommands(): entering...\\n"
 
-  local _function_list
+  local _function_list=
   _function_list=($(declare -F))
 
   for __name in "${_function_list[@]}"
   do
     # Each element has the format `declare -f function_name`, so set the name
     # to only the 'function_name' part of the string.
-    local _function_name
+    local _function_name=
     _function_name="$(printf "%s" "${__name}" | awk '{ print $3 }')"
 
     # Add the function name to the $_DEFINED_SUBCOMMANDS array unless it starts
