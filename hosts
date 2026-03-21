@@ -1281,7 +1281,7 @@ list() {
   # inconsistent behavior.
   local _enabled_entries
   _enabled_entries="$(
-    grep -v -e '^$' -e '^\s*\#' "${HOSTS_PATH}"
+    grep -v -e '^$' -e '^\s*#' "${HOSTS_PATH}"
   )"
 
   if [[ -n "${1:-}" ]]
