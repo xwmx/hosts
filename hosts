@@ -1509,7 +1509,7 @@ show() {
 
     local _enabled_entries=
     _enabled_entries="$(
-      grep --invert-match "^#" "${HOSTS_PATH}" | grep "${1}" || true
+      grep --invert-match '^#' "${HOSTS_PATH}" | grep "${1}" || true
     )"
 
     if [[ -z "${_disabled_entries}" ]] &&
